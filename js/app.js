@@ -109,6 +109,20 @@ const ARTICLES_DB = [
 // Initialize Application
 function initApp() {
   state.properties = getEffectiveProperties(INITIAL_PROPERTIES);
+
+  // Check saved 48-hour JWT token
+  try {
+    const savedToken = localStorage.getItem('apnaghar_jwt_token');
+    if (savedToken) {
+      const parsed = JSON.parse(savedToken);
+      if (parsed.expiresAt && Date.now() < parsed.expiresAt) {
+        state.user = parsed;
+      } else {
+        localStorage.removeItem('apnaghar_jwt_token');
+      }
+    }
+  } catch (e) {}
+
   renderApp();
   setupEventListeners();
 
@@ -674,54 +688,59 @@ function setupEventListeners() {
       renderApp();
     }
 
-    // Auth Method Tab Switcher (Google | Phone | Email)
-    const methodTab = e.target.closest('.auth-method-tab');
-    if (methodTab) {
-      state.authMethod = methodTab.getAttribute('data-method');
-      state.phoneStep = 1;
+    // Auth Modal Role Selection Buttons (USER | DEALER | ADMIN)
+    const roleSelectBtn = e.target.closest('.auth-role-select-btn');
+    if (roleSelectBtn) {
+      state.authRole = roleSelectBtn.getAttribute('data-role');
       renderApp();
     }
 
-    // Send Phone OTP Button
-    if (e.target.closest('#send-otp-btn')) {
-      const phoneInput = document.getElementById('phone-number-input')?.value;
-      if (phoneInput) state.tempPhone = phoneInput;
-      state.phoneStep = 2;
-      showToast(`📲 Verification code 482910 sent to ${state.tempPhone}`);
+    if (e.target.closest('#toggle-login-mode-btn')) {
+      state.authIsSignup = false;
       renderApp();
     }
 
-    // Verify Phone OTP Button
-    if (e.target.closest('#verify-otp-btn')) {
-      state.user = { name: 'Chaudhry Kamran', phone: state.tempPhone, role: 'dealer' };
-      state.showAuthModal = false;
-      state.phoneStep = 1;
-      showToast(`✅ Phone verified! Signed in as ${state.tempPhone}`);
+    if (e.target.closest('#toggle-signup-mode-btn')) {
+      state.authIsSignup = true;
       renderApp();
     }
 
-    if (e.target.closest('#change-phone-btn')) {
-      state.phoneStep = 1;
-      renderApp();
-    }
+    // Email & Password Auth Form Submit
+    if (e.target.id === 'email-auth-form' || e.target.closest('#email-auth-form')) {
+      if (e.type === 'submit' || e.target.closest('#auth-submit-btn')) {
+        e.preventDefault();
+        const role = state.authRole || 'DEALER';
+        const emailInput = document.getElementById('auth-email-input')?.value || 'user@apnaghar.pk';
+        const nameInput = document.getElementById('auth-full-name')?.value || (role === 'DEALER' ? 'Chaudhry Kamran' : (role === 'ADMIN' ? 'System Administrator' : 'Usman Malik'));
+        const phoneInput = document.getElementById('auth-phone-num')?.value || '+92 300 8472910';
 
-    // Google Sign-In Handler
-    if (e.target.closest('#google-signin-btn')) {
-      state.user = { name: 'Usman Malik', role: 'dealer', email: 'usman.malik@gmail.com' };
-      state.showAuthModal = false;
-      showToast('G Signed in successfully with Google! Welcome Usman Malik.');
-      renderApp();
-    }
+        const tokenPayload = {
+          userId: `user-${Date.now()}`,
+          name: nameInput,
+          email: emailInput,
+          role,
+          phone: phoneInput,
+          issuedAt: Date.now(),
+          expiresAt: Date.now() + (48 * 60 * 60 * 1000) // 48 Hours Expiry
+        };
 
-    // Auth Role Switcher Button
-    const authRoleBtn = e.target.closest('.auth-role-btn');
-    if (authRoleBtn) {
-      document.querySelectorAll('.auth-role-btn').forEach(b => {
-        b.classList.remove('btn-dark', 'active');
-        b.classList.add('btn-ghost');
-      });
-      authRoleBtn.classList.remove('btn-ghost');
-      authRoleBtn.classList.add('btn-dark', 'active');
+        localStorage.setItem('apnaghar_jwt_token', JSON.stringify(tokenPayload));
+        state.user = tokenPayload;
+        state.showAuthModal = false;
+
+        if (role === 'DEALER') {
+          state.activeTab = 'dealer';
+          showToast(`📊 Signed in as DEALER (${nameInput}). 48h JWT Issued!`);
+        } else if (role === 'ADMIN') {
+          state.activeTab = 'dealer';
+          showToast(`🛡️ Signed in as ADMIN (${nameInput}). 48h JWT Issued!`);
+        } else {
+          state.activeTab = 'buy';
+          showToast(`🏠 Signed in as USER (${nameInput}). Welcome!`);
+        }
+
+        renderApp();
+      }
     }
 
     // Financial Tools Sub-tabs

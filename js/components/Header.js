@@ -75,11 +75,25 @@ export function renderHeader(state, onStateChange) {
               <li><a href="#" class="${activeTab === 'projects' ? 'active' : ''}" data-nav="projects">Megaprojects</a></li>
               <li><a href="#" class="${activeTab === 'tools' ? 'active' : ''}" data-nav="tools">Calculators & Tools</a></li>
               <li><a href="#" class="${activeTab === 'agents' ? 'active' : ''}" data-nav="agents">Agents Directory</a></li>
-              <li>
-                <a href="#" class="${activeTab === 'dealer' ? 'active' : ''}" data-nav="dealer">
-                  Dealer Portal CRM <span class="dealer-nav-badge">LIVE</span>
-                </a>
-              </li>
+              ${state.user?.role === 'ADMIN' ? `
+                <li>
+                  <a href="#" class="${activeTab === 'dealer' ? 'active' : ''}" data-nav="dealer">
+                    🛡️ Admin Portal <span class="dealer-nav-badge" style="background:#EF4444;">SUPERVISOR</span>
+                  </a>
+                </li>
+              ` : (state.user?.role === 'DEALER' ? `
+                <li>
+                  <a href="#" class="${activeTab === 'dealer' ? 'active' : ''}" data-nav="dealer">
+                    Dealer Portal CRM <span class="dealer-nav-badge">DEALER</span>
+                  </a>
+                </li>
+              ` : `
+                <li>
+                  <a href="#" id="header-dealer-join-btn" class="${activeTab === 'dealer' ? 'active' : ''}" data-nav="dealer">
+                    Become a Dealer
+                  </a>
+                </li>
+              `)}
             </ul>
           </nav>
 
@@ -93,7 +107,7 @@ export function renderHeader(state, onStateChange) {
 
             <!-- User Auth Trigger -->
             <button class="btn btn-ghost btn-sm btn-hide-mobile" id="open-auth-btn" style="padding:7px 14px; font-size:0.8rem;">
-              ${renderIcon('user', 14)} ${userName}
+              ${renderIcon('user', 14)} ${userName} (${state.user?.role || 'GUEST'})
             </button>
 
             <!-- Mobile Hamburger Toggle -->
@@ -109,9 +123,10 @@ export function renderHeader(state, onStateChange) {
           <a href="#" class="${activeTab === 'rent' ? 'active' : ''}" data-nav="rent">🔑 Rental Properties</a>
           <a href="#" class="${activeTab === 'projects' ? 'active' : ''}" data-nav="projects">🏗️ Housing Megaprojects</a>
           <a href="#" class="${activeTab === 'tools' ? 'active' : ''}" data-nav="tools">🧮 Calculators & Land Tools</a>
-          <a href="#" class="${activeTab === 'agents' ? 'active' : ''}" data-nav="agents">🤝 Agents & Broker Directory</a>
-          <a href="#" class="${activeTab === 'dealer' ? 'active' : ''}" data-nav="dealer">📊 Dealer Portal CRM</a>
-          <a href="#" id="mobile-open-auth-btn">👤 Account (${userName})</a>
+          <a href="#" class="${activeTab === 'agents' ? 'active' : ''}" data-nav="agents">🤝 Agents Directory</a>
+          ${state.user?.role === 'DEALER' ? `<a href="#" class="${activeTab === 'dealer' ? 'active' : ''}" data-nav="dealer">📊 Dealer Portal CRM</a>` : ''}
+          ${state.user?.role === 'ADMIN' ? `<a href="#" class="${activeTab === 'dealer' ? 'active' : ''}" data-nav="dealer">🛡️ Admin Portal</a>` : ''}
+          <a href="#" id="mobile-open-auth-btn">👤 ${userName} (${state.user?.role || 'GUEST'})</a>
         </div>
       </div>
     </header>
