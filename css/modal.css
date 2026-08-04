@@ -1,0 +1,267 @@
+/* Modal Overlays & Mobile Optimized Styling for Apna Ghar */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(19, 29, 12, 0.82);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-container {
+  background-color: var(--paper);
+  border-radius: 12px;
+  max-width: 850px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-xl);
+  border: 2px solid var(--forest-dk);
+  position: relative;
+  transform: translateY(20px);
+  transition: transform 0.25s ease;
+}
+
+@media (max-width: 600px) {
+  .modal-container {
+    width: 95vw;
+    max-height: 88vh;
+    border-radius: 10px;
+  }
+}
+
+.modal-overlay.active .modal-container {
+  transform: translateY(0);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.15rem 1.5rem;
+  border-bottom: 2px solid var(--forest-dk);
+  background-color: var(--cream);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.modal-title {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--forest-dk);
+}
+
+.close-modal-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--forest-dk);
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-modal-btn:hover {
+  background-color: var(--border-dk);
+  color: var(--forest-dk);
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+@media (max-width: 600px) {
+  .modal-body {
+    padding: 1.15rem;
+  }
+}
+
+/* Auth Role Buttons Responsive Stack */
+.auth-role-container {
+  display: flex;
+  gap: 0.5rem;
+}
+
+@media (max-width: 480px) {
+  .auth-role-container {
+    flex-direction: column;
+  }
+}
+
+.auth-role-btn {
+  padding: 0.65rem 0.5rem;
+  font-size: 0.78rem;
+  white-space: normal;
+  text-align: center;
+  line-height: 1.25;
+}
+
+/* Fix Input Overlap for Extension Icons */
+.form-control {
+  width: 100%;
+  padding: 0.75rem 2.8rem 0.75rem 1rem; /* Right padding prevents extension icon collision */
+  border: 2px solid var(--border-dk);
+  border-radius: 4px;
+  font-size: 0.92rem;
+  font-family: var(--font-body);
+  background-color: var(--cream);
+  color: var(--ink);
+  font-weight: 600;
+  box-sizing: border-box;
+}
+
+.form-control:focus {
+  border-color: var(--rani);
+  background-color: var(--paper);
+}
+
+/* Post Property Wizard Stepper */
+.wizard-stepper {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.wizard-stepper::before {
+  content: '';
+  position: absolute;
+  top: 18px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: var(--border-dk);
+  z-index: 1;
+}
+
+.step-item {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.step-circle {
+  width: 2.3rem;
+  height: 2.3rem;
+  border-radius: 50%;
+  background-color: var(--paper);
+  border: 2.5px solid var(--border-dk);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--forest);
+}
+
+.step-item.active .step-circle {
+  background-color: var(--rani);
+  border-color: var(--rani);
+  color: var(--paper);
+}
+
+.step-item.completed .step-circle {
+  background-color: var(--forest-dk);
+  border-color: var(--forest-dk);
+  color: var(--marigold);
+}
+
+.step-label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--forest);
+}
+
+@media (max-width: 500px) {
+  .step-label {
+    display: none;
+  }
+}
+
+.step-item.active .step-label {
+  color: var(--rani);
+}
+
+/* Form Grid */
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+@media (max-width: 600px) {
+  .form-grid-2 {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--forest-dk);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+@media (max-width: 600px) {
+  .checkbox-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--forest-dk);
+}
+
+.modal-footer {
+  padding: 1.15rem 1.5rem;
+  border-top: 2px solid var(--forest-dk);
+  display: flex;
+  justify-content: space-between;
+  background-color: var(--cream);
+}

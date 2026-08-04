@@ -1,0 +1,87 @@
+/* Leaflet Map Visual Styling */
+.map-view-container {
+  position: sticky;
+  top: 5.5rem;
+  height: 680px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-light);
+  background-color: #E2E8F0;
+  z-index: 10;
+}
+
+#leaflet-map {
+  width: 100%;
+  height: 100%;
+}
+
+.map-price-badge {
+  background: var(--primary-emerald);
+  color: white;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-full);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 800;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+  border: 2px solid var(--gold-accent);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.map-price-badge:hover {
+  transform: scale(1.1);
+  background-color: var(--emerald-teal);
+}
+
+/* Custom Leaflet Popup */
+.leaflet-popup-content-wrapper {
+  padding: 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  width: 240px !important;
+}
+
+.map-popup-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.map-popup-img {
+  width: 100%;
+  height: 110px;
+  object-fit: cover;
+}
+
+.map-popup-info {
+  padding: 0.75rem;
+}
+
+.map-popup-price {
+  font-weight: 800;
+  color: var(--primary-emerald);
+  font-size: 1rem;
+}
+
+.map-popup-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0.35rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.map-popup-location {
+  font-size: 0.73rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
