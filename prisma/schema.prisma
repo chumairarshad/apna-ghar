@@ -1,0 +1,105 @@
+// Prisma Database Schema for Neon PostgreSQL
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  USER
+  DEALER
+  ADMIN
+}
+
+enum PropertyStatus {
+  AVAILABLE
+  SOLD
+  PENDING
+}
+
+enum Purpose {
+  SALE
+  RENT
+}
+
+enum Category {
+  HOUSE
+  APARTMENT
+  PLOT
+  COMMERCIAL
+}
+
+model User {
+  id           String     @id @default(uuid())
+  email        String     @unique
+  password     String
+  name         String
+  phone        String?
+  role         Role       @default(USER)
+  agencyName   String?
+  city         String?
+  isVerified   Boolean    @default(false)
+  badge        String?    @default("VERIFIED")
+  
+  // Relations
+  properties   Property[]
+  leads        Lead[]     @relation("DealerLeads")
+
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@map("users")
+}
+
+model Property {
+  id          String         @id @default(uuid())
+  dealerId    String
+  dealer      User           @relation(fields: [dealerId], references: [id], onDelete: Cascade)
+  
+  title       String
+  description String         @db.Text
+  price       BigInt
+  sizeMarla   Float
+  bedrooms    Int            @default(0)
+  bathrooms   Int            @default(0)
+  city        String
+  location    String
+  address     String
+  purpose     Purpose        @default(SALE)
+  category    Category       @default(HOUSE)
+  status      PropertyStatus @default(AVAILABLE)
+  
+  images      String[]       @default([])
+  features    String[]       @default([])
+  viewsCount  Int            @default(0)
+
+  // Relations
+  leads       Lead[]
+
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@map("properties")
+}
+
+model Lead {
+  id          String    @id @default(uuid())
+  dealerId    String
+  dealer      User      @relation("DealerLeads", fields: [dealerId], references: [id], onDelete: Cascade)
+  
+  propertyId  String?
+  property    Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  
+  clientName  String
+  clientPhone String
+  clientEmail String?
+  message     String    @db.Text
+  status      String    @default("new")
+
+  createdAt   DateTime  @default(now())
+
+  @@map("leads")
+}
