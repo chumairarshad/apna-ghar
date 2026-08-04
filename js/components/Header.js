@@ -105,10 +105,19 @@ export function renderHeader(state, onStateChange) {
               ${favoritesCount > 0 ? `<span class="badge-count">${favoritesCount}</span>` : ''}
             </button>
 
-            <!-- User Auth Trigger -->
-            <button class="btn btn-ghost btn-sm btn-hide-mobile" id="open-auth-btn" style="padding:7px 14px; font-size:0.8rem;">
-              ${renderIcon('user', 14)} ${userName} (${state.user?.role || 'GUEST'})
-            </button>
+            <!-- User Auth & Logout Controls -->
+            ${state.user ? `
+              <button class="btn btn-ghost btn-sm btn-hide-mobile" id="open-auth-btn" style="padding:7px 12px; font-size:0.8rem;">
+                ${renderIcon('user', 14)} ${userName} (${state.user.role})
+              </button>
+              <button class="btn btn-danger btn-sm" id="logout-btn" style="padding:6px 12px; font-size:0.78rem; background:#EF4444; color:white; border:none; border-radius:6px; cursor:pointer;" title="Sign Out">
+                🚪 Logout
+              </button>
+            ` : `
+              <button class="btn btn-primary btn-sm btn-hide-mobile" id="open-auth-btn" style="padding:7px 14px; font-size:0.8rem;">
+                ${renderIcon('user', 14)} Sign In / Join
+              </button>
+            `}
 
             <!-- Mobile Hamburger Toggle -->
             <button class="mobile-hamburger-btn" id="toggle-mobile-menu-btn" title="Toggle Navigation Menu">
@@ -126,7 +135,11 @@ export function renderHeader(state, onStateChange) {
           <a href="#" class="${activeTab === 'agents' ? 'active' : ''}" data-nav="agents">🤝 Agents Directory</a>
           ${state.user?.role === 'DEALER' ? `<a href="#" class="${activeTab === 'dealer' ? 'active' : ''}" data-nav="dealer">📊 Dealer Portal CRM</a>` : ''}
           ${state.user?.role === 'ADMIN' ? `<a href="#" class="${activeTab === 'dealer' ? 'active' : ''}" data-nav="dealer">🛡️ Admin Portal</a>` : ''}
-          <a href="#" id="mobile-open-auth-btn">👤 ${userName} (${state.user?.role || 'GUEST'})</a>
+          ${state.user ? `
+            <a href="#" id="mobile-logout-btn" style="color:#EF4444 !important; font-weight:700;">🚪 Sign Out (${userName})</a>
+          ` : `
+            <a href="#" id="mobile-open-auth-btn">👤 Sign In / Create Account</a>
+          `}
         </div>
       </div>
     </header>

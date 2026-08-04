@@ -501,9 +501,27 @@ function setupEventListeners() {
       renderApp();
     }
 
+    // Logout Handler
+    if (e.target.closest('#logout-btn') || e.target.closest('#mobile-logout-btn')) {
+      e.preventDefault();
+      localStorage.removeItem('apnaghar_jwt_token');
+      state.user = null;
+      state.activeTab = 'buy';
+      showToast('🔒 Logged out successfully.');
+      renderApp();
+    }
+
     // Post Property Modal Controls
     if (e.target.closest('#open-post-property-btn') || e.target.closest('#dealer-post-btn') || e.target.id === 'footer-link-post') {
       e.preventDefault();
+      if (state.user?.role !== 'DEALER' && state.user?.role !== 'ADMIN') {
+        showToast('⚠️ Only verified Dealers can post properties. Please sign in as a Dealer.');
+        state.showAuthModal = true;
+        state.authRole = 'DEALER';
+        state.authIsSignup = true;
+        renderApp();
+        return;
+      }
       state.editingProperty = null;
       state.showPostWizard = true;
       state.wizardStep = 1;

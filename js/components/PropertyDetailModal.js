@@ -103,12 +103,14 @@ export function renderPropertyDetailModal(state) {
             </div>
 
             <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
-              <button type="button" class="btn btn-secondary btn-sm modal-edit-prop-btn" data-id="${prop.id}" style="padding:10px 18px; font-size:0.88rem; background:var(--emerald-teal); color:white; border:none; cursor:pointer;">
-                ✏️ Edit Listing
-              </button>
-              <button type="button" class="btn btn-danger btn-sm modal-delete-prop-btn" data-id="${prop.id}" style="padding:10px 18px; font-size:0.88rem; background:#EF4444; color:white; border:none; cursor:pointer;">
-                🗑️ Delete Listing
-              </button>
+              ${(state.user?.role === 'DEALER' || state.user?.role === 'ADMIN') ? `
+                <button type="button" class="btn btn-secondary btn-sm modal-edit-prop-btn" data-id="${prop.id}" style="padding:10px 18px; font-size:0.88rem; background:var(--emerald-teal); color:white; border:none; cursor:pointer;">
+                  ✏️ Edit Listing
+                </button>
+                <button type="button" class="btn btn-danger btn-sm modal-delete-prop-btn" data-id="${prop.id}" style="padding:10px 18px; font-size:0.88rem; background:#EF4444; color:white; border:none; cursor:pointer;">
+                  🗑️ Delete Listing
+                </button>
+              ` : ''}
               <button type="button" class="btn btn-marigold btn-sm schedule-btn" data-id="${prop.id}" style="padding:10px 18px; font-size:0.88rem;">
                 ${renderIcon('calendar', 16)} Book Visit
               </button>
