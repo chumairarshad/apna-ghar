@@ -16,24 +16,36 @@
   height: 100%;
 }
 
+/* Remove Leaflet's default white box & border on divIcon */
+.custom-map-icon {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
 .map-price-badge {
-  background: var(--primary-emerald);
-  color: white;
-  padding: 0.25rem 0.65rem;
-  border-radius: var(--radius-full);
-  font-family: 'Outfit', sans-serif;
-  font-size: 0.78rem;
+  background: #064E3B !important; /* Rich Dark Emerald */
+  color: #FFFFFF !important; /* Ultra sharp white text */
+  padding: 0.35rem 0.75rem;
+  border-radius: 50px;
+  font-family: 'Work Sans', system-ui, sans-serif;
+  font-size: 0.82rem;
   font-weight: 800;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-  border: 2px solid var(--gold-accent);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+  border: 2px solid #F59E0B; /* Vibrant Gold border for high visibility */
   white-space: nowrap;
   cursor: pointer;
-  transition: transform 0.2s ease;
+  display: inline-block;
+  text-align: center;
+  line-height: 1.2;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+  transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
 .map-price-badge:hover {
-  transform: scale(1.1);
-  background-color: var(--emerald-teal);
+  transform: scale(1.12);
+  background: #047857 !important;
+  border-color: #FBBF24;
 }
 
 /* Custom Leaflet Popup */

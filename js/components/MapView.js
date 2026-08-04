@@ -33,8 +33,8 @@ export function initLeafletMap(properties, onPropertySelect) {
         const customPriceMarker = L.divIcon({
           className: 'custom-map-icon',
           html: `<div class="map-price-badge">${formatPKR(prop.price)}</div>`,
-          iconSize: [80, 26],
-          iconAnchor: [40, 13]
+          iconSize: null,
+          iconAnchor: [55, 15]
         });
 
         const popupContent = `
