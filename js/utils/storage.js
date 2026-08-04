@@ -25,6 +25,69 @@ export function toggleFavorite(propertyId) {
   return updated;
 }
 
+const MODIFIED_PROPERTIES_KEY = "apnaghar_modified_properties";
+const DELETED_PROPERTIES_KEY = "apnaghar_deleted_properties";
+
+export function getDeletedPropertyIds() {
+  try {
+    const data = localStorage.getItem(DELETED_PROPERTIES_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+export function deletePropertyFromStorage(id) {
+  // 1. Remove from custom properties if exists
+  const custom = getCustomProperties();
+  const updatedCustom = custom.filter(p => p.id !== id);
+  localStorage.setItem(CUSTOM_PROPERTIES_KEY, JSON.stringify(updatedCustom));
+
+  // 2. Add to deleted IDs set
+  const deleted = getDeletedPropertyIds();
+  if (!deleted.includes(id)) {
+    localStorage.setItem(DELETED_PROPERTIES_KEY, JSON.stringify([...deleted, id]));
+  }
+}
+
+export function getModifiedPropertiesMap() {
+  try {
+    const data = localStorage.getItem(MODIFIED_PROPERTIES_KEY);
+    return data ? JSON.parse(data) : {};
+  } catch (e) {
+    return {};
+  }
+}
+
+export function saveOrUpdatePropertyInStorage(property) {
+  const custom = getCustomProperties();
+  const customIdx = custom.findIndex(p => p.id === property.id);
+  
+  if (customIdx > -1) {
+    custom[customIdx] = property;
+    localStorage.setItem(CUSTOM_PROPERTIES_KEY, JSON.stringify(custom));
+  } else {
+    // Check if it's an initial property being edited or new
+    const modifiedMap = getModifiedPropertiesMap();
+    modifiedMap[property.id] = property;
+    localStorage.setItem(MODIFIED_PROPERTIES_KEY, JSON.stringify(modifiedMap));
+  }
+}
+
+export function getEffectiveProperties(initialProperties) {
+  const deletedIds = getDeletedPropertyIds();
+  const custom = getCustomProperties();
+  const modifiedMap = getModifiedPropertiesMap();
+
+  const effectiveInitial = initialProperties
+    .filter(p => !deletedIds.includes(p.id))
+    .map(p => modifiedMap[p.id] ? { ...p, ...modifiedMap[p.id] } : p);
+
+  const effectiveCustom = custom.filter(p => !deletedIds.includes(p.id));
+
+  return [...effectiveCustom, ...effectiveInitial];
+}
+
 export function getCustomProperties() {
   try {
     const data = localStorage.getItem(CUSTOM_PROPERTIES_KEY);

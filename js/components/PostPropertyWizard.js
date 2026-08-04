@@ -3,12 +3,17 @@ import { CITIES_DATA, PROPERTY_TYPES } from '../data/cities.js';
 export function renderPostPropertyModal(state) {
   const currentStep = state.wizardStep || 1;
   const isVisible = state.showPostWizard || false;
+  const editingProp = state.editingProperty || null;
 
   return `
     <div class="modal-overlay ${isVisible ? 'active' : ''}" id="post-wizard-overlay">
       <div class="modal-container">
         <div class="modal-header">
-          <h3 class="modal-title"><i data-lucide="plus-circle" style="width:22px; height:22px; color:var(--emerald-teal); vertical-align:middle;"></i> Post Property FREE on Apna Ghar</h3>
+          <h3 class="modal-title">
+            ${editingProp 
+              ? `<i data-lucide="edit" style="width:22px; height:22px; color:var(--emerald-teal); vertical-align:middle;"></i> Edit Property Listing` 
+              : `<i data-lucide="plus-circle" style="width:22px; height:22px; color:var(--emerald-teal); vertical-align:middle;"></i> Post Property FREE on Apna Ghar`}
+          </h3>
           <button class="close-modal-btn" id="close-wizard-btn">&times;</button>
         </div>
 
@@ -29,16 +34,16 @@ export function renderPostPropertyModal(state) {
             </div>
             <div class="step-item ${currentStep === 4 ? 'active' : ''}">
               <div class="step-circle">4</div>
-              <span class="step-label">Photos & Publish</span>
+              <span class="step-label">${editingProp ? 'Review & Save' : 'Photos & Publish'}</span>
             </div>
           </div>
 
           <!-- Form Step Content -->
           <form id="post-property-form">
-            ${currentStep === 1 ? renderWizardStep1() : ''}
-            ${currentStep === 2 ? renderWizardStep2() : ''}
-            ${currentStep === 3 ? renderWizardStep3() : ''}
-            ${currentStep === 4 ? renderWizardStep4() : ''}
+            ${currentStep === 1 ? renderWizardStep1(editingProp) : ''}
+            ${currentStep === 2 ? renderWizardStep2(editingProp) : ''}
+            ${currentStep === 3 ? renderWizardStep3(editingProp) : ''}
+            ${currentStep === 4 ? renderWizardStep4(editingProp) : ''}
           </form>
         </div>
 
@@ -50,7 +55,9 @@ export function renderPostPropertyModal(state) {
           ${currentStep < 4 ? `
             <button type="button" class="btn btn-primary" id="wizard-next-btn">Next Step</button>
           ` : `
-            <button type="button" class="btn btn-gold" id="wizard-submit-btn">Publish Property Live</button>
+            <button type="button" class="btn btn-gold" id="wizard-submit-btn">
+              ${editingProp ? '💾 Save Changes' : '🚀 Publish Property Live'}
+            </button>
           `}
         </div>
       </div>
@@ -58,16 +65,19 @@ export function renderPostPropertyModal(state) {
   `;
 }
 
-function renderWizardStep1() {
+function renderWizardStep1(prop) {
+  const purpose = prop ? prop.purpose : 'sale';
+  const category = prop ? prop.category : (PROPERTY_TYPES[0] ? PROPERTY_TYPES[0].id : 'house');
+
   return `
     <div class="form-group">
       <label>Property Purpose</label>
       <div style="display:flex; gap:1rem;">
         <label class="checkbox-label" style="background:var(--bg-main); padding:0.75rem 1.5rem; border-radius:8px; border:1px solid var(--border-light); width:100%;">
-          <input type="radio" name="wiz_purpose" value="sale" checked /> For Sale
+          <input type="radio" name="wiz_purpose" value="sale" ${purpose === 'sale' ? 'checked' : ''} /> For Sale
         </label>
         <label class="checkbox-label" style="background:var(--bg-main); padding:0.75rem 1.5rem; border-radius:8px; border:1px solid var(--border-light); width:100%;">
-          <input type="radio" name="wiz_purpose" value="rent" /> For Rent
+          <input type="radio" name="wiz_purpose" value="rent" ${purpose === 'rent' ? 'checked' : ''} /> For Rent
         </label>
       </div>
     </div>
@@ -75,90 +85,104 @@ function renderWizardStep1() {
     <div class="form-group">
       <label>Property Category</label>
       <select id="wiz_category" class="form-control">
-        ${PROPERTY_TYPES.map(t => `<option value="${t.id}">${t.name}</option>`).join('')}
+        ${PROPERTY_TYPES.map(t => `<option value="${t.id}" ${category.toLowerCase() === t.id.toLowerCase() || category.toLowerCase() === t.name.toLowerCase() ? 'selected' : ''}>${t.name}</option>`).join('')}
       </select>
     </div>
   `;
 }
 
-function renderWizardStep2() {
+function renderWizardStep2(prop) {
+  const city = prop ? prop.city : 'Lahore';
+  const location = prop ? prop.location : '';
+  const address = prop ? (prop.address || prop.location) : '';
+
   return `
     <div class="form-grid-2">
       <div class="form-group">
         <label>City</label>
         <select id="wiz_city" class="form-control">
-          ${CITIES_DATA.map(c => `<option value="${c.name}">${c.name}</option>`).join('')}
+          ${CITIES_DATA.map(c => `<option value="${c.name}" ${city === c.name ? 'selected' : ''}>${c.name}</option>`).join('')}
         </select>
       </div>
 
       <div class="form-group">
         <label>Society / Phase</label>
-        <input type="text" id="wiz_location" class="form-control" placeholder="e.g. DHA Phase 6, Sector MB" required />
+        <input type="text" id="wiz_location" class="form-control" value="${location}" placeholder="e.g. DHA Phase 6, Sector MB" required />
       </div>
     </div>
 
     <div class="form-group">
       <label>Full Address / House Number</label>
-      <input type="text" id="wiz_address" class="form-control" placeholder="e.g. House 142, Street 18..." required />
+      <input type="text" id="wiz_address" class="form-control" value="${address}" placeholder="e.g. House 142, Street 18..." required />
     </div>
   `;
 }
 
-function renderWizardStep3() {
+function renderWizardStep3(prop) {
+  const price = prop ? prop.price : '';
+  const size = prop ? (prop.areaSize || prop.size || 10) : '';
+  const beds = prop ? (prop.bedrooms !== undefined ? prop.bedrooms : 4) : 4;
+  const baths = prop ? (prop.bathrooms !== undefined ? prop.bathrooms : 5) : 5;
+  const features = prop && prop.features ? prop.features : ['Solar Power Backup', 'Servant Quarter', 'Gas Connection', 'CCTV & Security'];
+
   return `
     <div class="form-grid-2">
       <div class="form-group">
         <label>Asking Price (PKR)</label>
-        <input type="number" id="wiz_price" class="form-control" placeholder="e.g. 35000000 (3.5 Crore)" required />
+        <input type="number" id="wiz_price" class="form-control" value="${price}" placeholder="e.g. 35000000 (3.5 Crore)" required />
       </div>
 
       <div class="form-group">
         <label>Area Size (in Marla)</label>
-        <input type="number" id="wiz_size" class="form-control" placeholder="e.g. 10" required />
+        <input type="number" id="wiz_size" class="form-control" value="${size}" placeholder="e.g. 10" required />
       </div>
     </div>
 
     <div class="form-grid-2">
       <div class="form-group">
         <label>Bedrooms</label>
-        <input type="number" id="wiz_beds" class="form-control" value="4" />
+        <input type="number" id="wiz_beds" class="form-control" value="${beds}" />
       </div>
 
       <div class="form-group">
         <label>Bathrooms</label>
-        <input type="number" id="wiz_baths" class="form-control" value="5" />
+        <input type="number" id="wiz_baths" class="form-control" value="${baths}" />
       </div>
     </div>
 
     <div class="form-group">
       <label>Amenities & Features</label>
       <div class="checkbox-grid">
-        <label class="checkbox-label"><input type="checkbox" id="wiz_feat_solar" checked /> Solar Power Backup</label>
-        <label class="checkbox-label"><input type="checkbox" id="wiz_feat_servant" checked /> Servant Quarter</label>
-        <label class="checkbox-label"><input type="checkbox" id="wiz_feat_corner" /> Corner Plot</label>
-        <label class="checkbox-label"><input type="checkbox" id="wiz_feat_gas" checked /> Gas Connection</label>
-        <label class="checkbox-label"><input type="checkbox" id="wiz_feat_park" /> Park Facing</label>
-        <label class="checkbox-label"><input type="checkbox" id="wiz_feat_cctv" checked /> CCTV & Security</label>
+        <label class="checkbox-label"><input type="checkbox" id="wiz_feat_solar" ${features.some(f => f.toLowerCase().includes('solar')) ? 'checked' : ''} /> Solar Power Backup</label>
+        <label class="checkbox-label"><input type="checkbox" id="wiz_feat_servant" ${features.some(f => f.toLowerCase().includes('servant')) ? 'checked' : ''} /> Servant Quarter</label>
+        <label class="checkbox-label"><input type="checkbox" id="wiz_feat_corner" ${features.some(f => f.toLowerCase().includes('corner')) ? 'checked' : ''} /> Corner Plot</label>
+        <label class="checkbox-label"><input type="checkbox" id="wiz_feat_gas" ${features.some(f => f.toLowerCase().includes('gas')) ? 'checked' : ''} /> Gas Connection</label>
+        <label class="checkbox-label"><input type="checkbox" id="wiz_feat_park" ${features.some(f => f.toLowerCase().includes('park')) ? 'checked' : ''} /> Park Facing</label>
+        <label class="checkbox-label"><input type="checkbox" id="wiz_feat_cctv" ${features.some(f => f.toLowerCase().includes('cctv') || f.toLowerCase().includes('security')) ? 'checked' : ''} /> CCTV & Security</label>
       </div>
     </div>
   `;
 }
 
-function renderWizardStep4() {
+function renderWizardStep4(prop) {
+  const title = prop ? prop.title : '';
+  const desc = prop ? prop.description : '';
+  const img = prop && prop.images && prop.images[0] ? prop.images[0] : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80';
+
   return `
     <div class="form-group">
       <label>Property Title</label>
-      <input type="text" id="wiz_title" class="form-control" placeholder="e.g. 10 Marla Brand New Modern House for Sale..." required />
+      <input type="text" id="wiz_title" class="form-control" value="${title}" placeholder="e.g. 10 Marla Brand New Modern House for Sale..." required />
     </div>
 
     <div class="form-group">
       <label>Description</label>
-      <textarea id="wiz_desc" class="form-control" rows="3" placeholder="Provide details about imported fittings, gas connection, solar backup, etc..."></textarea>
+      <textarea id="wiz_desc" class="form-control" rows="3" placeholder="Provide details about imported fittings, gas connection, solar backup, etc...">${desc}</textarea>
     </div>
 
     <div class="form-group">
       <label>Main Image URL</label>
-      <input type="text" id="wiz_image" class="form-control" value="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80" />
+      <input type="text" id="wiz_image" class="form-control" value="${img}" />
     </div>
   `;
 }

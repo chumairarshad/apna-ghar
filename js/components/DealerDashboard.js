@@ -155,12 +155,18 @@ function renderInventoryTab(properties, state) {
                   </span>
                 </td>
                 <td>
-                  <div style="display:flex; gap:0.35rem;">
-                    <button class="btn btn-secondary btn-sm toggle-sold-btn" data-id="${p.id}" style="padding:0.25rem 0.5rem; font-size:0.75rem;">
+                  <div style="display:flex; gap:0.35rem; flex-wrap:wrap;">
+                    <button class="btn btn-secondary btn-sm toggle-sold-btn" data-id="${p.id}" style="padding:0.25rem 0.45rem; font-size:0.72rem;">
                       ${p.status === 'sold' ? 'Mark Active' : 'Mark Sold'}
                     </button>
-                    <button class="btn btn-primary btn-sm edit-prop-btn" data-id="${p.id}" style="padding:0.25rem 0.5rem; font-size:0.75rem;">
-                      View
+                    <button class="btn btn-primary btn-sm edit-prop-btn" data-id="${p.id}" style="padding:0.25rem 0.45rem; font-size:0.72rem; background:var(--emerald-teal); border:none;">
+                      ✏️ Edit
+                    </button>
+                    <button class="btn btn-secondary btn-sm view-prop-btn" data-id="${p.id}" style="padding:0.25rem 0.45rem; font-size:0.72rem;">
+                      👁️ View
+                    </button>
+                    <button class="btn btn-danger btn-sm delete-prop-btn" data-id="${p.id}" style="padding:0.25rem 0.45rem; font-size:0.72rem; background:#EF4444; color:white; border:none;">
+                      🗑️ Delete
                     </button>
                   </div>
                 </td>

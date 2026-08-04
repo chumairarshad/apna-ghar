@@ -1,5 +1,5 @@
 import { INITIAL_PROPERTIES } from './data/properties.js';
-import { getFavorites, toggleFavorite, getCustomProperties, saveCustomProperty, getDealerLeads, saveDealerLeads, saveAgencyProfile } from './utils/storage.js';
+import { getFavorites, toggleFavorite, getCustomProperties, saveCustomProperty, saveOrUpdatePropertyInStorage, deletePropertyFromStorage, getEffectiveProperties, getDealerLeads, saveDealerLeads, saveAgencyProfile } from './utils/storage.js';
 import { convertArea, calculateMortgage, formatPKR } from './utils/formatters.js';
 
 import { renderHeader } from './components/Header.js';
@@ -33,6 +33,7 @@ import { renderArticleReaderModal } from './components/ArticleReaderModal.js';
 // Application State
 const state = {
   properties: [],
+  editingProperty: null,
   activeTab: 'buy', // buy | rent | projects | tools | agents | dealer | overseas
   currency: 'PKR',
   unit: 'Marla',
@@ -107,8 +108,7 @@ const ARTICLES_DB = [
 
 // Initialize Application
 function initApp() {
-  const custom = getCustomProperties();
-  state.properties = [...INITIAL_PROPERTIES, ...custom];
+  state.properties = getEffectiveProperties(INITIAL_PROPERTIES);
   renderApp();
   setupEventListeners();
 
@@ -490,6 +490,7 @@ function setupEventListeners() {
     // Post Property Modal Controls
     if (e.target.closest('#open-post-property-btn') || e.target.closest('#dealer-post-btn') || e.target.id === 'footer-link-post') {
       e.preventDefault();
+      state.editingProperty = null;
       state.showPostWizard = true;
       state.wizardStep = 1;
       renderApp();
@@ -497,6 +498,7 @@ function setupEventListeners() {
 
     if (e.target.closest('#close-wizard-btn')) {
       state.showPostWizard = false;
+      state.editingProperty = null;
       renderApp();
     }
 
@@ -514,7 +516,50 @@ function setupEventListeners() {
       }
     }
 
-    // Publish New Property Submission
+    // Edit Property Button Handler
+    const editPropBtn = e.target.closest('.edit-prop-btn') || e.target.closest('.modal-edit-prop-btn');
+    if (editPropBtn) {
+      const id = editPropBtn.getAttribute('data-id');
+      const propToEdit = state.properties.find(p => p.id === id);
+      if (propToEdit) {
+        state.editingProperty = { ...propToEdit };
+        state.showPostWizard = true;
+        state.wizardStep = 1;
+        state.selectedProperty = null; // Close detail modal if open
+        renderApp();
+      }
+    }
+
+    // View Property Button Handler in Dealer Inventory
+    const viewPropBtn = e.target.closest('.view-prop-btn');
+    if (viewPropBtn) {
+      const id = viewPropBtn.getAttribute('data-id');
+      const propToView = state.properties.find(p => p.id === id);
+      if (propToView) {
+        state.selectedProperty = propToView;
+        renderApp();
+      }
+    }
+
+    // Delete Property Button Handler
+    const deletePropBtn = e.target.closest('.delete-prop-btn') || e.target.closest('.modal-delete-prop-btn');
+    if (deletePropBtn) {
+      const id = deletePropBtn.getAttribute('data-id');
+      const propToDelete = state.properties.find(p => p.id === id);
+      const title = propToDelete ? propToDelete.title : 'this property';
+      
+      if (confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`)) {
+        deletePropertyFromStorage(id);
+        state.properties = state.properties.filter(p => p.id !== id);
+        if (state.selectedProperty && state.selectedProperty.id === id) {
+          state.selectedProperty = null;
+        }
+        showToast('🗑️ Property deleted successfully!');
+        renderApp();
+      }
+    }
+
+    // Publish / Edit Property Submission
     if (e.target.closest('#wizard-submit-btn')) {
       const title = document.getElementById('wiz_title')?.value || '10 Marla Luxury Modern House';
       const city = document.getElementById('wiz_city')?.value || 'Lahore';
@@ -527,43 +572,75 @@ function setupEventListeners() {
       const desc = document.getElementById('wiz_desc')?.value || 'Brand new construction with solar backup.';
       const img = document.getElementById('wiz_image')?.value || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80';
 
-      const newProp = {
-        id: `prop-${Date.now()}`,
-        title,
-        purpose: 'sale',
-        category: 'house',
-        city,
-        location,
-        address,
-        price,
-        sizeMarla: size,
-        bedrooms: beds,
-        bathrooms: baths,
-        builtYear: 2026,
-        facing: 'North Facing',
-        badges: ['VERIFIED', 'NEW LAUNCH'],
-        images: [img],
-        coords: [31.4722, 74.4371],
-        agency: {
-          name: 'Apna Ghar Prime Realtors',
-          agentName: 'Chaudhry Kamran',
-          phone: '+92 300 8472910',
-          whatsapp: '923008472910',
-          badge: 'PLATINUM DEALER',
-          avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80'
-        },
-        description: desc,
-        features: ['Solar Power Backup', 'Servant Quarter', 'Gas Connection'],
-        status: 'active',
-        postedDate: new Date().toISOString().split('T')[0],
-        views: 1
-      };
+      const purposeRadio = document.querySelector('input[name="wiz_purpose"]:checked');
+      const purpose = purposeRadio ? purposeRadio.value : 'sale';
+      const categorySelect = document.getElementById('wiz_category');
+      const category = categorySelect ? categorySelect.value : 'house';
 
-      saveCustomProperty(newProp);
-      state.properties = [newProp, ...state.properties];
-      state.showPostWizard = false;
-      showToast('🎉 Property published live on Apna Ghar Portal!');
-      renderApp();
+      if (state.editingProperty) {
+        // Editing existing property
+        const updatedProp = {
+          ...state.editingProperty,
+          title,
+          purpose,
+          category,
+          city,
+          location,
+          address,
+          price,
+          sizeMarla: size,
+          bedrooms: beds,
+          bathrooms: baths,
+          description: desc,
+          images: [img, ...(state.editingProperty.images ? state.editingProperty.images.slice(1) : [])]
+        };
+
+        saveOrUpdatePropertyInStorage(updatedProp);
+        state.properties = state.properties.map(p => p.id === updatedProp.id ? updatedProp : p);
+        state.showPostWizard = false;
+        state.editingProperty = null;
+        showToast('✏️ Property updated successfully!');
+        renderApp();
+      } else {
+        // Publishing new property
+        const newProp = {
+          id: `prop-${Date.now()}`,
+          title,
+          purpose,
+          category,
+          city,
+          location,
+          address,
+          price,
+          sizeMarla: size,
+          bedrooms: beds,
+          bathrooms: baths,
+          builtYear: 2026,
+          facing: 'North Facing',
+          badges: ['VERIFIED', 'NEW LAUNCH'],
+          images: [img],
+          coords: [31.4722, 74.4371],
+          agency: {
+            name: 'Apna Ghar Prime Realtors',
+            agentName: 'Chaudhry Kamran',
+            phone: '+92 300 8472910',
+            whatsapp: '923008472910',
+            badge: 'PLATINUM DEALER',
+            avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80'
+          },
+          description: desc,
+          features: ['Solar Power Backup', 'Servant Quarter', 'Gas Connection'],
+          status: 'active',
+          postedDate: new Date().toISOString().split('T')[0],
+          views: 1
+        };
+
+        saveCustomProperty(newProp);
+        state.properties = [newProp, ...state.properties];
+        state.showPostWizard = false;
+        showToast('🎉 Property published live on Apna Ghar Portal!');
+        renderApp();
+      }
     }
 
     // Favorites Drawer Toggle
