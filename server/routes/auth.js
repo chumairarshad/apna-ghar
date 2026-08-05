@@ -10,7 +10,8 @@ const JWT_SECRET = process.env.JWT_SECRET || 'apnaghar_super_secret_jwt_key_2026
 
 // 1. SIGNUP API
 // Body: { name, email, password, phone, role: 'DEALER' | 'ADMIN', agencyName, city }
-router.post('/signup', async (req, res) => {
+router.post(['/', '/signup', '/api/auth/signup'], async (req, res) => {
+
   console.log('----------------------------------------------------');
   console.log('📌 [POST /api/auth/signup] STARTING REQUEST TRACE');
   console.log('1. REQ.BODY:', JSON.stringify(req.body, null, 2));
@@ -120,7 +121,8 @@ router.post('/signup', async (req, res) => {
 
 // 2. LOGIN API
 // Body: { email, password }
-router.post('/login', async (req, res) => {
+router.post(['/login', '/api/auth/login'], async (req, res) => {
+
   try {
     const { email, password } = req.body;
     console.log(`[LOGIN STEP 1] Login request received for email: ${email}`);
