@@ -12,9 +12,10 @@ export function renderAgentDirectory() {
           <p>Connect with top certified real estate agents across DHA, Bahria Town, and major cities in Pakistan.</p>
         </div>
 
-        <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:1.75rem;">
+        <div class="agent-directory-grid">
           ${INITIAL_AGENTS.map(agent => renderProfessionalAgentCard(agent)).join('')}
         </div>
+
       </div>
     </section>
   `;

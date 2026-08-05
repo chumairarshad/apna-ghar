@@ -117,30 +117,59 @@ export function saveDealerLeads(leads) {
   localStorage.setItem(DEALER_LEADS_KEY, JSON.stringify(leads));
 }
 
-export function getAgencyProfile() {
+export function getAgencyProfile(email) {
   try {
-    const data = localStorage.getItem(AGENCY_PROFILE_KEY);
+    const key = email ? `apnaghar_profile_${email.toLowerCase().trim()}` : AGENCY_PROFILE_KEY;
+    const data = localStorage.getItem(key);
     return data ? JSON.parse(data) : null;
   } catch (e) {
     return null;
   }
 }
 
-export function saveAgencyProfile(profile) {
+export function saveAgencyProfile(profile, email) {
+  const targetEmail = email || profile?.email;
+  if (targetEmail) {
+    const key = `apnaghar_profile_${targetEmail.toLowerCase().trim()}`;
+    localStorage.setItem(key, JSON.stringify(profile));
+  }
   localStorage.setItem(AGENCY_PROFILE_KEY, JSON.stringify(profile));
 }
+
 
 const DEALERS_LIST_KEY = "apnaghar_dealers_list";
 
 export function getDealersFromStorage(initialAgents = []) {
   try {
-    const data = localStorage.getItem(DEALERS_LIST_KEY);
-    return data ? JSON.parse(data) : initialAgents;
+    const regUsersData = localStorage.getItem('apnaghar_registered_users');
+    const registeredUsers = regUsersData ? JSON.parse(regUsersData) : [];
+    if (registeredUsers && registeredUsers.length > 0) {
+      return registeredUsers.map(u => ({
+        id: u.userId || u.id || `dealer-${u.email}`,
+        name: u.agencyName || u.name,
+        leadPerson: u.name,
+        city: u.city || 'Lahore',
+        office: u.address || 'Main Office',
+        phone: u.phone || '+92 300 0000000',
+        whatsapp: u.whatsapp || (u.phone ? u.phone.replace(/[^0-9]/g, '') : '923000000000'),
+        email: u.email,
+        badge: u.badge || (u.role === 'ADMIN' ? 'SUPER_ADMIN' : 'VERIFIED DEALER'),
+        rating: 5.0,
+        reviewsCount: 1,
+        activeListingsCount: 0,
+        avatar: u.avatar || u.logo || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&q=80',
+        isSuspended: u.isSuspended || false,
+        specialities: [u.city || 'Pakistan Real Estate']
+      }));
+    }
+    return initialAgents;
   } catch (e) {
     return initialAgents;
   }
 }
 
+
 export function saveDealersToStorage(dealers) {
   localStorage.setItem(DEALERS_LIST_KEY, JSON.stringify(dealers));
 }
+

@@ -1,3 +1,5 @@
+import { CITIES_DATA, PROPERTY_TYPES } from '../data/cities.js';
+
 export function renderPostPropertyModal(state) {
   const currentStep = state.wizardStep || 1;
   const isVisible = state.showPostWizard || false;
@@ -60,7 +62,7 @@ export function renderPostPropertyModal(state) {
           ` : '<div></div>'}
           
           ${currentStep < 4 ? `
-            <button type="button" class="btn btn-primary" id="wizard-next-btn">Next Step</button>
+            <button type="button" class="btn btn-primary" id="wizard-next-btn">Next Step →</button>
           ` : `
             <button type="button" class="btn btn-gold" id="wizard-submit-btn">
               ${editingProp ? '💾 Save Changes' : '🚀 Publish Property Live'}
@@ -78,20 +80,20 @@ function renderWizardStep1(prop) {
 
   return `
     <div class="form-group">
-      <label>Property Purpose</label>
+      <label style="font-weight: 700;">Property Purpose <span style="color:red;">* Required</span></label>
       <div style="display:flex; gap:1rem;">
         <label class="checkbox-label" style="background:var(--bg-main); padding:0.75rem 1.5rem; border-radius:8px; border:1px solid var(--border-light); width:100%;">
-          <input type="radio" name="wiz_purpose" value="sale" ${purpose === 'sale' ? 'checked' : ''} /> For Sale
+          <input type="radio" name="wiz_purpose" value="sale" ${purpose === 'sale' ? 'checked' : ''} required /> For Sale
         </label>
         <label class="checkbox-label" style="background:var(--bg-main); padding:0.75rem 1.5rem; border-radius:8px; border:1px solid var(--border-light); width:100%;">
-          <input type="radio" name="wiz_purpose" value="rent" ${purpose === 'rent' ? 'checked' : ''} /> For Rent
+          <input type="radio" name="wiz_purpose" value="rent" ${purpose === 'rent' ? 'checked' : ''} required /> For Rent
         </label>
       </div>
     </div>
 
     <div class="form-group">
-      <label>Property Category</label>
-      <select id="wiz_category" class="form-control">
+      <label style="font-weight: 700;">Property Category <span style="color:red;">* Required</span></label>
+      <select id="wiz_category" class="form-control" required>
         ${PROPERTY_TYPES.map(t => `<option value="${t.id}" ${category.toLowerCase() === t.id.toLowerCase() || category.toLowerCase() === t.name.toLowerCase() ? 'selected' : ''}>${t.name}</option>`).join('')}
       </select>
     </div>
@@ -106,21 +108,21 @@ function renderWizardStep2(prop) {
   return `
     <div class="form-grid-2">
       <div class="form-group">
-        <label>City</label>
-        <select id="wiz_city" class="form-control">
+        <label style="font-weight: 700;">City <span style="color:red;">* Required</span></label>
+        <select id="wiz_city" class="form-control" required>
           ${CITIES_DATA.map(c => `<option value="${c.name}" ${city === c.name ? 'selected' : ''}>${c.name}</option>`).join('')}
         </select>
       </div>
 
       <div class="form-group">
-        <label>Society / Phase / Location *</label>
+        <label style="font-weight: 700;">Society / Phase / Location <span style="color:red;">* Required</span></label>
         <input type="text" id="wiz_location" class="form-control" value="${location}" placeholder="e.g. Bahria Town Phase 8, Sector C" required />
       </div>
     </div>
 
     <div class="form-group">
-      <label>Full Address / House Number</label>
-      <input type="text" id="wiz_address" class="form-control" value="${address}" placeholder="e.g. House 142, Street 18..." required />
+      <label style="font-weight: 700;">Full Address / House Number <span style="color:red;">* Required</span></label>
+      <input type="text" id="wiz_address" class="form-control" value="${address}" placeholder="e.g. House 142, Street 18, Block B" required />
     </div>
   `;
 }
@@ -135,30 +137,30 @@ function renderWizardStep3(prop) {
   return `
     <div class="form-grid-2">
       <div class="form-group">
-        <label>Asking Price (PKR) *</label>
-        <input type="number" id="wiz_price" class="form-control" value="${price}" placeholder="e.g. 50000000 (5 Crore)" required />
+        <label style="font-weight: 700;">Asking Price (PKR) <span style="color:red;">* Required</span></label>
+        <input type="number" id="wiz_price" class="form-control" value="${price}" placeholder="e.g. 50000000 (5 Crore)" min="1" required />
       </div>
 
       <div class="form-group">
-        <label>Area Size (in Marla) *</label>
-        <input type="number" id="wiz_size" class="form-control" value="${size}" placeholder="e.g. 10" required />
+        <label style="font-weight: 700;">Area Size (in Marla) <span style="color:red;">* Required</span></label>
+        <input type="number" id="wiz_size" class="form-control" value="${size}" placeholder="e.g. 10" min="0.1" step="0.1" required />
       </div>
     </div>
 
     <div class="form-grid-2">
       <div class="form-group">
-        <label>Bedrooms</label>
-        <input type="number" id="wiz_beds" class="form-control" value="${beds}" />
+        <label style="font-weight: 700;">Bedrooms <span style="color:red;">* Required</span></label>
+        <input type="number" id="wiz_beds" class="form-control" value="${beds}" min="0" required />
       </div>
 
       <div class="form-group">
-        <label>Bathrooms</label>
-        <input type="number" id="wiz_baths" class="form-control" value="${baths}" />
+        <label style="font-weight: 700;">Bathrooms <span style="color:red;">* Required</span></label>
+        <input type="number" id="wiz_baths" class="form-control" value="${baths}" min="0" required />
       </div>
     </div>
 
     <div class="form-group">
-      <label>Amenities & Features</label>
+      <label style="font-weight: 700;">Amenities & Features</label>
       <div class="checkbox-grid">
         <label class="checkbox-label"><input type="checkbox" id="wiz_feat_solar" ${features.some(f => f.toLowerCase().includes('solar')) ? 'checked' : ''} /> Solar Power Backup</label>
         <label class="checkbox-label"><input type="checkbox" id="wiz_feat_servant" ${features.some(f => f.toLowerCase().includes('servant')) ? 'checked' : ''} /> Servant Quarter</label>
@@ -177,18 +179,18 @@ function renderWizardStep4(prop, uploadedImages = []) {
 
   return `
     <div class="form-group">
-      <label>Property Title *</label>
-      <input type="text" id="wiz_title" class="form-control" value="${title}" placeholder="e.g. 10 Marla Brand New Modern House for Sale..." required />
+      <label style="font-weight: 700;">Property Title <span style="color:red;">* Required</span></label>
+      <input type="text" id="wiz_title" class="form-control" value="${title}" placeholder="e.g. 10 Marla Brand New Modern House for Sale in Bahria Town" required />
     </div>
 
     <div class="form-group">
-      <label>Description</label>
-      <textarea id="wiz_desc" class="form-control" rows="3" placeholder="Provide details about fittings, gas connection, solar backup, possession state, etc...">${desc}</textarea>
+      <label style="font-weight: 700;">Description <span style="color:red;">* Required</span></label>
+      <textarea id="wiz_desc" class="form-control" rows="3" placeholder="Provide details about fittings, gas connection, solar backup, possession state, etc..." required>${desc}</textarea>
     </div>
 
     <div class="form-group">
       <label style="font-weight:700; color:var(--ink); font-size:0.9rem; margin-bottom:0.5rem; display:block;">
-        <i data-lucide="image" style="width:16px; height:16px; vertical-align:middle; color:var(--emerald-teal);"></i> Upload Property Photos (from PC Gallery / Drag & Drop)
+        <i data-lucide="image" style="width:16px; height:16px; vertical-align:middle; color:var(--emerald-teal);"></i> Upload Property Photos <span style="color:red;">* Required (At least 1 photo)</span>
       </label>
 
       <div id="image-drag-drop-zone" style="border:2px dashed var(--emerald-teal); border-radius:12px; padding:2rem 1.5rem; text-align:center; background:var(--cream); cursor:pointer; transition:all 0.2s ease;">
@@ -220,4 +222,3 @@ export function renderImagePreviewsList(images = []) {
     </div>
   `).join('');
 }
-

@@ -88,13 +88,20 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ success: false, message: 'Invalid email or password.' });
     }
 
-    const user = result.rows[0];
+    // Verify Role match if provided
+    if (req.body.role && user.role !== req.body.role.toUpperCase()) {
+      return res.status(401).json({
+        success: false,
+        message: `Access Denied: This account is registered as a ${user.role}. Please switch to the ${user.role} Login tab.`
+      });
+    }
 
     // Verify Password
     const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) {
       return res.status(401).json({ success: false, message: 'Invalid email or password.' });
     }
+
 
     // Generate JWT Token (48h expiration)
     const token = jwt.sign(
@@ -145,4 +152,37 @@ router.get('/me', authenticateToken, async (req, res) => {
   }
 });
 
+// 4. RESET PASSWORD API
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { email, newPassword } = req.body;
+
+    if (!email || !newPassword) {
+      return res.status(400).json({ success: false, message: 'Email and new password are required.' });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+
+    const result = await pool.query('SELECT * FROM users WHERE email = $1', [normalizedEmail]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'No account found with this email address.' });
+    }
+
+    const saltRounds = 10;
+    const passwordHash = await bcrypt.hash(newPassword, saltRounds);
+
+    await pool.query('UPDATE users SET password_hash = $1 WHERE email = $2', [passwordHash, normalizedEmail]);
+
+    return res.json({
+      success: true,
+      message: 'Password reset successfully. You can now log in with your new password.'
+    });
+
+  } catch (error) {
+    console.error('Reset password error:', error);
+    return res.status(500).json({ success: false, message: 'Server error during password reset.' });
+  }
+});
+
 export default router;
+

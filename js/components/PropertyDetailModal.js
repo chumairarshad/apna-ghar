@@ -36,7 +36,11 @@ export function renderPropertyDetailModal(state) {
             <div>
               <div class="card-badges" style="position:static; margin-bottom:0.5rem;">
                 ${prop.badges.map(b => `<span class="badge badge-verified" style="margin-right:4px;">${b}</span>`).join('')}
+                <span class="badge" style="background:rgba(242,167,27,0.15); border:1px solid var(--marigold); color:var(--forest-dk); font-size:0.75rem; font-weight:700; margin-right:4px;">
+                  👁️ ${prop.views || 1} Total Views
+                </span>
               </div>
+
               <h2 style="font-size:1.6rem; color:var(--forest-dk); line-height:1.2; margin-bottom:0.35rem;">${prop.title}</h2>
               <div style="color:var(--forest); font-size:0.95rem; opacity:0.85; display:flex; align-items:center; gap:4px;">
                 ${renderIcon('map-pin', 16, 'var(--rani)')}

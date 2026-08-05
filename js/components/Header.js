@@ -1,8 +1,6 @@
-import { getFavorites } from '../utils/storage.js';
 import { renderIcon } from '../utils/icons.js';
 
 export function renderHeader(state, onStateChange) {
-  const favoritesCount = getFavorites().length;
   const activeTab = state.activeTab || 'buy';
   const userName = state.user?.name || '';
   const isMobileDrawerOpen = state.showMobileNav || false;
@@ -71,14 +69,14 @@ export function renderHeader(state, onStateChange) {
           <nav class="main-nav">
             <ul>
               <li><a href="#" class="${activeTab === 'buy' ? 'active' : ''}" data-nav="buy">Properties for Sale</a></li>
-              <li><a href="#" class="${activeTab === 'rent' ? 'active' : ''}" data-nav="rent">Rentals</a></li>
-              <li><a href="#" class="${activeTab === 'projects' ? 'active' : ''}" data-nav="projects">Megaprojects</a></li>
+              <li><a href="#" class="${activeTab === 'rent' ? 'active' : ''}" data-nav="rent">Rental Properties</a></li>
+              <li><a href="#" class="${activeTab === 'projects' ? 'active' : ''}" data-nav="projects">Housing Megaprojects</a></li>
               <li><a href="#" class="${activeTab === 'tools' ? 'active' : ''}" data-nav="tools">Calculators & Tools</a></li>
               <li><a href="#" class="${activeTab === 'agents' ? 'active' : ''}" data-nav="agents">Agents Directory</a></li>
               ${state.user?.role === 'ADMIN' ? `
                 <li>
                   <a href="#" class="${activeTab === 'dealer' ? 'active' : ''}" data-nav="dealer">
-                    🛡️ Admin Portal <span class="dealer-nav-badge" style="background:#EF4444;">SUPERVISOR</span>
+                    Admin Portal <span class="dealer-nav-badge" style="background:#EF4444;">SUPERVISOR</span>
                   </a>
                 </li>
               ` : (state.user?.role === 'DEALER' ? `
@@ -98,29 +96,24 @@ export function renderHeader(state, onStateChange) {
           </nav>
 
           <!-- Header Actions -->
-          <div class="header-actions">
-            <!-- Saved Favorites Trigger -->
-            <button class="icon-btn" id="open-favorites-btn" title="Saved Favorites Drawer">
-              ${renderIcon('heart', 18)}
-              ${favoritesCount > 0 ? `<span class="badge-count">${favoritesCount}</span>` : ''}
-            </button>
-
-            <!-- User Auth & Logout Controls (Compact & Sleek) -->
+          <div class="header-actions" style="display:flex; align-items:center; gap:0.85rem;">
             ${state.user ? `
-              <button class="btn btn-ghost btn-sm btn-hide-mobile" id="open-auth-btn" style="padding:4px 10px; font-size:0.75rem; border-radius:20px; background:rgba(255,255,255,0.15);">
-                ${renderIcon('user', 12)} ${userName} (${state.user.role})
+              <!-- Logged-in Profile Button (Navigates directly to Profile Settings) -->
+              <button type="button" class="btn-header-profile" id="header-user-profile-btn" title="Open My Profile & Settings">
+                ${renderIcon('user', 14, 'var(--marigold)')} ${userName} (${state.user.role})
               </button>
-              <button class="btn btn-danger btn-sm" id="logout-btn" style="padding:4px 8px; font-size:0.72rem; background:#EF4444; color:white; border:none; border-radius:6px; cursor:pointer;" title="Sign Out">
-                🚪 Logout
+              <button type="button" class="btn btn-danger btn-sm" id="logout-btn" style="padding:6px 12px; font-size:0.75rem; background:#EF4444; color:white; border:none; border-radius:6px; cursor:pointer;" title="Sign Out">
+                Logout
               </button>
             ` : `
-              <button class="btn btn-primary btn-sm btn-hide-mobile" id="open-auth-btn" style="padding:4px 10px; font-size:0.75rem; border-radius:20px;">
-                ${renderIcon('user', 12)} Sign In / Join
+              <!-- Guest Sign In Button -->
+              <button type="button" class="btn btn-primary btn-sm" id="open-auth-btn" style="padding:7px 16px; font-size:0.82rem; border-radius:20px; font-weight:700; box-shadow:var(--shadow-sm);">
+                ${renderIcon('user', 14)} Sign In / Join
               </button>
             `}
 
-            <!-- Mobile Hamburger Toggle -->
-            <button class="mobile-hamburger-btn" id="toggle-mobile-menu-btn" title="Toggle Navigation Menu">
+            <!-- Mobile Hamburger Menu Toggle -->
+            <button type="button" class="mobile-hamburger-btn" id="toggle-mobile-menu-btn" title="Toggle Navigation Menu" style="margin-left:4px;">
               ${renderIcon('menu', 20)}
             </button>
           </div>
@@ -128,19 +121,21 @@ export function renderHeader(state, onStateChange) {
 
         <!-- Mobile Navigation Slide-down Drawer -->
         <div class="mobile-nav-drawer ${isMobileDrawerOpen ? 'open' : ''}" id="mobile-drawer">
-          <a href="#" class="${activeTab === 'buy' ? 'active' : ''}" data-nav="buy">🏡 Properties for Sale</a>
-          <a href="#" class="${activeTab === 'rent' ? 'active' : ''}" data-nav="rent">🔑 Rental Properties</a>
-          <a href="#" class="${activeTab === 'projects' ? 'active' : ''}" data-nav="projects">🏗️ Housing Megaprojects</a>
-          <a href="#" class="${activeTab === 'tools' ? 'active' : ''}" data-nav="tools">🧮 Calculators & Land Tools</a>
-          <a href="#" class="${activeTab === 'agents' ? 'active' : ''}" data-nav="agents">🤝 Agents Directory</a>
-          ${state.user?.role === 'DEALER' ? `<a href="#" class="${activeTab === 'dealer' ? 'active' : ''}" data-nav="dealer">📊 Dealer Portal CRM</a>` : ''}
-          ${state.user?.role === 'ADMIN' ? `<a href="#" class="${activeTab === 'dealer' ? 'active' : ''}" data-nav="dealer">🛡️ Admin Portal</a>` : ''}
+          <a href="#" class="${activeTab === 'buy' ? 'active' : ''}" data-nav="buy">Properties for Sale</a>
+          <a href="#" class="${activeTab === 'rent' ? 'active' : ''}" data-nav="rent">Rental Properties</a>
+          <a href="#" class="${activeTab === 'projects' ? 'active' : ''}" data-nav="projects">Housing Megaprojects</a>
+          <a href="#" class="${activeTab === 'tools' ? 'active' : ''}" data-nav="tools">Calculators & Land Tools</a>
+          <a href="#" class="${activeTab === 'agents' ? 'active' : ''}" data-nav="agents">Agents Directory</a>
+          ${state.user?.role === 'DEALER' ? `<a href="#" class="${activeTab === 'dealer' ? 'active' : ''}" data-nav="dealer">Dealer Portal CRM</a>` : ''}
+          ${state.user?.role === 'ADMIN' ? `<a href="#" class="${activeTab === 'dealer' ? 'active' : ''}" data-nav="dealer">Admin Portal</a>` : ''}
           ${state.user ? `
-            <a href="#" id="mobile-logout-btn" style="color:#EF4444 !important; font-weight:700;">🚪 Sign Out (${userName})</a>
+            <a href="#" id="mobile-user-profile-btn" style="color:var(--forest-dk) !important; font-weight:700;">👤 My Profile & Account Settings (${userName})</a>
+            <a href="#" id="mobile-logout-btn" style="color:#EF4444 !important; font-weight:700;">Logout (${userName})</a>
           ` : `
-            <a href="#" id="mobile-open-auth-btn">👤 Sign In / Create Account</a>
+            <a href="#" id="mobile-open-auth-btn">Sign In / Create Account</a>
           `}
         </div>
+
       </div>
     </header>
   `;

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700;800;900&family=Work+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
   /* Apna Ghar Palette Tokens */
@@ -16,9 +16,10 @@
   --border:       #e8d9b8;
   --border-dk:    #d4bd8c;
 
-  --font-display: 'Unbounded', sans-serif;
-  --font-body:    'Work Sans', sans-serif;
+  --font-display: 'Plus Jakarta Sans', sans-serif;
+  --font-body:    'Plus Jakarta Sans', sans-serif;
   --font-mono:    'JetBrains Mono', monospace;
+
 
   --shadow-soft: 0 3px 16px rgba(20,28,13,0.12);
   --shadow-lift: 0 20px 44px rgba(20,28,13,0.22);
@@ -540,4 +541,132 @@ input, select, textarea {
     padding: 12px 18px;
   }
 }
+
+/* ==========================================================================
+   Mobile Grid & Element Optimization Classes
+   ========================================================================== */
+
+/* AI Search Input Container on Mobile */
+.ai-main-input-wrap {
+  display: flex;
+  gap: 0.65rem;
+}
+
+@media (max-width: 600px) {
+  .ai-main-input-wrap {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+  }
+  .ai-main-input-wrap input,
+  .ai-main-input-wrap button {
+    width: 100% !important;
+  }
+}
+
+/* Featured Banners Section Grid */
+.featured-banners-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.75rem;
+}
+
+@media (max-width: 768px) {
+  .featured-banners-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.25rem !important;
+  }
+}
+
+/* Overseas Portal Section Grid & Stats */
+.overseas-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 2.5rem;
+  align-items: center;
+}
+
+@media (max-width: 850px) {
+  .overseas-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+  .overseas-grid h2 {
+    font-size: 1.5rem !important;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+}
+
+.overseas-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 600px) {
+  .overseas-stats {
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem !important;
+  }
+}
+
+/* Agent Directory Grid */
+.agent-directory-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.75rem;
+}
+
+@media (max-width: 1024px) {
+  .agent-directory-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1.25rem !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .agent-directory-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.25rem !important;
+  }
+}
+
+/* Responsive Table Wrapper */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 0.5rem;
+}
+
+.dealer-table {
+  width: 100%;
+  min-width: 620px;
+  border-collapse: collapse;
+}
+
+/* Global Word Wrapping Fix for Headings & Titles on Mobile */
+h1, h2, h3, h4, .hero-title, .modal-title {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Megaproject Card Layout */
+.megaproject-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-light);
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 0;
+}
+
+@media (max-width: 900px) {
+  .megaproject-card {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 
