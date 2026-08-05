@@ -1502,7 +1502,6 @@ function handleAIChatSubmit(query) {
     const locationLower = (p.location || '').toLowerCase();
     const categoryLower = (p.category || '').toLowerCase();
     const purposeLower = (p.purpose || '').toLowerCase();
-    const descLower = (p.description || '').toLowerCase();
 
     if (q.includes(cityLower) && cityLower.length > 2) score += 25;
     if (q.includes(locationLower) && locationLower.length > 2) score += 25;
@@ -1532,18 +1531,21 @@ function handleAIChatSubmit(query) {
   scored.sort((a, b) => b.matchScore - a.matchScore);
   const matchedProperties = scored.slice(0, 3);
 
-  let botReply = `I analyzed our database for **"${query}"**! Here are the best verified properties matching your query:`;
+  let botReply = `Assalam-o-Alaikum! 🤖 Aap ki requirement **"${query}"** ke mutabiq database se ye milte julte (similar) verified options match huay hain. Details dekhnay ke liye niche card par click karein, ya agar koi khas location/budget chahiye toh **WhatsApp button** par click karke hamare Agent se direct baat karein (Hum dhoondh dain ge)!`;
+
   if (q.includes('loan') || q.includes('emi') || q.includes('calculator')) {
-    botReply = '🧮 **Home Loan Rate**: Current bank KIBOR interest is ~14.5%. For a **3 Crore** loan over 20 years, your estimated monthly EMI will be **~PKR 382,000 / month**. Check our **Calculators & Tools** tab for detailed breakdowns!';
+    botReply = '🧮 **Home Loan Rate**: Current bank KIBOR interest rate is ~14.5%. For a **3 Crore** loan over 20 years, estimated monthly EMI is **~PKR 382,000 / month**. Detailed breakdowns ke liye **Calculators & Tools** tab check karein!';
   }
 
   state.aiChatMessages.push({ 
     sender: 'bot', 
     text: botReply,
+    userQuery: query,
     matchedProperties: (q.includes('loan') || q.includes('emi')) ? [] : matchedProperties 
   });
   renderApp();
 }
+
 
 
 // Bind live dynamic calculations in financial tools

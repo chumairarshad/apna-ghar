@@ -4,7 +4,10 @@ import { formatPKR } from '../utils/formatters.js';
 export function renderAIChatbotWidget(state) {
   const isOpen = state.showAIChatbot || false;
   const messages = state.aiChatMessages || [
-    { sender: 'bot', text: 'Assalam-o-Alaikum! 👋 I am your **Apna Ghar AI Property Assistant**. Type any location, budget, or plot size to instantly search our verified database!' }
+    { 
+      sender: 'bot', 
+      text: 'Assalam-o-Alaikum! 👋 Main aap ka **Apna Ghar AI Property Assistant** hoon. Type any location, budget, or plot size to find matching properties, or chat directly with our Realtor on WhatsApp!' 
+    }
   ];
 
   return `
@@ -35,8 +38,8 @@ export function renderAIChatbotWidget(state) {
               ${renderIcon('sparkles', 20, 'var(--forest-dk)')}
             </div>
             <div>
-              <div style="font-family:var(--font-display); font-size:1rem; font-weight:800; color:#ffffff;">Apna Ghar AI Assistant</div>
-              <div style="font-family:var(--font-mono); font-size:0.68rem; color:var(--marigold); font-weight:700;">Online • Database AI Matcher</div>
+              <div style="font-family:var(--font-display); font-size:1rem; font-weight:800; color:#ffffff;">Apna Ghar AI Advisor</div>
+              <div style="font-family:var(--font-mono); font-size:0.68rem; color:var(--marigold); font-weight:700;">Online • Database & Agent Sourcing</div>
             </div>
           </div>
           <button id="close-ai-chat-btn" style="background:rgba(255,255,255,0.15); border:none; color:#ffffff; width:30px; height:30px; border-radius:50%; font-size:1.4rem; cursor:pointer; display:flex; align-items:center; justify-content:center;">&times;</button>
@@ -51,7 +54,7 @@ export function renderAIChatbotWidget(state) {
                 padding: 0.75rem 1rem;
                 border-radius: 14px;
                 font-size: 0.88rem;
-                line-height: 1.45;
+                line-height: 1.5;
                 font-weight: 500;
                 ${msg.sender === 'user' 
                   ? 'background:var(--rani); color:#ffffff; border-bottom-right-radius:2px; font-weight:600; box-shadow:0 3px 10px rgba(209,38,110,0.25);' 
@@ -60,13 +63,14 @@ export function renderAIChatbotWidget(state) {
                 ${msg.text}
               </div>
 
+              <!-- Render Matched Property Card Boxes -->
               ${msg.matchedProperties && msg.matchedProperties.length > 0 ? `
                 <div style="width:100%; margin-top:0.65rem; display:flex; flex-direction:column; gap:0.65rem;">
                   <div style="font-family:var(--font-mono); font-size:0.72rem; font-weight:800; color:var(--forest-dk); text-transform:uppercase; letter-spacing:0.5px;">
-                    🎯 AI Matched Database Listings:
+                    🎯 AI Matched & Recommended Listings:
                   </div>
                   ${msg.matchedProperties.map(p => `
-                    <div class="chat-property-card" style="background:#ffffff; border:2px solid #1E293B; border-radius:12px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.08); transition:transform 0.2s ease;">
+                    <div class="chat-property-card" style="background:#ffffff; border:2px solid #1E293B; border-radius:12px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.08);">
                       <div style="display:flex; gap:0.75rem; padding:0.65rem;">
                         <img src="${p.images[0] || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=300&q=80'}" style="width:80px; height:80px; border-radius:8px; object-fit:cover; flex-shrink:0; border:1px solid #CBD5E1;" alt="${p.title}" />
                         
@@ -94,6 +98,15 @@ export function renderAIChatbotWidget(state) {
                     </div>
                   `).join('')}
                 </div>
+              ` : ''}
+
+              <!-- Direct Agent WhatsApp Consultation Button -->
+              ${msg.sender === 'bot' && msg.userQuery ? `
+                <a href="https://wa.me/923008472910?text=${encodeURIComponent(`Assalam-o-Alaikum Apna Ghar Team! I searched for: "${msg.userQuery}". Please help me find or source a property matching my requirements.`)}" 
+                   target="_blank" 
+                   style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; margin-top:0.65rem; padding:9px 14px; font-size:0.82rem; font-weight:800; background:#25D366; color:#ffffff; border-radius:10px; text-decoration:none; box-shadow:0 4px 12px rgba(37,211,102,0.35); border:none;">
+                  ${renderIcon('message-circle', 16, '#ffffff')} 💬 Chat on WhatsApp (Hum Dhoondh Dain Ge)
+                </a>
               ` : ''}
             </div>
           `).join('')}
