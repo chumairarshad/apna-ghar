@@ -11,87 +11,112 @@ const JWT_SECRET = process.env.JWT_SECRET || 'apnaghar_super_secret_jwt_key_2026
 // 1. SIGNUP API
 // Body: { name, email, password, phone, role: 'DEALER' | 'ADMIN', agencyName, city }
 router.post('/signup', async (req, res) => {
+  console.log('----------------------------------------------------');
+  console.log('📌 [POST /api/auth/signup] STARTING REQUEST TRACE');
+  console.log('1. REQ.BODY:', JSON.stringify(req.body, null, 2));
+
   try {
     const { name, email, password, phone, role = 'DEALER', agencyName, city } = req.body;
-    console.log(`[SIGNUP STEP 1] Request received: name="${name}", email="${email}", role="${role}"`);
 
     if (!name || !email || !password) {
-      console.warn(`[SIGNUP VALIDATION FAILED] Missing required fields`);
-      return res.status(400).json({ success: false, message: 'Name, email, and password are required.' });
+      const errRes = { success: false, message: 'Name, email, and password are required.' };
+      console.log('RESPONSE SENT:', errRes);
+      return res.status(400).json(errRes);
     }
 
-    const targetRole = ['DEALER', 'ADMIN'].includes(role.toUpperCase()) ? role.toUpperCase() : 'DEALER';
-    const normalizedEmail = email.toLowerCase().trim();
-    console.log(`[SIGNUP STEP 2] Validation passed. Normalized email: "${normalizedEmail}", Target Role: "${targetRole}"`);
+    const targetRole = ['DEALER', 'ADMIN'].includes(String(role).toUpperCase()) ? String(role).toUpperCase() : 'DEALER';
+    const normalizedEmail = String(email).toLowerCase().trim();
 
     // Check if email exists
-    console.log(`[SIGNUP STEP 3] Checking if email "${normalizedEmail}" already exists in Neon DB...`);
-    const existingUser = await pool.query('SELECT id FROM users WHERE email = $1', [normalizedEmail]);
+    const checkSql = 'SELECT id FROM users WHERE email = $1';
+    console.log('3. EXEC SQL:', checkSql);
+    console.log('4. SQL PARAMS:', [normalizedEmail]);
+
+    const existingUser = await pool.query(checkSql, [normalizedEmail]);
     if (existingUser.rows.length > 0) {
-      console.warn(`[SIGNUP FAILED] Email "${normalizedEmail}" already exists in users table`);
-      return res.status(400).json({ success: false, message: 'An account with this email already exists.' });
+      const errRes = { success: false, message: 'An account with this email already exists.' };
+      console.log('RESPONSE SENT:', errRes);
+      return res.status(400).json(errRes);
     }
 
     // Hash password
-    console.log(`[SIGNUP STEP 4] Hashing password with bcrypt saltRounds=10...`);
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(password, saltRounds);
-    console.log(`[SIGNUP STEP 5] Password hashed successfully.`);
+    console.log('5. PASSWORD HASHED SUCCESSFULLY.');
 
-    // Generate explicit UUID for id column
     const userId = crypto.randomUUID();
-    console.log(`[SIGNUP STEP 6] Executing INSERT INTO users table with ID: ${userId}...`);
 
-    const newUser = await pool.query(
-      `INSERT INTO users (id, full_name, email, password_hash, phone, role, agency_name, city, badge, is_verified)
+    const insertSql = `INSERT INTO users (id, full_name, email, password_hash, phone, role, agency_name, city, badge, is_verified)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-       RETURNING id, full_name, email, phone, role, agency_name, city, badge, is_verified, created_at`,
-      [
-        userId,
-        name,
-        normalizedEmail,
-        passwordHash,
-        phone || '',
-        targetRole,
-        agencyName || name,
-        city || 'Lahore',
-        targetRole === 'ADMIN' ? 'SUPER_ADMIN' : 'VERIFIED',
-        true
-      ]
-    );
+       RETURNING *`;
 
+    const sqlParams = [
+      userId,
+      name,
+      normalizedEmail,
+      passwordHash,
+      phone || '',
+      targetRole,
+      agencyName || name,
+      city || 'Lahore',
+      targetRole === 'ADMIN' ? 'SUPER_ADMIN' : 'VERIFIED',
+      true
+    ];
+
+    console.log('3. EXEC SQL:', insertSql);
+    console.log('4. SQL PARAMS:', sqlParams);
+
+    const newUser = await pool.query(insertSql, sqlParams);
     const user = newUser.rows[0];
-    console.log(`[SIGNUP STEP 7] User successfully created & inserted into Neon users table! User ID: ${user.id}`);
 
-    // Generate JWT token with 48 hours expiration
+    console.log('6. INSERT SUCCESSFUL! NEW USER RECORD:', user);
+
     const token = jwt.sign(
-      { userId: user.id, email: user.email, role: user.role, name: user.full_name },
+      { userId: user.id, email: user.email, role: user.role, name: user.full_name || user.name },
       JWT_SECRET,
       { expiresIn: '48h' }
     );
 
-    return res.status(201).json({
+    const successRes = {
       success: true,
       message: `Account created successfully as ${user.role}.`,
       token,
       expiresIn: '48h',
       user: {
         id: user.id,
-        name: user.full_name,
+        name: user.full_name || user.name,
         email: user.email,
         phone: user.phone,
         role: user.role,
-        agencyName: user.agency_name,
+        agencyName: user.agency_name || user.agencyName,
         city: user.city,
         badge: user.badge
       }
-    });
+    };
+
+    console.log('RESPONSE SENT:', successRes);
+    console.log('----------------------------------------------------');
+    return res.status(201).json(successRes);
 
   } catch (error) {
-    console.error('❌ [SIGNUP ERROR] Database insertion failed:', error);
-    return res.status(500).json({ success: false, message: `Server error during signup: ${error.message}` });
+    console.error('🔥 [SIGNUP EXCEPTION THROWN]:', error);
+    console.error('🔥 [STACK TRACE]:', error.stack);
+
+    const errorRes = {
+      success: false,
+      message: error.message || 'Error during database execution.',
+      originalError: error.toString(),
+      code: error.code,
+      detail: error.detail,
+      stack: error.stack
+    };
+
+    console.log('RESPONSE SENT (ERROR):', errorRes);
+    console.log('----------------------------------------------------');
+    return res.status(500).json(errorRes);
   }
 });
+
 
 // 2. LOGIN API
 // Body: { email, password }
