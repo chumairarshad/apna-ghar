@@ -15,23 +15,26 @@ export function renderHeroSearch(state) {
         <div class="hero-text-wrapper">
           <div class="hero-badge">
             <span class="pulse-dot"></span>
-            PAKISTAN'S #1 VERIFIED PROPERTY PORTAL
+            <span>Pakistan's #1 Verified Property Portal</span>
           </div>
+          
           <h1 class="hero-title">
-            Find Your Dream <span>Property</span> in Pakistan
+            Find Your Dream <span class="gradient-text">Property</span> in Pakistan
           </h1>
+          
           <p class="hero-subtitle">
             Buy, Rent & Invest in Verified Luxury Houses, Apartments, Commercial Plots & Megaprojects across Lahore, Islamabad, Karachi, and major cities.
           </p>
 
           <!-- Dual Action CTA Buttons (List Property & Feature Property) -->
-          <div style="margin-top:1.5rem; display:flex; gap:0.85rem; justify-content:center; flex-wrap:wrap;">
-            <button type="button" class="btn btn-primary" id="open-post-property-btn" style="border-radius:30px; box-shadow:var(--shadow-lift); padding:12px 28px; font-size:0.95rem;">
-              ${renderIcon('plus-circle', 18)} List Free Property (3x Direct Leads)
+          <div class="hero-actions">
+            <button type="button" class="btn btn-hero-primary" id="open-post-property-btn">
+              ${renderIcon('plus-circle', 18)} <span>List Free Property</span>
+              <small class="cta-badge">3x Leads</small>
             </button>
 
-            <button type="button" class="btn btn-marigold" id="open-featured-modal-btn" style="border-radius:30px; box-shadow:var(--shadow-md); padding:12px 24px; font-size:0.92rem;">
-              ${renderIcon('sparkles', 16)} Get Featured Spot
+            <button type="button" class="btn btn-hero-secondary" id="open-featured-modal-btn">
+              ${renderIcon('sparkles', 16)} <span>Get Featured Spot</span>
             </button>
           </div>
         </div>
@@ -51,38 +54,37 @@ export function renderHeroSearch(state) {
             </button>
           </div>
 
-          <!-- Integrated AI Natural Language Search Prompt Bar (High Contrast & Prominent Size) -->
-          <div class="ai-search-container-box" style="background:linear-gradient(135deg, var(--forest-dk), #1c2b14); color:var(--paper); border-radius:14px; padding:1.5rem 1.75rem; margin-bottom:1.5rem; border:3px solid var(--marigold); box-shadow:0 10px 30px rgba(19,29,12,0.3);">
-            <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.75rem;">
-              <div style="width:28px; height:28px; background:var(--marigold); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--forest-dk); flex-shrink:0;">
-                ${renderIcon('sparkles', 16, 'var(--forest-dk)')}
+          <!-- Integrated AI Natural Language Search Prompt Bar -->
+          <div class="ai-search-container-box">
+            <div class="ai-header-label">
+              <div class="ai-icon-badge">
+                ${renderIcon('sparkles', 15, '#FFFFFF')}
               </div>
-              <label style="font-family:var(--font-display); font-size:0.95rem; font-weight:800; color:var(--marigold); text-transform:uppercase; letter-spacing:0.8px; margin:0;">
-                🤖 AI Smart Property Search Engine — Type in Plain English or Urdu
+              <label class="ai-title">
+                AI Smart Search Engine <span class="ai-subtitle-tag">Type in Plain English or Urdu</span>
               </label>
             </div>
 
-            <div style="display:flex; gap:0.75rem;" class="ai-main-input-wrap">
+            <div class="ai-main-input-wrap">
               <input type="text" 
                      id="ai-prompt-input" 
-                     placeholder="e.g. 10 Marla house in DHA Phase 6 Lahore under 4.5 Crore with solar grid..." 
-                     style="flex:1; height:56px; background:#ffffff; color:#0F172A; border:3px solid #1E293B; border-radius:10px; padding:0 1.25rem; font-size:1.05rem; font-weight:700; box-shadow:0 3px 10px rgba(0,0,0,0.1);" />
+                     placeholder="e.g. 10 Marla house in DHA Phase 6 Lahore under 4.5 Crore with solar grid..." />
 
-              <button type="button" class="btn btn-primary" id="execute-ai-search-btn" style="height:56px; padding:0 1.75rem; font-size:1rem; font-weight:800; border-radius:10px; box-shadow:0 6px 20px rgba(209,38,110,0.45); flex-shrink:0;">
-                ${renderIcon('sparkles', 20)} AI Match
+              <button type="button" class="btn btn-ai-search" id="execute-ai-search-btn">
+                ${renderIcon('sparkles', 18)} <span>AI Match</span>
               </button>
             </div>
 
             <!-- Quick AI Prompt Chips -->
-            <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.85rem; align-items:center;">
-              <span style="font-family:var(--font-mono); font-size:0.75rem; color:var(--meadow-lt); font-weight:700;">Sample Prompts:</span>
-              <button type="button" class="ai-sample-prompt-btn" data-prompt="10 Marla house in DHA Phase 6 Lahore under 5 Crore" style="background:rgba(255,255,255,0.12); border:1.5px solid rgba(242,167,27,0.5); color:var(--paper); font-size:0.78rem; font-weight:700; padding:4px 12px; border-radius:16px;">
+            <div class="ai-quick-prompts">
+              <span class="prompt-chip-label">Quick Prompts:</span>
+              <button type="button" class="ai-sample-prompt-btn" data-prompt="10 Marla house in DHA Phase 6 Lahore under 5 Crore">
                 📍 10 Marla DHA Phase 6
               </button>
-              <button type="button" class="ai-sample-prompt-btn" data-prompt="1 Kanal plot in Bahria Town Islamabad with lake view" style="background:rgba(255,255,255,0.12); border:1.5px solid rgba(242,167,27,0.5); color:var(--paper); font-size:0.78rem; font-weight:700; padding:4px 12px; border-radius:16px;">
+              <button type="button" class="ai-sample-prompt-btn" data-prompt="1 Kanal plot in Bahria Town Islamabad with lake view">
                 🌲 1 Kanal Bahria Town
               </button>
-              <button type="button" class="ai-sample-prompt-btn" data-prompt="3 bedroom luxury apartment in Clifton Karachi for rent" style="background:rgba(255,255,255,0.12); border:1.5px solid rgba(242,167,27,0.5); color:var(--paper); font-size:0.78rem; font-weight:700; padding:4px 12px; border-radius:16px;">
+              <button type="button" class="ai-sample-prompt-btn" data-prompt="3 bedroom luxury apartment in Clifton Karachi for rent">
                 🌊 3 Bed Flat Clifton
               </button>
             </div>
@@ -92,7 +94,7 @@ export function renderHeroSearch(state) {
           <div class="search-filters-grid">
             <!-- City Selector -->
             <div class="filter-group">
-              <label>${renderIcon('map-pin', 13, 'var(--rani)')} Select City</label>
+              <label>${renderIcon('map-pin', 14, '#10B981')} City</label>
               <select id="filter-city" class="filter-select">
                 <option value="all">All Cities in Pakistan</option>
                 ${CITIES_DATA.map(c => `
@@ -103,7 +105,7 @@ export function renderHeroSearch(state) {
 
             <!-- Society / Location Selector -->
             <div class="filter-group">
-              <label>${renderIcon('building-2', 13, 'var(--rani)')} Society / Sector</label>
+              <label>${renderIcon('building-2', 14, '#10B981')} Society / Sector</label>
               <select id="filter-society" class="filter-select">
                 <option value="all">All Societies & Locations</option>
                 ${societiesList.map(s => `
@@ -114,7 +116,7 @@ export function renderHeroSearch(state) {
 
             <!-- Property Type Selector -->
             <div class="filter-group">
-              <label>${renderIcon('home', 13, 'var(--rani)')} Property Type</label>
+              <label>${renderIcon('home', 14, '#10B981')} Property Type</label>
               <select id="filter-type" class="filter-select">
                 <option value="all">All Property Types</option>
                 ${PROPERTY_TYPES.map(t => `
@@ -125,7 +127,7 @@ export function renderHeroSearch(state) {
 
             <!-- Budget Range Selector -->
             <div class="filter-group">
-              <label>${renderIcon('dollar-sign', 13, 'var(--rani)')} Max Price Range</label>
+              <label>${renderIcon('dollar-sign', 14, '#10B981')} Max Price</label>
               <select id="filter-price" class="filter-select">
                 <option value="all">Any Price</option>
                 <option value="5000000" ${state.searchFilters.maxPrice === '5000000' ? 'selected' : ''}>Under 50 Lakhs (PKR 5M)</option>
@@ -141,3 +143,4 @@ export function renderHeroSearch(state) {
     </section>
   `;
 }
+
