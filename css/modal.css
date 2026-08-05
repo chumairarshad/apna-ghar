@@ -1,12 +1,12 @@
-/* Modal Overlays & Mobile Optimized Styling for Apna Ghar */
+/* Modal Overlays & High Contrast Styling for Apna Ghar */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(19, 29, 12, 0.85);
-  backdrop-filter: blur(8px);
+  background: rgba(10, 16, 8, 0.88);
+  backdrop-filter: blur(10px);
   z-index: 99999;
   display: flex;
   align-items: center;
@@ -23,15 +23,15 @@
 }
 
 .modal-container {
-  background-color: var(--paper);
-  border-radius: 14px;
+  background-color: #ffffff;
+  border-radius: 16px;
   max-width: 850px;
   width: 100%;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: var(--shadow-xl);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
   border: 3px solid var(--forest-dk);
   position: relative;
   transform: translateY(20px);
@@ -44,8 +44,8 @@
   }
   .modal-container {
     width: 96vw;
-    max-height: 92vh;
-    border-radius: 12px;
+    max-height: 94vh;
+    border-radius: 14px;
   }
 }
 
@@ -57,106 +57,117 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.15rem 1.5rem;
-  border-bottom: 2px solid var(--forest-dk);
-  background-color: var(--cream);
+  padding: 1.25rem 1.75rem;
+  border-bottom: 3px solid var(--marigold);
+  background-color: var(--forest-dk);
+  color: #ffffff;
   flex-shrink: 0;
 }
 
 .modal-title {
   font-family: var(--font-display);
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--forest-dk);
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff !important;
+  letter-spacing: -0.2px;
 }
 
 .close-modal-btn {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.15);
   border: none;
-  font-size: 1.5rem;
-  color: var(--forest-dk);
-  width: 2.2rem;
-  height: 2.2rem;
+  font-size: 1.4rem;
+  color: #ffffff !important;
+  width: 2.3rem;
+  height: 2.3rem;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .close-modal-btn:hover {
-  background-color: var(--border-dk);
-  color: var(--forest-dk);
+  background-color: var(--rani);
+  color: #ffffff !important;
+  transform: scale(1.1);
 }
 
 .modal-body {
-  padding: 1.5rem;
+  padding: 1.75rem;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   flex-grow: 1;
+  background-color: #ffffff;
 }
 
 @media (max-width: 600px) {
   .modal-body {
-    padding: 1.15rem;
+    padding: 1.25rem;
   }
 }
 
-/* Auth Role Buttons Responsive Stack */
-.auth-role-container {
-  display: flex;
-  gap: 0.5rem;
-}
-
-@media (max-width: 480px) {
-  .auth-role-container {
-    flex-direction: column;
-  }
-}
-
-.auth-role-btn {
-  padding: 0.65rem 0.5rem;
-  font-size: 0.78rem;
-  white-space: normal;
-  text-align: center;
-  line-height: 1.25;
-}
-
-/* Fix Input Overlap for Extension Icons */
+/* Form Controls & Inputs (High Contrast & Large Text) */
 .form-control {
   width: 100%;
-  padding: 0.75rem 1rem;
-  border: 2px solid var(--border-dk);
-  border-radius: 6px;
-  font-size: 0.92rem;
+  padding: 0.85rem 1.15rem;
+  border: 2px solid #1e293b;
+  border-radius: 8px;
+  font-size: 0.98rem;
   font-family: var(--font-body);
-  background-color: var(--cream);
-  color: var(--ink);
-  font-weight: 600;
+  background-color: #ffffff;
+  color: #0f172a;
+  font-weight: 700;
   box-sizing: border-box;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+select.form-control {
+  cursor: pointer;
+  appearance: auto;
 }
 
 .form-control:focus {
   border-color: var(--rani);
-  background-color: var(--paper);
+  background-color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(209, 38, 110, 0.18);
+  outline: none;
 }
 
-/* Post Property Wizard Stepper */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #0f172a;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+/* Post Property Wizard Stepper (Ultra High Contrast) */
 .wizard-stepper {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 2rem;
+  margin-bottom: 2.25rem;
   position: relative;
+  padding: 0 0.5rem;
 }
 
 .wizard-stepper::before {
   content: '';
   position: absolute;
-  top: 18px;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background-color: var(--border-dk);
+  top: 22px;
+  left: 1.5rem;
+  right: 1.5rem;
+  height: 4px;
+  background-color: #cbd5e1;
   z-index: 1;
 }
 
@@ -166,28 +177,32 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.5rem;
 }
 
 .step-circle {
-  width: 2.3rem;
-  height: 2.3rem;
+  width: 2.75rem;
+  height: 2.75rem;
   border-radius: 50%;
-  background-color: var(--paper);
-  border: 2.5px solid var(--border-dk);
+  background-color: #ffffff;
+  border: 3px solid #64748b;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 0.9rem;
-  color: var(--forest);
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: #334155;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: all 0.25s ease;
 }
 
 .step-item.active .step-circle {
   background-color: var(--rani);
   border-color: var(--rani);
-  color: var(--paper);
+  color: #ffffff;
+  transform: scale(1.12);
+  box-shadow: 0 6px 16px rgba(209, 38, 110, 0.4);
 }
 
 .step-item.completed .step-circle {
@@ -197,10 +212,10 @@
 }
 
 .step-label {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--forest);
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #334155;
 }
 
 @media (max-width: 500px) {
@@ -210,43 +225,15 @@
 }
 
 .step-item.active .step-label {
-  color: var(--rani);
+  color: var(--rani-dk);
+  font-size: 0.88rem;
 }
 
-/* Form Grid */
-.form-grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.25rem;
-}
-
-@media (max-width: 600px) {
-  .form-grid-2 {
-    grid-template-columns: 1fr;
-    gap: 0.85rem;
-  }
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  margin-bottom: 1.25rem;
-}
-
-.form-group label {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--forest-dk);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
+/* Radio & Checkbox Card Labels */
 .checkbox-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0.75rem;
+  gap: 0.85rem;
 }
 
 @media (max-width: 600px) {
@@ -258,18 +245,81 @@
 .checkbox-label {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.85rem;
-  font-weight: 600;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+  font-weight: 800;
   cursor: pointer;
-  color: var(--forest-dk);
+  color: #0f172a !important;
+  background: #ffffff;
+  padding: 0.9rem 1.5rem;
+  border-radius: 10px;
+  border: 2.5px solid #1e293b;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+.checkbox-label:hover {
+  border-color: var(--rani);
+  background: #fff5f8;
+}
+
+.checkbox-label input[type="radio"],
+.checkbox-label input[type="checkbox"] {
+  width: 1.25rem;
+  height: 1.25rem;
+  accent-color: var(--rani);
+  cursor: pointer;
+}
+
+/* Form Grid */
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.35rem;
+}
+
+@media (max-width: 600px) {
+  .form-grid-2 {
+    grid-template-columns: 1fr;
+    gap: 0.95rem;
+  }
 }
 
 .modal-footer {
-  padding: 1.15rem 1.5rem;
-  border-top: 2px solid var(--forest-dk);
+  padding: 1.25rem 1.75rem;
+  border-top: 3px solid #cbd5e1;
   display: flex;
   justify-content: space-between;
-  background-color: var(--cream);
+  align-items: center;
+  background-color: #f8fafc;
   flex-shrink: 0;
+}
+
+.modal-footer .btn {
+  padding: 12px 24px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+}
+
+.modal-footer .btn-primary {
+  background-color: var(--rani);
+  color: #ffffff;
+  border: none;
+}
+
+.modal-footer .btn-primary:hover {
+  background-color: var(--rani-dk);
+}
+
+.modal-footer .btn-secondary {
+  background-color: #e2e8f0;
+  color: #1e293b;
+  border: 2px solid #94a3b8;
+}
+
+.modal-footer .btn-secondary:hover {
+  background-color: #cbd5e1;
+  color: #0f172a;
 }

@@ -82,12 +82,13 @@ function renderWizardStep1(prop) {
     <div class="form-group">
       <label style="font-weight: 700;">Property Purpose <span style="color:red;">* Required</span></label>
       <div style="display:flex; gap:1rem;">
-        <label class="checkbox-label" style="background:var(--bg-main); padding:0.75rem 1.5rem; border-radius:8px; border:1px solid var(--border-light); width:100%;">
+        <label class="checkbox-label" style="flex:1;">
           <input type="radio" name="wiz_purpose" value="sale" ${purpose === 'sale' ? 'checked' : ''} required /> For Sale
         </label>
-        <label class="checkbox-label" style="background:var(--bg-main); padding:0.75rem 1.5rem; border-radius:8px; border:1px solid var(--border-light); width:100%;">
+        <label class="checkbox-label" style="flex:1;">
           <input type="radio" name="wiz_purpose" value="rent" ${purpose === 'rent' ? 'checked' : ''} required /> For Rent
         </label>
+
       </div>
     </div>
 
