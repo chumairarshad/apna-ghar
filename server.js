@@ -29,11 +29,19 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 // Serve static frontend files
 app.use(express.static(__dirname));
 
-// API Routes
+// API Routes (Mounted for both /api/ and root paths for Vercel Serverless Function compatibility)
 app.use('/api/auth', authRoutes);
+app.use('/auth', authRoutes);
+
 app.use('/api/properties', propertyRoutes);
+app.use('/properties', propertyRoutes);
+
 app.use('/api/admin', adminRoutes);
+app.use('/admin', adminRoutes);
+
 app.use('/api/upload', uploadRoutes);
+app.use('/upload', uploadRoutes);
+
 
 // Fallback for Single Page Application
 app.get('*', (req, res, next) => {
