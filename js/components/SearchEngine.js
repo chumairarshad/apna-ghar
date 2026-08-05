@@ -94,7 +94,7 @@ export function renderHeroSearch(state) {
           <div class="search-filters-grid">
             <!-- City Selector -->
             <div class="filter-group">
-              <label>${renderIcon('map-pin', 14, '#10B981')} City</label>
+              <label>${renderIcon('map-pin', 14, '#D1266E')} City</label>
               <select id="filter-city" class="filter-select">
                 <option value="all">All Cities in Pakistan</option>
                 ${CITIES_DATA.map(c => `
@@ -105,7 +105,7 @@ export function renderHeroSearch(state) {
 
             <!-- Society / Location Selector -->
             <div class="filter-group">
-              <label>${renderIcon('building-2', 14, '#10B981')} Society / Sector</label>
+              <label>${renderIcon('building-2', 14, '#D1266E')} Society / Sector</label>
               <select id="filter-society" class="filter-select">
                 <option value="all">All Societies & Locations</option>
                 ${societiesList.map(s => `
@@ -116,7 +116,7 @@ export function renderHeroSearch(state) {
 
             <!-- Property Type Selector -->
             <div class="filter-group">
-              <label>${renderIcon('home', 14, '#10B981')} Property Type</label>
+              <label>${renderIcon('home', 14, '#D1266E')} Property Type</label>
               <select id="filter-type" class="filter-select">
                 <option value="all">All Property Types</option>
                 ${PROPERTY_TYPES.map(t => `
@@ -127,7 +127,7 @@ export function renderHeroSearch(state) {
 
             <!-- Budget Range Selector -->
             <div class="filter-group">
-              <label>${renderIcon('dollar-sign', 14, '#10B981')} Max Price</label>
+              <label>${renderIcon('dollar-sign', 14, '#D1266E')} Max Price</label>
               <select id="filter-price" class="filter-select">
                 <option value="all">Any Price</option>
                 <option value="5000000" ${state.searchFilters.maxPrice === '5000000' ? 'selected' : ''}>Under 50 Lakhs (PKR 5M)</option>
