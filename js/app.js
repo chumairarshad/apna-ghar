@@ -330,14 +330,19 @@ function showToast(message) {
   if (!container) return;
   const toast = document.createElement('div');
   toast.className = 'toast';
-  toast.innerHTML = `<i data-lucide="check-circle" style="width:18px; height:18px; color:var(--marigold);"></i> ${message}`;
+  const isSpinner = message.includes('⏳') || message.includes('Uploading');
+  const icon = isSpinner 
+    ? `<span style="display:inline-block; width:16px; height:16px; border:2.5px solid #ffffff; border-top-color:transparent; border-radius:50%; animation:spin 0.8s linear infinite; vertical-align:middle; margin-right:8px;"></span>`
+    : `<i data-lucide="check-circle" style="width:18px; height:18px; color:var(--marigold); vertical-align:middle; margin-right:6px;"></i> `;
+  toast.innerHTML = `${icon}<span>${message}</span>`;
   container.appendChild(toast);
   if (window.lucide) window.lucide.createIcons();
 
   setTimeout(() => {
     toast.remove();
-  }, 3500);
+  }, isSpinner ? 5000 : 3500);
 }
+
 
 function setupEventListeners() {
   document.addEventListener('click', (e) => {
@@ -765,7 +770,7 @@ function setupEventListeners() {
         return;
       }
 
-      showToast('⏳ Uploading photos & saving to Neon Database...');
+      showToast('⏳ Uploading photos & publishing property live...');
 
       // Collect checked amenities
       const features = [];
@@ -813,7 +818,7 @@ function setupEventListeners() {
           state.showPostWizard = false;
           state.editingProperty = null;
           state.uploadedImages = [];
-          showToast('✏️ Property updated & saved in Neon Database!');
+          showToast('✏️ Property updated successfully!');
           renderApp();
         } else {
           // Publishing new property
@@ -854,7 +859,7 @@ function setupEventListeners() {
           state.properties = [newProp, ...state.properties];
           state.showPostWizard = false;
           state.uploadedImages = [];
-          showToast('🎉 Property published live & saved to Neon PostgreSQL Database!');
+          showToast('🎉 Property published live successfully!');
           renderApp();
         }
       })();
@@ -1067,7 +1072,7 @@ function setupEventListeners() {
                   agencyName: nameInput
                 });
 
-                showToast(`🎉 Account created & saved to Neon Database! Please sign in.`);
+                showToast(`🎉 Account created successfully! Please sign in.`);
                 state.authMode = 'login';
                 state.authIsSignup = false;
                 state.authPreFillEmail = emailInput;

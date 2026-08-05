@@ -19,7 +19,7 @@ export function renderHousingProjects() {
 
         <div style="display:flex; flex-direction:column; gap:2.5rem;">
           ${HOUSING_PROJECTS.map(proj => `
-            <div class="megaproject-card" style="box-shadow:var(--shadow-md); border:2px solid var(--forest-dk);">
+            <div class="megaproject-card" style="box-shadow:var(--shadow-md); border:2px solid var(--forest-dk); border-radius:16px; overflow:hidden; background:#ffffff;">
               <div style="position:relative; min-height:240px; background:#131d0c;">
                 <img src="${proj.image}" style="width:100%; height:100%; object-fit:cover; min-height:240px;" alt="${proj.name}" />
                 <span class="badge badge-featured" style="position:absolute; top:1rem; left:1rem; background:var(--rani); color:white; font-weight:800; padding:6px 14px; border-radius:20px; box-shadow:0 4px 10px rgba(0,0,0,0.25);">
@@ -33,8 +33,8 @@ export function renderHousingProjects() {
                   <h3 style="font-family:var(--font-display); font-size:clamp(1.3rem, 2.5vw, 1.7rem); margin-bottom:0.4rem; color:var(--forest-dk); font-weight:800;">${proj.name}</h3>
                   <p style="color:#334155; font-size:0.9rem; margin-bottom:1.25rem; line-height:1.5; font-weight:500;">${proj.tagline}</p>
                   
-                  <!-- Responsive Project Key Highlights Grid -->
-                  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:0.85rem; margin-bottom:1.5rem; background:#F8FAFC; padding:1rem 1.25rem; border-radius:12px; border:2px solid #E2E8F0;">
+                  <!-- Responsive Project Key Highlights Grid (Stacked clean on mobile) -->
+                  <div class="project-stats-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(110px, 1fr)); gap:0.75rem; margin-bottom:1.5rem; background:#F8FAFC; padding:1rem 1.25rem; border-radius:12px; border:2px solid #E2E8F0;">
                     <div>
                       <div style="font-size:0.68rem; color:#64748B; font-weight:800; font-family:var(--font-mono); text-transform:uppercase;">STARTING PRICE</div>
                       <div style="font-weight:800; color:var(--rani); font-size:1.1rem; font-family:var(--font-mono);">${formatPKR(proj.minPrice)}</div>
@@ -44,19 +44,45 @@ export function renderHousingProjects() {
                       <div style="font-weight:800; color:var(--forest-dk); font-size:1.1rem; font-family:var(--font-mono);">${proj.downPaymentPercent}%</div>
                     </div>
                     <div>
-                      <div style="font-size:0.68rem; color:#64748B; font-weight:800; font-family:var(--font-mono); text-transform:uppercase;">INSTALLMENT PLAN</div>
+                      <div style="font-size:0.68rem; color:#64748B; font-weight:800; font-family:var(--font-mono); text-transform:uppercase;">TENURE PLAN</div>
                       <div style="font-weight:800; color:#0F172A; font-size:1.05rem; font-family:var(--font-mono);">${proj.installmentsPeriod}</div>
                     </div>
                   </div>
 
-                  <!-- Payment Plan Breakdown Header & Table -->
-                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+                  <!-- Payment Breakdown Section Header -->
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
                     <h4 style="font-size:0.88rem; color:var(--forest-dk); font-family:var(--font-mono); font-weight:800; letter-spacing:0.5px;">OFFICIAL PAYMENT BREAKDOWN</h4>
-                    <span style="font-size:0.72rem; color:#64748B; font-family:var(--font-mono); font-weight:600;">← Scroll horizontally on mobile →</span>
                   </div>
 
-                  <div class="table-responsive" style="border:2px solid #1E293B; border-radius:10px; overflow-x:auto; background:#ffffff; box-shadow:0 2px 8px rgba(0,0,0,0.05); margin-bottom:1.25rem;">
-                    <table class="dealer-table" style="width:100%; border-collapse:collapse; min-width:560px; font-size:0.85rem;">
+                  <!-- 1. MOBILE NATIVE CARDS VIEW (Displays cleanly on small screens <= 640px) -->
+                  <div class="mobile-payment-cards-list" style="margin-bottom:1.25rem;">
+                    ${(proj.paymentPlan ?? []).map(row => `
+                      <div style="background:#ffffff; border:2px solid #1E293B; border-radius:12px; padding:0.95rem 1.15rem; margin-bottom:0.75rem; box-shadow:0 2px 6px rgba(0,0,0,0.05);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid #E2E8F0; pb:0.5rem; margin-bottom:0.65rem;">
+                          <span style="font-weight:800; color:#0F172A; font-size:1rem;">${row.size}</span>
+                          <span style="font-weight:800; color:var(--forest-dk); font-family:var(--font-mono); font-size:0.95rem;">${row.total}</span>
+                        </div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.65rem; font-size:0.82rem;">
+                          <div>
+                            <div style="color:#64748B; font-weight:700; font-size:0.7rem; text-transform:uppercase; font-family:var(--font-mono);">Down Payment</div>
+                            <div style="color:var(--rani); font-weight:800; font-size:0.9rem; font-family:var(--font-mono);">${row.downPayment}</div>
+                          </div>
+                          <div>
+                            <div style="color:#64748B; font-weight:700; font-size:0.7rem; text-transform:uppercase; font-family:var(--font-mono);">Quarterly</div>
+                            <div style="color:#1E293B; font-weight:700; font-font-family:var(--font-mono);">${row.quarterly}</div>
+                          </div>
+                          <div>
+                            <div style="color:#64748B; font-weight:700; font-size:0.7rem; text-transform:uppercase; font-family:var(--font-mono);">On Possession</div>
+                            <div style="color:#1E293B; font-weight:700; font-family:var(--font-mono);">${row.possession}</div>
+                          </div>
+                        </div>
+                      </div>
+                    `).join('')}
+                  </div>
+
+                  <!-- 2. DESKTOP TABLE VIEW (Displays on screens > 640px) -->
+                  <div class="desktop-payment-table-wrap" style="border:2px solid #1E293B; border-radius:10px; overflow-x:auto; background:#ffffff; box-shadow:0 2px 8px rgba(0,0,0,0.05); margin-bottom:1.25rem;">
+                    <table class="dealer-table" style="width:100%; border-collapse:collapse; min-width:540px; font-size:0.85rem;">
                       <thead>
                         <tr style="background:#131d0c; color:#ffffff; font-family:var(--font-mono); font-size:0.75rem; text-transform:uppercase; letter-spacing:0.5px;">
                           <th style="padding:10px 14px; text-align:left; border-bottom:2px solid var(--marigold);">Plot Size</th>
