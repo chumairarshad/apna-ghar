@@ -1,6 +1,8 @@
-import { formatPKR, formatArea, normalizeProperties } from '../utils/formatters.js';
+import { formatPKR, formatArea } from '../utils/formatters.js';
+import { normalizeProperty, normalizeProperties } from '../utils/normalizeProperty.js';
 import { getFavorites } from '../utils/storage.js';
 import { renderIcon } from '../utils/icons.js';
+
 
 export function renderCatalog(rawProperties, state) {
   const properties = normalizeProperties(rawProperties);

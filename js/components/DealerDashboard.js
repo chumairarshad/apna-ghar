@@ -1,6 +1,8 @@
-import { formatPKR, formatArea, normalizeProperties } from '../utils/formatters.js';
+import { formatPKR, formatArea } from '../utils/formatters.js';
+import { normalizeProperty, normalizeProperties } from '../utils/normalizeProperty.js';
 import { getDealerLeads, saveDealerLeads, getAgencyProfile, saveAgencyProfile } from '../utils/storage.js';
 import { INITIAL_DEALER_LEADS } from '../data/leads.js';
+
 
 import { INITIAL_AGENTS } from '../data/agents.js';
 import { getDealersFromStorage } from '../utils/storage.js';

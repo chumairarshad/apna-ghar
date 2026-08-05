@@ -1,5 +1,7 @@
-import { formatPKR, formatArea, normalizeProperty } from '../utils/formatters.js';
+import { formatPKR, formatArea } from '../utils/formatters.js';
+import { normalizeProperty } from '../utils/normalizeProperty.js';
 import { renderIcon } from '../utils/icons.js';
+
 
 export function renderPropertyDetailModal(state) {
   if (!state.selectedProperty) return `<div id="prop-detail-modal-overlay"></div>`;

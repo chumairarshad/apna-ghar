@@ -1,9 +1,10 @@
 import { INITIAL_PROPERTIES } from './data/properties.js';
 import { INITIAL_AGENTS } from './data/agents.js';
 import { getFavorites, toggleFavorite, getCustomProperties, saveCustomProperty, saveOrUpdatePropertyInStorage, deletePropertyFromStorage, getEffectiveProperties, getDealerLeads, saveDealerLeads, saveAgencyProfile, getDealersFromStorage, saveDealersToStorage } from './utils/storage.js';
-import { convertArea, calculateMortgage, formatPKR, normalizeProperties, normalizeProperty } from './utils/formatters.js';
-
+import { convertArea, calculateMortgage, formatPKR } from './utils/formatters.js';
+import { normalizeProperty, normalizeProperties } from './utils/normalizeProperty.js';
 import { fetchPropertiesFromApi, savePropertyToApi, uploadImageToFreeCdn } from './utils/api.js';
+
 
 import { renderHeader } from './components/Header.js';
 import { renderHeroSearch } from './components/SearchEngine.js';
