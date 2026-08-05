@@ -6,11 +6,39 @@ export function renderPropertyDetailModal(state) {
 
   if (!prop) return `<div id="prop-detail-modal-overlay"></div>`;
 
+  const images = Array.isArray(prop.images) && prop.images.length > 0
+    ? prop.images
+    : ['https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80'];
+
+  const badges = Array.isArray(prop.badges) && prop.badges.length > 0
+    ? prop.badges
+    : ['VERIFIED LISTING'];
+
+  const features = Array.isArray(prop.features) && prop.features.length > 0
+    ? prop.features
+    : (Array.isArray(prop.amenities) && prop.amenities.length > 0 ? prop.amenities : ['Electricity', 'Water Supply', 'Sewerage']);
+
+  const agency = prop.agency || {
+    name: prop.agencyName || 'Apna Ghar Real Estate',
+    agentName: prop.agentName || 'Verified Dealer',
+    phone: prop.agentPhone || '+92 300 0000000',
+    whatsapp: prop.agentPhone ? prop.agentPhone.replace(/[^0-9]/g, '') : '923000000000',
+    badge: 'VERIFIED DEALER',
+    avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80'
+  };
+
+  const mainImage = images[0];
+  const subImage1 = images[1] || mainImage;
+  const subImage2 = images[2] || mainImage;
+  const sizeMarla = prop.sizeMarla || prop.size_marla || 1;
+  const price = prop.price || 0;
+  const avgMarlaPrice = sizeMarla > 0 ? Math.round(price / sizeMarla) : 0;
+
   return `
     <div class="modal-overlay active" id="prop-detail-modal-overlay">
       <div class="modal-container" style="max-width:920px;">
         <div class="modal-header">
-          <h3 class="modal-title">${prop.title}</h3>
+          <h3 class="modal-title">${prop.title || 'Property Details'}</h3>
           <button class="close-modal-btn" id="close-prop-detail-btn">&times;</button>
         </div>
 
@@ -18,10 +46,10 @@ export function renderPropertyDetailModal(state) {
           <!-- Image Gallery Grid with 360° Overlay -->
           <div style="position:relative; margin-bottom:1.5rem; border-radius:12px; overflow:hidden; border:2px solid var(--forest-dk);">
             <div style="display:grid; grid-template-columns: 2fr 1fr; gap:0.5rem;">
-              <img src="${prop.images[0]}" style="width:100%; height:320px; object-fit:cover;" />
+              <img src="${mainImage}" style="width:100%; height:320px; object-fit:cover;" />
               <div style="display:flex; flex-direction:column; gap:0.5rem;">
-                <img src="${prop.images[1] || prop.images[0]}" style="width:100%; height:156px; object-fit:cover;" />
-                <img src="${prop.images[2] || prop.images[0]}" style="width:100%; height:156px; object-fit:cover;" />
+                <img src="${subImage1}" style="width:100%; height:156px; object-fit:cover;" />
+                <img src="${subImage2}" style="width:100%; height:156px; object-fit:cover;" />
               </div>
             </div>
 
@@ -35,25 +63,25 @@ export function renderPropertyDetailModal(state) {
           <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
             <div>
               <div class="card-badges" style="position:static; margin-bottom:0.5rem;">
-                ${prop.badges.map(b => `<span class="badge badge-verified" style="margin-right:4px;">${b}</span>`).join('')}
+                ${badges.map(b => `<span class="badge badge-verified" style="margin-right:4px;">${b}</span>`).join('')}
                 <span class="badge" style="background:rgba(242,167,27,0.15); border:1px solid var(--marigold); color:var(--forest-dk); font-size:0.75rem; font-weight:700; margin-right:4px;">
                   👁️ ${prop.views || 1} Total Views
                 </span>
               </div>
 
-              <h2 style="font-size:1.6rem; color:var(--forest-dk); line-height:1.2; margin-bottom:0.35rem;">${prop.title}</h2>
+              <h2 style="font-size:1.6rem; color:var(--forest-dk); line-height:1.2; margin-bottom:0.35rem;">${prop.title || 'Property Listing'}</h2>
               <div style="color:var(--forest); font-size:0.95rem; opacity:0.85; display:flex; align-items:center; gap:4px;">
                 ${renderIcon('map-pin', 16, 'var(--rani)')}
-                ${prop.address}
+                ${prop.address || (prop.location ? `${prop.location}, ${prop.city}` : 'Pakistan')}
               </div>
             </div>
 
             <div style="text-align:right;">
               <div style="font-family:var(--font-mono); font-size:2.2rem; font-weight:800; color:var(--rani-dk);">
-                ${formatPKR(prop.price)}
+                ${formatPKR(price)}
               </div>
               <div style="font-size:0.85rem; color:var(--forest); font-weight:600; opacity:0.8;">
-                Avg: ${formatPKR(Math.round(prop.price / prop.sizeMarla))} / Marla
+                Avg: ${formatPKR(avgMarlaPrice)} / Marla
               </div>
             </div>
           </div>
@@ -70,7 +98,7 @@ export function renderPropertyDetailModal(state) {
             </div>
             <div>
               <div style="font-size:0.75rem; color:var(--forest); font-weight:700;">AREA SIZE</div>
-              <div style="font-size:1.15rem; font-weight:800; color:var(--forest-dk);">${formatArea(prop.sizeMarla, state.unit)}</div>
+              <div style="font-size:1.15rem; font-weight:800; color:var(--forest-dk);">${formatArea(sizeMarla, state.unit)}</div>
             </div>
             <div>
               <div style="font-size:0.75rem; color:var(--forest); font-weight:700;">FACING</div>
@@ -81,13 +109,13 @@ export function renderPropertyDetailModal(state) {
           <!-- Description & Features -->
           <div style="margin-bottom:1.75rem;">
             <h3 style="margin-bottom:0.75rem; color:var(--forest-dk);">Property Overview & Description</h3>
-            <p style="color:var(--ink); font-size:0.95rem; line-height:1.7;">${prop.description}</p>
+            <p style="color:var(--ink); font-size:0.95rem; line-height:1.7;">${prop.description || 'No detailed description provided.'}</p>
           </div>
 
           <div style="margin-bottom:1.75rem;">
             <h3 style="margin-bottom:0.75rem; color:var(--forest-dk);">Features & Amenities</h3>
             <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:0.75rem;">
-              ${prop.features.map(f => `
+              ${features.map(f => `
                 <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.9rem; font-weight:600; color:var(--forest-dk);">
                   ${renderIcon('check-circle', 16, 'var(--rani)')} ${f}
                 </div>
@@ -98,11 +126,11 @@ export function renderPropertyDetailModal(state) {
           <!-- Agent Contact & Inquiry Form Card -->
           <div style="background:var(--forest-dk); color:white; border-radius:16px; padding:1.75rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem; border:2px solid var(--forest);">
             <div style="display:flex; align-items:center; gap:1rem;">
-              <img src="${prop.agency.avatar}" style="width:4rem; height:4rem; border-radius:50%; border:2px solid var(--marigold); object-fit:cover;" />
+              <img src="${agency.avatar || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80'}" style="width:4rem; height:4rem; border-radius:50%; border:2px solid var(--marigold); object-fit:cover;" />
               <div>
-                <h4 style="color:white; font-size:1.2rem; margin:0;">${prop.agency.agentName}</h4>
-                <p style="color:var(--meadow-lt); font-size:0.88rem; margin:2px 0;">${prop.agency.name} • <span style="color:var(--marigold);">${prop.agency.badge}</span></p>
-                <p style="color:var(--cream); opacity:0.8; font-size:0.8rem; margin:0;">Phone: ${prop.agency.phone}</p>
+                <h4 style="color:white; font-size:1.2rem; margin:0;">${agency.agentName || agency.name || 'Verified Realtor'}</h4>
+                <p style="color:var(--meadow-lt); font-size:0.88rem; margin:2px 0;">${agency.name || 'Real Estate Agency'} • <span style="color:var(--marigold);">${agency.badge || 'VERIFIED'}</span></p>
+                <p style="color:var(--cream); opacity:0.8; font-size:0.8rem; margin:0;">Phone: ${agency.phone || '+92 300 0000000'}</p>
               </div>
             </div>
 
@@ -118,7 +146,7 @@ export function renderPropertyDetailModal(state) {
               <button type="button" class="btn btn-marigold btn-sm schedule-btn" data-id="${prop.id}" style="padding:10px 18px; font-size:0.88rem;">
                 ${renderIcon('calendar', 16)} Book Visit
               </button>
-              <a href="https://wa.me/${prop.agency.whatsapp}?text=Hi%20${encodeURIComponent(prop.agency.agentName)},%20I%20am%20interested%20in%20listing%20ID%20${prop.id}%20(${encodeURIComponent(prop.title)})" 
+              <a href="https://wa.me/${agency.whatsapp || '923000000000'}?text=Hi%20${encodeURIComponent(agency.agentName || 'Realtor')},%20I%20am%20interested%20in%20listing%20ID%20${prop.id}%20(${encodeURIComponent(prop.title || 'Property')})" 
                  target="_blank" 
                  class="btn btn-whatsapp btn-sm" 
                  style="padding:10px 18px; font-size:0.88rem;">

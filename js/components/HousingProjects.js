@@ -60,7 +60,7 @@ export function renderHousingProjects() {
                         </tr>
                       </thead>
                       <tbody>
-                        ${proj.paymentPlan.map(row => `
+                        ${(proj.paymentPlan ?? []).map(row => `
                           <tr>
                             <td><strong>${row.size}</strong></td>
                             <td>${row.total}</td>
@@ -76,8 +76,9 @@ export function renderHousingProjects() {
 
                 <div style="margin-top:1.25rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.85rem; pt:0.85rem; border-top:1px dashed var(--border-dk);">
                   <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
-                    ${proj.features.map(f => `<span class="filter-chip" style="font-size:0.72rem; padding:3px 10px;">${f}</span>`).join('')}
+                    ${(proj.features ?? []).map(f => `<span class="filter-chip" style="font-size:0.72rem; padding:3px 10px;">${f}</span>`).join('')}
                   </div>
+
                   <a href="https://wa.me/923008472910?text=Hi%20Apna%20Ghar,%20please%20send%20me%20brochure%20and%20booking%20form%20for%20${encodeURIComponent(proj.name)}" target="_blank" class="btn btn-primary btn-sm" style="padding:8px 16px;">
                     Book On Installments
                   </a>

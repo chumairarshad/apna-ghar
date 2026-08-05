@@ -69,8 +69,9 @@ function renderProfessionalAgentCard(agent) {
 
         <!-- Specialities Chips -->
         <div style="display:flex; flex-wrap:wrap; gap:4px; justify-content:center; margin-bottom:1.25rem;">
-          ${agent.specialities.map(s => `<span class="chip" style="font-size:0.62rem; padding:3px 8px;">${s}</span>`).join('')}
+          ${(agent.specialities ?? []).map(s => `<span class="chip" style="font-size:0.62rem; padding:3px 8px;">${s}</span>`).join('')}
         </div>
+
 
         <!-- Action CTAs -->
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.5rem; width:100%; margin-top:auto;">
