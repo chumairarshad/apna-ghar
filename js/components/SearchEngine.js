@@ -51,36 +51,38 @@ export function renderHeroSearch(state) {
             </button>
           </div>
 
-          <!-- Integrated AI Natural Language Search Prompt Bar -->
-          <div style="background:var(--forest-dk); color:var(--paper); border-radius:12px; padding:1.15rem; margin-bottom:1.5rem; border:2px solid var(--marigold); box-shadow:var(--shadow-md);">
-            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.6rem;">
-              ${renderIcon('sparkles', 16, 'var(--marigold)')}
-              <label style="font-family:var(--font-mono); font-size:0.78rem; font-weight:700; color:var(--marigold); text-transform:uppercase; letter-spacing:0.5px;">
-                🤖 AI Smart Property Search — Type in Plain English or Urdu
+          <!-- Integrated AI Natural Language Search Prompt Bar (High Contrast & Prominent Size) -->
+          <div class="ai-search-container-box" style="background:linear-gradient(135deg, var(--forest-dk), #1c2b14); color:var(--paper); border-radius:14px; padding:1.5rem 1.75rem; margin-bottom:1.5rem; border:3px solid var(--marigold); box-shadow:0 10px 30px rgba(19,29,12,0.3);">
+            <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.75rem;">
+              <div style="width:28px; height:28px; background:var(--marigold); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--forest-dk); flex-shrink:0;">
+                ${renderIcon('sparkles', 16, 'var(--forest-dk)')}
+              </div>
+              <label style="font-family:var(--font-display); font-size:0.95rem; font-weight:800; color:var(--marigold); text-transform:uppercase; letter-spacing:0.8px; margin:0;">
+                🤖 AI Smart Property Search Engine — Type in Plain English or Urdu
               </label>
             </div>
 
-            <div style="display:flex; gap:0.65rem;" class="ai-main-input-wrap">
+            <div style="display:flex; gap:0.75rem;" class="ai-main-input-wrap">
               <input type="text" 
                      id="ai-prompt-input" 
                      placeholder="e.g. 10 Marla house in DHA Phase 6 Lahore under 4.5 Crore with solar grid..." 
-                     style="flex:1; height:46px; background:var(--paper); color:var(--ink); border:2px solid var(--border-dk); border-radius:6px; padding:0 1rem; font-size:0.92rem; font-weight:600;" />
+                     style="flex:1; height:56px; background:#ffffff; color:#0F172A; border:3px solid #1E293B; border-radius:10px; padding:0 1.25rem; font-size:1.05rem; font-weight:700; box-shadow:0 3px 10px rgba(0,0,0,0.1);" />
 
-              <button type="button" class="btn btn-primary" id="execute-ai-search-btn" style="height:46px; padding:0 1.25rem; font-size:0.88rem;">
-                ${renderIcon('sparkles', 16)} AI Match
+              <button type="button" class="btn btn-primary" id="execute-ai-search-btn" style="height:56px; padding:0 1.75rem; font-size:1rem; font-weight:800; border-radius:10px; box-shadow:0 6px 20px rgba(209,38,110,0.45); flex-shrink:0;">
+                ${renderIcon('sparkles', 20)} AI Match
               </button>
             </div>
 
             <!-- Quick AI Prompt Chips -->
-            <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.75rem; align-items:center;">
-              <span style="font-family:var(--font-mono); font-size:0.7rem; color:var(--meadow-lt); font-weight:600;">Sample Prompts:</span>
-              <button type="button" class="ai-sample-prompt-btn" data-prompt="10 Marla house in DHA Phase 6 Lahore under 5 Crore" style="background:rgba(255,255,255,0.1); border:1px solid rgba(242,167,27,0.4); color:var(--paper); font-size:0.72rem; padding:3px 10px; border-radius:15px;">
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.85rem; align-items:center;">
+              <span style="font-family:var(--font-mono); font-size:0.75rem; color:var(--meadow-lt); font-weight:700;">Sample Prompts:</span>
+              <button type="button" class="ai-sample-prompt-btn" data-prompt="10 Marla house in DHA Phase 6 Lahore under 5 Crore" style="background:rgba(255,255,255,0.12); border:1.5px solid rgba(242,167,27,0.5); color:var(--paper); font-size:0.78rem; font-weight:700; padding:4px 12px; border-radius:16px;">
                 📍 10 Marla DHA Phase 6
               </button>
-              <button type="button" class="ai-sample-prompt-btn" data-prompt="1 Kanal plot in Bahria Town Islamabad with lake view" style="background:rgba(255,255,255,0.1); border:1px solid rgba(242,167,27,0.4); color:var(--paper); font-size:0.72rem; padding:3px 10px; border-radius:15px;">
+              <button type="button" class="ai-sample-prompt-btn" data-prompt="1 Kanal plot in Bahria Town Islamabad with lake view" style="background:rgba(255,255,255,0.12); border:1.5px solid rgba(242,167,27,0.5); color:var(--paper); font-size:0.78rem; font-weight:700; padding:4px 12px; border-radius:16px;">
                 🌲 1 Kanal Bahria Town
               </button>
-              <button type="button" class="ai-sample-prompt-btn" data-prompt="3 bedroom luxury apartment in Clifton Karachi for rent" style="background:rgba(255,255,255,0.1); border:1px solid rgba(242,167,27,0.4); color:var(--paper); font-size:0.72rem; padding:3px 10px; border-radius:15px;">
+              <button type="button" class="ai-sample-prompt-btn" data-prompt="3 bedroom luxury apartment in Clifton Karachi for rent" style="background:rgba(255,255,255,0.12); border:1.5px solid rgba(242,167,27,0.5); color:var(--paper); font-size:0.78rem; font-weight:700; padding:4px 12px; border-radius:16px;">
                 🌊 3 Bed Flat Clifton
               </button>
             </div>
@@ -99,51 +101,40 @@ export function renderHeroSearch(state) {
               </select>
             </div>
 
-            <!-- Society / Location -->
+            <!-- Society / Location Selector -->
             <div class="filter-group">
-              <label>${renderIcon('navigation', 13, 'var(--rani)')} Society / Area</label>
+              <label>${renderIcon('building-2', 13, 'var(--rani)')} Society / Sector</label>
               <select id="filter-society" class="filter-select">
-                <option value="all">All Societies & Sectors</option>
+                <option value="all">All Societies & Locations</option>
                 ${societiesList.map(s => `
-                  <option value="${s}">${s}</option>
+                  <option value="${s}" ${state.searchFilters.society === s ? 'selected' : ''}>${s}</option>
                 `).join('')}
               </select>
             </div>
 
-            <!-- Property Type -->
+            <!-- Property Type Selector -->
             <div class="filter-group">
-              <label>${renderIcon('building', 13, 'var(--rani)')} Property Type</label>
+              <label>${renderIcon('home', 13, 'var(--rani)')} Property Type</label>
               <select id="filter-type" class="filter-select">
                 <option value="all">All Property Types</option>
                 ${PROPERTY_TYPES.map(t => `
-                  <option value="${t.id}">${t.label}</option>
+                  <option value="${t.id}" ${state.searchFilters.category === t.id ? 'selected' : ''}>${t.name}</option>
                 `).join('')}
               </select>
             </div>
 
-            <!-- Action Button -->
-            <div class="filter-group search-btn-group">
-              <button class="btn btn-primary btn-search" id="execute-search-btn">
-                ${renderIcon('search', 18, 'white')} Search Properties
-              </button>
+            <!-- Budget Range Selector -->
+            <div class="filter-group">
+              <label>${renderIcon('dollar-sign', 13, 'var(--rani)')} Max Price Range</label>
+              <select id="filter-price" class="filter-select">
+                <option value="all">Any Price</option>
+                <option value="5000000" ${state.searchFilters.maxPrice === '5000000' ? 'selected' : ''}>Under 50 Lakhs (PKR 5M)</option>
+                <option value="15000000" ${state.searchFilters.maxPrice === '15000000' ? 'selected' : ''}>Under 1.5 Crore (PKR 15M)</option>
+                <option value="35000000" ${state.searchFilters.maxPrice === '35000000' ? 'selected' : ''}>Under 3.5 Crore (PKR 35M)</option>
+                <option value="60000000" ${state.searchFilters.maxPrice === '60000000' ? 'selected' : ''}>Under 6.0 Crore (PKR 60M)</option>
+                <option value="100000000" ${state.searchFilters.maxPrice === '100000000' ? 'selected' : ''}>Under 10.0 Crore (PKR 100M)</option>
+              </select>
             </div>
-          </div>
-
-          <!-- Quick Filter Chips -->
-          <div class="quick-chips">
-            <span class="chip-label">Popular Filters:</span>
-            <button class="filter-chip" data-badge="VERIFIED">
-              ${renderIcon('shield-check', 12)} Verified DHA
-            </button>
-            <button class="filter-chip" data-size="10">
-              ${renderIcon('maximize', 12)} 10 Marla Modern
-            </button>
-            <button class="filter-chip" data-size="20">
-              ${renderIcon('home', 12)} 1 Kanal Luxury Villa
-            </button>
-            <button class="filter-chip" data-badge="HOT DEAL">
-              ${renderIcon('flame', 12, 'var(--rani)')} Hot Deals
-            </button>
           </div>
         </div>
       </div>

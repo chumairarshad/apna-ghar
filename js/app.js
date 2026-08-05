@@ -876,6 +876,18 @@ function setupEventListeners() {
       renderApp();
     }
 
+    // Chatbot View Property Details Click Handler
+    const chatViewPropBtn = e.target.closest('.chat-view-prop-btn');
+    if (chatViewPropBtn) {
+      const propId = chatViewPropBtn.getAttribute('data-id');
+      const targetProp = state.properties.find(p => String(p.id) === String(propId));
+      if (targetProp) {
+        state.selectedProperty = normalizeProperty(targetProp);
+        renderApp();
+      }
+    }
+
+
     const removeFavBtn = e.target.closest('.remove-fav-item-btn');
     if (removeFavBtn) {
       const id = removeFavBtn.getAttribute('data-id');
@@ -1477,20 +1489,62 @@ function setupEventListeners() {
 function handleAIChatSubmit(query) {
   state.aiChatMessages.push({ sender: 'user', text: query });
   
-  let botReply = 'I have analyzed your query! Here are the best verified options available on Apna Ghar right now.';
   const q = query.toLowerCase();
+  const allProps = state.properties || [];
 
-  if (q.includes('dha') || q.includes('lahore')) {
-    botReply = '📍 **DHA Lahore Phase 6 & 8 Update**: Average 10 Marla Luxury Houses range from **4.2 Crore to 5.5 Crore**. 1 Kanal Designer Villas start around **8.5 Crore**. We have 4 Verified DHA listings online right now!';
-  } else if (q.includes('loan') || q.includes('emi') || q.includes('calculator')) {
+  // Score each property in database based on user query keywords
+  const scored = allProps.map(rawP => {
+    const p = normalizeProperty(rawP);
+    let score = 35; // base match threshold
+
+    const titleLower = (p.title || '').toLowerCase();
+    const cityLower = (p.city || '').toLowerCase();
+    const locationLower = (p.location || '').toLowerCase();
+    const categoryLower = (p.category || '').toLowerCase();
+    const purposeLower = (p.purpose || '').toLowerCase();
+    const descLower = (p.description || '').toLowerCase();
+
+    if (q.includes(cityLower) && cityLower.length > 2) score += 25;
+    if (q.includes(locationLower) && locationLower.length > 2) score += 25;
+    else {
+      const locWords = locationLower.split(' ').filter(w => w.length > 2);
+      if (locWords.some(w => q.includes(w))) score += 20;
+    }
+
+    if (q.includes(categoryLower)) score += 15;
+    else if (q.includes('house') && categoryLower.includes('house')) score += 15;
+    else if (q.includes('plot') && categoryLower.includes('plot')) score += 15;
+    else if (q.includes('flat') || q.includes('apartment')) score += 15;
+
+    if (q.includes('sale') && purposeLower === 'sale') score += 10;
+    if (q.includes('rent') && purposeLower === 'rent') score += 10;
+
+    if (p.sizeMarla && (q.includes(`${p.sizeMarla} marla`) || q.includes(`${p.sizeMarla}marla`))) score += 15;
+    if (p.bedrooms && (q.includes(`${p.bedrooms} bed`) || q.includes(`${p.bedrooms}bed`))) score += 15;
+
+    // Normalize match percentage score between 55% and 98%
+    const matchScore = Math.min(98, Math.max(55, score));
+
+    return { ...p, matchScore };
+  });
+
+  // Sort by highest match score and select top 3 matched properties
+  scored.sort((a, b) => b.matchScore - a.matchScore);
+  const matchedProperties = scored.slice(0, 3);
+
+  let botReply = `I analyzed our database for **"${query}"**! Here are the best verified properties matching your query:`;
+  if (q.includes('loan') || q.includes('emi') || q.includes('calculator')) {
     botReply = '🧮 **Home Loan Rate**: Current bank KIBOR interest is ~14.5%. For a **3 Crore** loan over 20 years, your estimated monthly EMI will be **~PKR 382,000 / month**. Check our **Calculators & Tools** tab for detailed breakdowns!';
-  } else if (q.includes('islamabad') || q.includes('hot')) {
-    botReply = '🔥 **Islamabad Megaproject Highlight**: Capital Smart City & Gulberg Greens feature prime 10 Marla and 1 Kanal plots with easy 3-Year quarterly installment plans starting at **PKR 35 Lakhs down payment**!';
   }
 
-  state.aiChatMessages.push({ sender: 'bot', text: botReply });
+  state.aiChatMessages.push({ 
+    sender: 'bot', 
+    text: botReply,
+    matchedProperties: (q.includes('loan') || q.includes('emi')) ? [] : matchedProperties 
+  });
   renderApp();
 }
+
 
 // Bind live dynamic calculations in financial tools
 function bindToolCalculators() {
