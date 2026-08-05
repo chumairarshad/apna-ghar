@@ -188,10 +188,11 @@ function renderDealersManagementTab(dealers) {
                 </td>
                 <td><span class="badge badge-verified">${d.activeListingsCount || 0} Listings</span></td>
                 <td>
-                  <span class="status-pill ${d.isSuspended ? 'status-sold' : 'status-active'}" style="background:${d.isSuspended ? '#FEE2E2' : (d.badge?.includes('PLATINUM') ? '#FEF3C7' : '#DCFCE7')}; color:${d.isSuspended ? '#DC2626' : (d.badge?.includes('PLATINUM') ? '#B45309' : '#166534')}; font-weight:800;">
+                  <span class="status-pill ${d.isSuspended ? 'status-sold' : 'status-active'}" style="background:${d.isSuspended ? '#FEE2E2' : ((d.badge ?? '').includes('PLATINUM') ? '#FEF3C7' : '#DCFCE7')}; color:${d.isSuspended ? '#DC2626' : ((d.badge ?? '').includes('PLATINUM') ? '#B45309' : '#166534')}; font-weight:800;">
                     ${d.isSuspended ? 'SUSPENDED' : (d.badge || 'VERIFIED')}
                   </span>
                 </td>
+
                 <td>
                   <div style="display:flex; gap:0.35rem; flex-wrap:wrap;">
                     <button class="btn btn-gold btn-sm toggle-dealer-badge-btn" data-id="${d.id}" style="padding:0.25rem 0.5rem; font-size:0.72rem;">
@@ -258,15 +259,16 @@ function renderInventoryTab(properties, state) {
                     </div>
                   </div>
                 </td>
-                <td><span class="badge badge-verified">${p.purpose.toUpperCase()}</span> ${p.category}</td>
-                <td><strong>${formatPKR(p.price)}</strong></td>
-                <td>${p.location}, ${p.city}</td>
+                <td><span class="badge badge-verified">${(p.purpose ?? 'sale').toUpperCase()}</span> ${p.category || ''}</td>
+                <td><strong>${formatPKR(p.price || 0)}</strong></td>
+                <td>${p.location || ''}, ${p.city || ''}</td>
                 <td>${p.views || 0}</td>
                 <td>
                   <span class="status-pill ${p.status === 'sold' ? 'status-sold' : 'status-active'}">
-                    ${p.status.toUpperCase()}
+                    ${(p.status ?? 'active').toUpperCase()}
                   </span>
                 </td>
+
                 <td>
                   <div style="display:flex; gap:0.35rem; flex-wrap:wrap;">
                     <button class="btn btn-secondary btn-sm toggle-sold-btn" data-id="${p.id}" style="padding:0.25rem 0.45rem; font-size:0.72rem;">
