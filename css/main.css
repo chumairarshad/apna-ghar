@@ -643,11 +643,23 @@ input, select, textarea {
   margin-bottom: 0.5rem;
 }
 
+.table-responsive::-webkit-scrollbar {
+  height: 6px;
+}
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+.table-responsive::-webkit-scrollbar-thumb {
+  background: var(--forest-dk);
+  border-radius: 4px;
+}
+
 .dealer-table {
   width: 100%;
-  min-width: 620px;
   border-collapse: collapse;
 }
+
 
 /* Global Word Wrapping Fix for Headings & Titles on Mobile */
 h1, h2, h3, h4, .hero-title, .modal-title {
