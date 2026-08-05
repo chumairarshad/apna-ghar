@@ -21,7 +21,10 @@ router.post('/', async (req, res) => {
 
     const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
       method: 'POST',
-      body: formData
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: formData.toString()
     });
 
     const data = await response.json();
@@ -31,8 +34,9 @@ router.post('/', async (req, res) => {
         success: true,
         url: data.data.url,
         thumb: data.data.thumb?.url || data.data.url,
-        message: 'Image uploaded successfully to Free Unlimited CDN.'
+        message: 'Image uploaded successfully to Free Unlimited ImgBB CDN.'
       });
+
     } else {
       return res.json({
         success: true,

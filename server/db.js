@@ -6,11 +6,12 @@ const { Pool } = pg;
 
 // Neon Serverless PostgreSQL Pool Connection
 export const pool = new Pool({
-  connectionString: process.env.NEON_DATABASE_URL || process.env.DATABASE_URL || 'postgresql://neondb_owner:dummy@ep-sample.us-east-2.aws.neon.tech/neondb?sslmode=require',
+  connectionString: process.env.NEON_DATABASE_URL || process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_uhLwYqKU2t4G@ep-cool-star-ax61pej5.c-4.us-east-2.aws.neon.tech/neondb?sslmode=require',
   ssl: {
     rejectUnauthorized: false
   }
 });
+
 
 let isInitialized = false;
 

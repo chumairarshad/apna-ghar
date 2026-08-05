@@ -83,22 +83,42 @@ export async function savePropertyToApi(property) {
 // Upload image file to Free CDN (ImgBB)
 export async function uploadImageToFreeCdn(base64Image) {
   try {
-    // Skip network call if it's already an HTTP image URL
+    if (!base64Image) return 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80';
     if (base64Image.startsWith('http://') || base64Image.startsWith('https://')) {
       return base64Image;
     }
+    
+    // 1. Send to Express API endpoint /api/upload
     const res = await fetch('/api/upload', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ image: base64Image })
     });
-    const data = await res.json();
+    const data = await res.json().catch(() => null);
     if (data && data.success && data.url) {
       return data.url;
     }
+
+    // 2. Direct ImgBB API Fallback
+    const apiKey = 'f6d0ec208aa0c0c984cbc6ef2b5315c3';
+    const cleanBase64 = base64Image.replace(/^data:image\/\w+;base64,/, '');
+    const bodyData = new URLSearchParams();
+    bodyData.append('image', cleanBase64);
+
+    const imgbbRes = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: bodyData.toString()
+    });
+    const imgbbData = await imgbbRes.json().catch(() => null);
+    if (imgbbData && imgbbData.data && imgbbData.data.url) {
+      return imgbbData.data.url;
+    }
+
     return base64Image;
   } catch (e) {
     console.warn('Upload image API notice:', e.message);
     return base64Image;
   }
 }
+
