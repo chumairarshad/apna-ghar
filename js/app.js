@@ -1,7 +1,8 @@
 import { INITIAL_PROPERTIES } from './data/properties.js';
 import { INITIAL_AGENTS } from './data/agents.js';
 import { getFavorites, toggleFavorite, getCustomProperties, saveCustomProperty, saveOrUpdatePropertyInStorage, deletePropertyFromStorage, getEffectiveProperties, getDealerLeads, saveDealerLeads, saveAgencyProfile, getDealersFromStorage, saveDealersToStorage } from './utils/storage.js';
-import { convertArea, calculateMortgage, formatPKR } from './utils/formatters.js';
+import { convertArea, calculateMortgage, formatPKR, normalizeProperties, normalizeProperty } from './utils/formatters.js';
+
 import { fetchPropertiesFromApi, savePropertyToApi, uploadImageToFreeCdn } from './utils/api.js';
 
 import { renderHeader } from './components/Header.js';
@@ -168,7 +169,13 @@ function renderApp() {
     const appContainer = document.getElementById('app');
     if (!appContainer) return;
 
+    state.properties = normalizeProperties(state.properties);
+    if (state.selectedProperty) {
+      state.selectedProperty = normalizeProperty(state.selectedProperty);
+    }
+
     const filteredProperties = getFilteredProperties();
+
 
     let mainContentHTML = '';
     if (state.activeTab === 'buy' || state.activeTab === 'rent') {

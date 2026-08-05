@@ -1,9 +1,11 @@
-import { formatPKR, formatArea } from '../utils/formatters.js';
+import { formatPKR, formatArea, normalizeProperties } from '../utils/formatters.js';
 import { getFavorites } from '../utils/storage.js';
 import { renderIcon } from '../utils/icons.js';
 
-export function renderCatalog(properties, state) {
+export function renderCatalog(rawProperties, state) {
+  const properties = normalizeProperties(rawProperties);
   const favorites = getFavorites();
+
   const currentView = state.viewMode || 'grid'; // grid | map
 
   return `
@@ -61,9 +63,11 @@ export function renderCatalog(properties, state) {
   `;
 }
 
-function renderPropertyCard(prop, favorites, unit) {
+function renderPropertyCard(rawProp, favorites, unit) {
+  const prop = normalizeProperty(rawProp);
   const isFav = favorites.includes(prop.id);
-  const mainImg = prop.images && prop.images.length > 0 ? prop.images[0] : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80';
+  const mainImg = prop.images[0];
+
 
   return `
     <div class="property-card" data-id="${prop.id}">

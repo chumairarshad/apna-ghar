@@ -1,12 +1,14 @@
-import { formatPKR, formatArea } from '../utils/formatters.js';
+import { formatPKR, formatArea, normalizeProperties } from '../utils/formatters.js';
 import { getDealerLeads, saveDealerLeads, getAgencyProfile, saveAgencyProfile } from '../utils/storage.js';
 import { INITIAL_DEALER_LEADS } from '../data/leads.js';
 
 import { INITIAL_AGENTS } from '../data/agents.js';
 import { getDealersFromStorage } from '../utils/storage.js';
 
-export function renderDealerDashboard(properties, state) {
+export function renderDealerDashboard(rawProperties, state) {
+  const properties = normalizeProperties(rawProperties);
   let leads = getDealerLeads();
+
   if (!leads) {
     leads = INITIAL_DEALER_LEADS;
     saveDealerLeads(leads);
