@@ -437,7 +437,7 @@ input, select, textarea {
 
 /* Section Styling */
 .section {
-  padding: 5rem 0;
+  padding: 4rem 0;
 }
 
 .section-head {
@@ -450,7 +450,7 @@ input, select, textarea {
 }
 
 .section-head h2 {
-  font-size: clamp(2rem, 1.6rem + 1.6vw, 2.7rem);
+  font-size: clamp(1.75rem, 1.4rem + 1.5vw, 2.7rem);
   margin-top: 0.5rem;
   max-width: 640px;
 }
@@ -458,6 +458,86 @@ input, select, textarea {
 .section-head p {
   color: var(--forest);
   opacity: 0.8;
-  font-size: 1.05rem;
+  font-size: clamp(0.9rem, 0.85rem + 0.3vw, 1.05rem);
   max-width: 440px;
 }
+
+/* ==========================================================================
+   Comprehensive Responsive Breakpoints (Laptop, Tablet, Mobile)
+   ========================================================================== */
+
+/* Laptop & Desktop Fine-Tuning (1025px - 1440px) */
+@media (max-width: 1280px) {
+  .container, .wrap {
+    padding: 0 1.5rem;
+  }
+}
+
+/* Tablet / iPad Devices (769px - 1024px) */
+@media (max-width: 1024px) {
+  .section {
+    padding: 3rem 0;
+  }
+
+  button, a, select, input {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  #toast-container {
+    bottom: 1.25rem;
+    right: 1.25rem;
+    left: 1.25rem;
+    align-items: center;
+  }
+
+  .toast {
+    width: 100%;
+    max-width: 420px;
+    justify-content: center;
+  }
+}
+
+/* Mobile & Small Tablets (<= 768px) */
+@media (max-width: 768px) {
+  .section {
+    padding: 2.5rem 0;
+  }
+
+  .container, .wrap {
+    padding: 0 1rem;
+  }
+
+  .section-head {
+    margin-bottom: 1.75rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  /* Disable heavy keyframe animations on mobile touch for smooth scrolling */
+  .search-engine-box {
+    animation: none !important;
+  }
+
+  /* Minimum 44px touch targets on mobile */
+  .btn, button, select, .filter-chip, .search-tab {
+    min-height: 44px;
+  }
+}
+
+/* Extra Small Phones (<= 480px) */
+@media (max-width: 480px) {
+  body {
+    font-size: 0.92rem;
+  }
+
+  .section-head h2 {
+    font-size: 1.5rem;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 12px 18px;
+  }
+}
+
