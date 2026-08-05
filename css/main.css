@@ -679,10 +679,35 @@ h1, h2, h3, h4, .hero-title, .modal-title {
   gap: 0;
 }
 
+.megaproject-card-body {
+  padding: 1.5rem;
+}
+
+.mobile-payment-cards-list {
+  display: none;
+}
+
+.desktop-payment-table-wrap {
+  display: block;
+}
+
 @media (max-width: 900px) {
   .megaproject-card {
     grid-template-columns: 1fr !important;
   }
 }
+
+@media (max-width: 640px) {
+  .megaproject-card-body {
+    padding: 0.85rem !important;
+  }
+  .mobile-payment-cards-list {
+    display: block !important;
+  }
+  .desktop-payment-table-wrap {
+    display: none !important;
+  }
+}
+
 
 
