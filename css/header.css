@@ -285,9 +285,41 @@ header.site-header {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
   }
   .btn-hide-mobile {
     display: flex !important;
   }
 }
+
+@media (max-width: 768px) {
+  #logout-btn {
+    display: none !important;
+  }
+  .btn-header-profile {
+    padding: 5px 10px;
+    font-size: 0.73rem;
+    max-width: 135px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+  }
+  .top-bar-pill {
+    white-space: nowrap;
+    font-size: 0.65rem;
+    padding: 2px 6px;
+  }
+  .unit-selector, .currency-selector {
+    padding: 0.15rem 0.3rem;
+    font-size: 0.65rem;
+  }
+  .top-bar-content {
+    gap: 0.25rem;
+  }
+  .header-actions {
+    gap: 0.4rem;
+  }
+}
+
 
