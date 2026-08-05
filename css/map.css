@@ -35,11 +35,35 @@
   border: 2px solid #F59E0B; /* Vibrant Gold border for high visibility */
   white-space: nowrap;
   cursor: pointer;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   text-align: center;
   line-height: 1.2;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
   transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.apnaghar-map-animated-icon {
+  display: inline-block;
+  font-size: 0.92rem;
+  animation: apnagharBadgePulse 1.8s infinite ease-in-out;
+  transform-origin: center;
+}
+
+@keyframes apnagharBadgePulse {
+  0% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 2px rgba(245, 158, 11, 0.6));
+  }
+  50% {
+    transform: scale(1.35) rotate(-6deg);
+    filter: drop-shadow(0 0 8px rgba(245, 158, 11, 1));
+  }
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 2px rgba(245, 158, 11, 0.6));
+  }
 }
 
 .map-price-badge:hover {

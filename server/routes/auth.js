@@ -8,16 +8,16 @@ const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'apnaghar_super_secret_jwt_key_2026_48h';
 
 // 1. SIGNUP API
-// Body: { name, email, password, phone, role: 'USER' | 'DEALER', agencyName, city }
+// Body: { name, email, password, phone, role: 'DEALER' | 'ADMIN', agencyName, city }
 router.post('/signup', async (req, res) => {
   try {
-    const { name, email, password, phone, role = 'USER', agencyName, city } = req.body;
+    const { name, email, password, phone, role = 'DEALER', agencyName, city } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({ success: false, message: 'Name, email, and password are required.' });
     }
 
-    const targetRole = ['USER', 'DEALER', 'ADMIN'].includes(role.toUpperCase()) ? role.toUpperCase() : 'USER';
+    const targetRole = ['DEALER', 'ADMIN'].includes(role.toUpperCase()) ? role.toUpperCase() : 'DEALER';
     const normalizedEmail = email.toLowerCase().trim();
 
     // Check if email exists
@@ -35,7 +35,7 @@ router.post('/signup', async (req, res) => {
       `INSERT INTO users (full_name, email, password_hash, phone, role, agency_name, city, badge, is_verified)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
        RETURNING id, full_name, email, phone, role, agency_name, city, badge, is_verified, created_at`,
-      [name, normalizedEmail, passwordHash, phone || '', targetRole, agencyName || '', city || 'Lahore', targetRole === 'DEALER' ? 'VERIFIED' : 'MEMBER', targetRole === 'DEALER']
+      [name, normalizedEmail, passwordHash, phone || '', targetRole, agencyName || '', city || 'Lahore', targetRole === 'ADMIN' ? 'SUPER_ADMIN' : 'VERIFIED', true]
     );
 
     const user = newUser.rows[0];

@@ -10,8 +10,8 @@ export const signupSchema = z.object({
     .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
     .regex(/[0-9]/, 'Password must contain at least one number'),
   phone: z.string().optional(),
-  role: z.enum(['USER', 'DEALER'], {
-    errorMap: () => ({ message: 'Role must be either USER or DEALER' })
+  role: z.enum(['DEALER', 'ADMIN'], {
+    errorMap: () => ({ message: 'Role must be either DEALER or ADMIN' })
   }),
   agencyName: z.string().optional(),
   city: z.string().optional()

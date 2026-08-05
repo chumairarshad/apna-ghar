@@ -129,3 +129,18 @@ export function getAgencyProfile() {
 export function saveAgencyProfile(profile) {
   localStorage.setItem(AGENCY_PROFILE_KEY, JSON.stringify(profile));
 }
+
+const DEALERS_LIST_KEY = "apnaghar_dealers_list";
+
+export function getDealersFromStorage(initialAgents = []) {
+  try {
+    const data = localStorage.getItem(DEALERS_LIST_KEY);
+    return data ? JSON.parse(data) : initialAgents;
+  } catch (e) {
+    return initialAgents;
+  }
+}
+
+export function saveDealersToStorage(dealers) {
+  localStorage.setItem(DEALERS_LIST_KEY, JSON.stringify(dealers));
+}

@@ -1,0 +1,104 @@
+/**
+ * API Client for Neon PostgreSQL Database & Free Unlimited Image Upload CDN
+ */
+
+// Fetch properties from Neon PostgreSQL database
+export async function fetchPropertiesFromApi() {
+  try {
+    const res = await fetch('/api/properties');
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (data.success && Array.isArray(data.properties) && data.properties.length > 0) {
+      return data.properties.map(p => ({
+        id: p.id,
+        title: p.title,
+        purpose: p.purpose,
+        category: p.category,
+        city: p.city,
+        location: p.location,
+        address: p.address || p.location,
+        price: Number(p.price),
+        sizeMarla: Number(p.size_marla),
+        bedrooms: p.bedrooms || 4,
+        bathrooms: p.bathrooms || 5,
+        description: p.description || '',
+        images: Array.isArray(p.images) && p.images.length > 0 ? p.images : ['https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80'],
+        features: Array.isArray(p.features) ? p.features : ['Solar Power Backup', 'Gas Connection'],
+        status: p.status || 'active',
+        agency: {
+          name: p.agency_name || 'Verified Real Estate Agency',
+          agentName: p.agent_name || 'Verified Agent',
+          phone: p.agent_phone || '+92 300 0000000',
+          whatsapp: (p.agent_phone || '923000000000').replace(/[^0-9]/g, ''),
+          badge: 'VERIFIED DEALER',
+          avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80'
+        },
+        postedDate: p.created_at ? p.created_at.split('T')[0] : new Date().toISOString().split('T')[0],
+        views: p.views_count || 1
+      }));
+    }
+    return null;
+  } catch (e) {
+    console.warn('Backend API notice:', e.message);
+    return null;
+  }
+}
+
+// Save property to Neon PostgreSQL Database
+export async function savePropertyToApi(property) {
+  try {
+    const payload = {
+      id: property.id,
+      title: property.title,
+      purpose: property.purpose,
+      category: property.category,
+      city: property.city,
+      location: property.location,
+      address: property.address,
+      price: property.price,
+      sizeMarla: property.sizeMarla,
+      bedrooms: property.bedrooms,
+      bathrooms: property.bathrooms,
+      description: property.description,
+      images: property.images,
+      features: property.features,
+      agentName: property.agency?.agentName,
+      agentPhone: property.agency?.phone,
+      agencyName: property.agency?.name
+    };
+
+    const res = await fetch('/api/properties', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    return data;
+  } catch (e) {
+    console.warn('Save to Neon API notice:', e.message);
+    return null;
+  }
+}
+
+// Upload image file to Free CDN (ImgBB)
+export async function uploadImageToFreeCdn(base64Image) {
+  try {
+    // Skip network call if it's already an HTTP image URL
+    if (base64Image.startsWith('http://') || base64Image.startsWith('https://')) {
+      return base64Image;
+    }
+    const res = await fetch('/api/upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: base64Image })
+    });
+    const data = await res.json();
+    if (data && data.success && data.url) {
+      return data.url;
+    }
+    return base64Image;
+  } catch (e) {
+    console.warn('Upload image API notice:', e.message);
+    return base64Image;
+  }
+}

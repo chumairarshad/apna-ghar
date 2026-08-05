@@ -50,11 +50,11 @@ export async function signup(req, res, next) {
         email: normalizedEmail,
         password: hashedPassword,
         phone: phone || '',
-        role, // USER or DEALER
+        role, // DEALER or ADMIN
         agencyName: role === 'DEALER' ? (agencyName || name) : null,
         city: city || 'Lahore',
-        isVerified: role === 'DEALER',
-        badge: role === 'DEALER' ? 'VERIFIED' : 'MEMBER'
+        isVerified: true,
+        badge: role === 'ADMIN' ? 'SUPER_ADMIN' : 'VERIFIED'
       },
       select: {
         id: true,

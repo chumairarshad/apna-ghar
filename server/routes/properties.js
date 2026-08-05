@@ -47,7 +47,51 @@ router.get('/', async (req, res) => {
   }
 });
 
-// 2. DEALER PORTAL: Get Dealer's Own Inventory
+// 1b. PUBLIC / USER: Create & Publish Property into Neon PostgreSQL
+router.post('/', async (req, res) => {
+  try {
+    const {
+      id, title, purpose = 'sale', category = 'house', city, location, address,
+      price, sizeMarla, bedrooms = 4, bathrooms = 5, description = '', images = [], features = [],
+      agentName, agentPhone, agencyName
+    } = req.body;
+
+    if (!title || !price || !city || !location) {
+      return res.status(400).json({ success: false, message: 'Title, price, city, and location are required.' });
+    }
+
+    const propId = id || `prop-${Date.now()}`;
+
+    const result = await pool.query(
+      `INSERT INTO properties 
+       (id, title, purpose, category, city, location, address, price, size_marla, bedrooms, bathrooms, description, images, features, agent_name, agent_phone, agency_name, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, 'active')
+       ON CONFLICT (id) DO UPDATE SET
+         title = EXCLUDED.title,
+         price = EXCLUDED.price,
+         location = EXCLUDED.location,
+         address = EXCLUDED.address,
+         images = EXCLUDED.images,
+         features = EXCLUDED.features
+       RETURNING *`,
+      [
+        propId, title, purpose, category, city, location, address || location,
+        price, sizeMarla || 10, bedrooms, bathrooms, description, images, features,
+        agentName || 'Verified Agent', agentPhone || '+92 300 0000000', agencyName || 'Apna Ghar Real Estate'
+      ]
+    );
+
+    return res.status(201).json({
+      success: true,
+      message: 'Property saved successfully in Neon PostgreSQL Database.',
+      property: result.rows[0]
+    });
+  } catch (error) {
+    console.error('Create property error in Neon DB:', error);
+    return res.status(500).json({ success: false, message: 'Error saving property to Neon Database.' });
+  }
+});
+
 router.get('/dealer/inventory', authenticateToken, requireRole('DEALER', 'ADMIN'), async (req, res) => {
   try {
     const result = await pool.query(

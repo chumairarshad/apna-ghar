@@ -1,9 +1,8 @@
-import { CITIES_DATA, PROPERTY_TYPES } from '../data/cities.js';
-
 export function renderPostPropertyModal(state) {
   const currentStep = state.wizardStep || 1;
   const isVisible = state.showPostWizard || false;
   const editingProp = state.editingProperty || null;
+  const uploadedImages = state.uploadedImages || (editingProp?.images ? [...editingProp.images] : []);
 
   return `
     <div class="modal-overlay ${isVisible ? 'active' : ''}" id="post-wizard-overlay">
@@ -38,12 +37,20 @@ export function renderPostPropertyModal(state) {
             </div>
           </div>
 
-          <!-- Form Step Content -->
-          <form id="post-property-form">
-            ${currentStep === 1 ? renderWizardStep1(editingProp) : ''}
-            ${currentStep === 2 ? renderWizardStep2(editingProp) : ''}
-            ${currentStep === 3 ? renderWizardStep3(editingProp) : ''}
-            ${currentStep === 4 ? renderWizardStep4(editingProp) : ''}
+          <!-- Form Step Content (all steps stay in DOM to preserve filled values) -->
+          <form id="post-property-form" onsubmit="return false;">
+            <div id="wiz-step-1" style="display: ${currentStep === 1 ? 'block' : 'none'};">
+              ${renderWizardStep1(editingProp)}
+            </div>
+            <div id="wiz-step-2" style="display: ${currentStep === 2 ? 'block' : 'none'};">
+              ${renderWizardStep2(editingProp)}
+            </div>
+            <div id="wiz-step-3" style="display: ${currentStep === 3 ? 'block' : 'none'};">
+              ${renderWizardStep3(editingProp)}
+            </div>
+            <div id="wiz-step-4" style="display: ${currentStep === 4 ? 'block' : 'none'};">
+              ${renderWizardStep4(editingProp, uploadedImages)}
+            </div>
           </form>
         </div>
 
@@ -106,8 +113,8 @@ function renderWizardStep2(prop) {
       </div>
 
       <div class="form-group">
-        <label>Society / Phase</label>
-        <input type="text" id="wiz_location" class="form-control" value="${location}" placeholder="e.g. DHA Phase 6, Sector MB" required />
+        <label>Society / Phase / Location *</label>
+        <input type="text" id="wiz_location" class="form-control" value="${location}" placeholder="e.g. Bahria Town Phase 8, Sector C" required />
       </div>
     </div>
 
@@ -120,7 +127,7 @@ function renderWizardStep2(prop) {
 
 function renderWizardStep3(prop) {
   const price = prop ? prop.price : '';
-  const size = prop ? (prop.areaSize || prop.size || 10) : '';
+  const size = prop ? (prop.areaSize || prop.size || prop.sizeMarla || '') : '';
   const beds = prop ? (prop.bedrooms !== undefined ? prop.bedrooms : 4) : 4;
   const baths = prop ? (prop.bathrooms !== undefined ? prop.bathrooms : 5) : 5;
   const features = prop && prop.features ? prop.features : ['Solar Power Backup', 'Servant Quarter', 'Gas Connection', 'CCTV & Security'];
@@ -128,12 +135,12 @@ function renderWizardStep3(prop) {
   return `
     <div class="form-grid-2">
       <div class="form-group">
-        <label>Asking Price (PKR)</label>
-        <input type="number" id="wiz_price" class="form-control" value="${price}" placeholder="e.g. 35000000 (3.5 Crore)" required />
+        <label>Asking Price (PKR) *</label>
+        <input type="number" id="wiz_price" class="form-control" value="${price}" placeholder="e.g. 50000000 (5 Crore)" required />
       </div>
 
       <div class="form-group">
-        <label>Area Size (in Marla)</label>
+        <label>Area Size (in Marla) *</label>
         <input type="number" id="wiz_size" class="form-control" value="${size}" placeholder="e.g. 10" required />
       </div>
     </div>
@@ -164,25 +171,53 @@ function renderWizardStep3(prop) {
   `;
 }
 
-function renderWizardStep4(prop) {
+function renderWizardStep4(prop, uploadedImages = []) {
   const title = prop ? prop.title : '';
   const desc = prop ? prop.description : '';
-  const img = prop && prop.images && prop.images[0] ? prop.images[0] : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80';
 
   return `
     <div class="form-group">
-      <label>Property Title</label>
+      <label>Property Title *</label>
       <input type="text" id="wiz_title" class="form-control" value="${title}" placeholder="e.g. 10 Marla Brand New Modern House for Sale..." required />
     </div>
 
     <div class="form-group">
       <label>Description</label>
-      <textarea id="wiz_desc" class="form-control" rows="3" placeholder="Provide details about imported fittings, gas connection, solar backup, etc...">${desc}</textarea>
+      <textarea id="wiz_desc" class="form-control" rows="3" placeholder="Provide details about fittings, gas connection, solar backup, possession state, etc...">${desc}</textarea>
     </div>
 
     <div class="form-group">
-      <label>Main Image URL</label>
-      <input type="text" id="wiz_image" class="form-control" value="${img}" />
+      <label style="font-weight:700; color:var(--ink); font-size:0.9rem; margin-bottom:0.5rem; display:block;">
+        <i data-lucide="image" style="width:16px; height:16px; vertical-align:middle; color:var(--emerald-teal);"></i> Upload Property Photos (from PC Gallery / Drag & Drop)
+      </label>
+
+      <div id="image-drag-drop-zone" style="border:2px dashed var(--emerald-teal); border-radius:12px; padding:2rem 1.5rem; text-align:center; background:var(--cream); cursor:pointer; transition:all 0.2s ease;">
+        <div style="width:48px; height:48px; border-radius:50%; background:rgba(30,123,89,0.12); display:inline-flex; align-items:center; justify-content:center; margin-bottom:0.75rem;">
+          <i data-lucide="upload-cloud" style="width:24px; height:24px; color:var(--emerald-teal);"></i>
+        </div>
+        <p style="font-weight:700; color:var(--ink); margin-bottom:0.25rem; font-size:0.95rem;">
+          Drag & drop images here, or <span style="color:var(--emerald-teal); text-decoration:underline;">Browse PC Gallery</span>
+        </p>
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Select photos from your device gallery (JPG, PNG, WebP)</span>
+        <input type="file" id="wiz_file_input" accept="image/*" multiple style="display:none;" />
+      </div>
+
+      <div id="wiz-image-previews" style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-top:1rem;">
+        ${renderImagePreviewsList(uploadedImages)}
+      </div>
     </div>
   `;
 }
+
+export function renderImagePreviewsList(images = []) {
+  if (!images || images.length === 0) {
+    return `<div style="font-size:0.82rem; color:var(--text-muted); font-style:italic;">No images uploaded yet. Drag & drop or click above to add photos from your computer gallery.</div>`;
+  }
+  return images.map((imgUrl, index) => `
+    <div style="position:relative; width:90px; height:90px; border-radius:8px; overflow:hidden; border:2px solid var(--border-dk); box-shadow:var(--shadow-sm);">
+      <img src="${imgUrl}" style="width:100%; height:100%; object-fit:cover;" alt="Property photo ${index + 1}" />
+      <button type="button" class="remove-wiz-img-btn" data-index="${index}" style="position:absolute; top:3px; right:3px; background:rgba(220,38,38,0.9); color:white; border:none; border-radius:50%; width:20px; height:20px; font-size:12px; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center;" title="Remove image">&times;</button>
+    </div>
+  `).join('');
+}
+

@@ -38,7 +38,7 @@ model User {
   password     String
   name         String
   phone        String?
-  role         Role       @default(USER)
+  role         Role       @default(DEALER)
   agencyName   String?
   city         String?
   isVerified   Boolean    @default(false)

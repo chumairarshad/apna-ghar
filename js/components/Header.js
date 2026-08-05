@@ -4,7 +4,7 @@ import { renderIcon } from '../utils/icons.js';
 export function renderHeader(state, onStateChange) {
   const favoritesCount = getFavorites().length;
   const activeTab = state.activeTab || 'buy';
-  const userName = state.user?.name || 'Chaudhry Kamran';
+  const userName = state.user?.name || '';
   const isMobileDrawerOpen = state.showMobileNav || false;
 
   return `
@@ -105,17 +105,17 @@ export function renderHeader(state, onStateChange) {
               ${favoritesCount > 0 ? `<span class="badge-count">${favoritesCount}</span>` : ''}
             </button>
 
-            <!-- User Auth & Logout Controls -->
+            <!-- User Auth & Logout Controls (Compact & Sleek) -->
             ${state.user ? `
-              <button class="btn btn-ghost btn-sm btn-hide-mobile" id="open-auth-btn" style="padding:7px 12px; font-size:0.8rem;">
-                ${renderIcon('user', 14)} ${userName} (${state.user.role})
+              <button class="btn btn-ghost btn-sm btn-hide-mobile" id="open-auth-btn" style="padding:4px 10px; font-size:0.75rem; border-radius:20px; background:rgba(255,255,255,0.15);">
+                ${renderIcon('user', 12)} ${userName} (${state.user.role})
               </button>
-              <button class="btn btn-danger btn-sm" id="logout-btn" style="padding:6px 12px; font-size:0.78rem; background:#EF4444; color:white; border:none; border-radius:6px; cursor:pointer;" title="Sign Out">
+              <button class="btn btn-danger btn-sm" id="logout-btn" style="padding:4px 8px; font-size:0.72rem; background:#EF4444; color:white; border:none; border-radius:6px; cursor:pointer;" title="Sign Out">
                 🚪 Logout
               </button>
             ` : `
-              <button class="btn btn-primary btn-sm btn-hide-mobile" id="open-auth-btn" style="padding:7px 14px; font-size:0.8rem;">
-                ${renderIcon('user', 14)} Sign In / Join
+              <button class="btn btn-primary btn-sm btn-hide-mobile" id="open-auth-btn" style="padding:4px 10px; font-size:0.75rem; border-radius:20px;">
+                ${renderIcon('user', 12)} Sign In / Join
               </button>
             `}
 

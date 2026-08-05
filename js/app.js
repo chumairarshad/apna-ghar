@@ -1,6 +1,8 @@
 import { INITIAL_PROPERTIES } from './data/properties.js';
-import { getFavorites, toggleFavorite, getCustomProperties, saveCustomProperty, saveOrUpdatePropertyInStorage, deletePropertyFromStorage, getEffectiveProperties, getDealerLeads, saveDealerLeads, saveAgencyProfile } from './utils/storage.js';
+import { INITIAL_AGENTS } from './data/agents.js';
+import { getFavorites, toggleFavorite, getCustomProperties, saveCustomProperty, saveOrUpdatePropertyInStorage, deletePropertyFromStorage, getEffectiveProperties, getDealerLeads, saveDealerLeads, saveAgencyProfile, getDealersFromStorage, saveDealersToStorage } from './utils/storage.js';
 import { convertArea, calculateMortgage, formatPKR } from './utils/formatters.js';
+import { fetchPropertiesFromApi, savePropertyToApi, uploadImageToFreeCdn } from './utils/api.js';
 
 import { renderHeader } from './components/Header.js';
 import { renderHeroSearch } from './components/SearchEngine.js';
@@ -9,7 +11,7 @@ import { initLeafletMap } from './components/MapView.js';
 import { renderDealerDashboard } from './components/DealerDashboard.js';
 import { renderHousingProjects } from './components/HousingProjects.js';
 import { renderFinancialTools } from './components/FinancialTools.js';
-import { renderPostPropertyModal } from './components/PostPropertyWizard.js';
+import { renderPostPropertyModal, renderImagePreviewsList } from './components/PostPropertyWizard.js';
 import { renderAgentDirectory } from './components/AgentDirectory.js';
 import { renderSavedFavoritesDrawer } from './components/SavedFavoritesDrawer.js';
 import { renderAuthModal } from './components/AuthModal.js';
@@ -70,10 +72,11 @@ const state = {
   showSplash: true,
   authMethod: 'phone', // google | phone | email
   phoneStep: 1, // 1: enter number, 2: enter 6-digit OTP
-  tempPhone: '+92 300 8472910',
+  tempPhone: '',
   activeTool: 'converter', // converter | mortgage | valuate | fbr
   dealerTab: 'inventory', // inventory | leads | analytics | profile
-  user: { name: 'Chaudhry Kamran', role: 'dealer' }
+  user: null,
+  uploadedImages: []
 };
 
 const ARTICLES_DB = [
@@ -107,7 +110,7 @@ const ARTICLES_DB = [
 ];
 
 // Initialize Application
-function initApp() {
+async function initApp() {
   state.properties = getEffectiveProperties(INITIAL_PROPERTIES);
 
   // Check saved 48-hour JWT token
@@ -129,6 +132,19 @@ function initApp() {
   if (state.showSplash) {
     triggerSplashAnimation();
     state.showSplash = false;
+  }
+
+  // Fetch latest properties live from Neon PostgreSQL Database
+  try {
+    const dbProperties = await fetchPropertiesFromApi();
+    if (dbProperties && dbProperties.length > 0) {
+      const existingIds = new Set(dbProperties.map(p => p.id));
+      const remainingLocal = state.properties.filter(p => !existingIds.has(p.id));
+      state.properties = [...dbProperties, ...remainingLocal];
+      renderApp();
+    }
+  } catch (err) {
+    console.warn('Neon DB sync notice:', err);
   }
 }
 
@@ -417,6 +433,15 @@ function setupEventListeners() {
     if (navBtn) {
       e.preventDefault();
       const tab = navBtn.getAttribute('data-nav');
+      if (tab === 'dealer' && state.user?.role !== 'DEALER' && state.user?.role !== 'ADMIN') {
+        showToast('⚠️ Dealer Portal is strictly for verified Agencies & Brokers. Please sign in or register as a Dealer.');
+        state.showAuthModal = true;
+        state.authRole = 'DEALER';
+        state.authIsSignup = true;
+        state.showMobileNav = false;
+        renderApp();
+        return;
+      }
       state.activeTab = tab;
       state.showMobileNav = false;
       if (tab === 'buy') state.searchFilters.purpose = 'sale';
@@ -523,6 +548,7 @@ function setupEventListeners() {
         return;
       }
       state.editingProperty = null;
+      state.uploadedImages = [];
       state.showPostWizard = true;
       state.wizardStep = 1;
       renderApp();
@@ -531,20 +557,41 @@ function setupEventListeners() {
     if (e.target.closest('#close-wizard-btn')) {
       state.showPostWizard = false;
       state.editingProperty = null;
+      state.uploadedImages = [];
       renderApp();
     }
 
+    // Step switching without DOM destruction
     if (e.target.closest('#wizard-next-btn')) {
       if (state.wizardStep < 4) {
         state.wizardStep += 1;
-        renderApp();
+        updateWizardStepUI();
       }
     }
 
     if (e.target.closest('#wizard-prev-btn')) {
       if (state.wizardStep > 1) {
         state.wizardStep -= 1;
-        renderApp();
+        updateWizardStepUI();
+      }
+    }
+
+    // Image Upload Zone Click
+    if (e.target.closest('#image-drag-drop-zone')) {
+      const fileInput = document.getElementById('wiz_file_input');
+      if (fileInput) fileInput.click();
+    }
+
+    // Remove Uploaded Image Thumbnail Button
+    const removeImgBtn = e.target.closest('.remove-wiz-img-btn');
+    if (removeImgBtn) {
+      const idx = Number(removeImgBtn.getAttribute('data-index'));
+      if (!isNaN(idx) && state.uploadedImages) {
+        state.uploadedImages.splice(idx, 1);
+        const container = document.getElementById('wiz-image-previews');
+        if (container) {
+          container.innerHTML = renderImagePreviewsList(state.uploadedImages);
+        }
       }
     }
 
@@ -555,6 +602,7 @@ function setupEventListeners() {
       const propToEdit = state.properties.find(p => p.id === id);
       if (propToEdit) {
         state.editingProperty = { ...propToEdit };
+        state.uploadedImages = propToEdit.images ? [...propToEdit.images] : [];
         state.showPostWizard = true;
         state.wizardStep = 1;
         state.selectedProperty = null; // Close detail modal if open
@@ -593,86 +641,121 @@ function setupEventListeners() {
 
     // Publish / Edit Property Submission
     if (e.target.closest('#wizard-submit-btn')) {
-      const title = document.getElementById('wiz_title')?.value || '10 Marla Luxury Modern House';
+      const title = document.getElementById('wiz_title')?.value?.trim();
       const city = document.getElementById('wiz_city')?.value || 'Lahore';
-      const location = document.getElementById('wiz_location')?.value || 'DHA Phase 6';
-      const address = document.getElementById('wiz_address')?.value || 'Main Boulevard, DHA';
-      const price = Number(document.getElementById('wiz_price')?.value || 35000000);
-      const size = Number(document.getElementById('wiz_size')?.value || 10);
+      const location = document.getElementById('wiz_location')?.value?.trim();
+      const address = document.getElementById('wiz_address')?.value?.trim() || location;
+      const rawPrice = document.getElementById('wiz_price')?.value;
+      const price = (rawPrice !== '' && rawPrice !== undefined) ? Number(rawPrice) : null;
+      const rawSize = document.getElementById('wiz_size')?.value;
+      const size = (rawSize !== '' && rawSize !== undefined) ? Number(rawSize) : 10;
       const beds = Number(document.getElementById('wiz_beds')?.value || 4);
       const baths = Number(document.getElementById('wiz_baths')?.value || 5);
-      const desc = document.getElementById('wiz_desc')?.value || 'Brand new construction with solar backup.';
-      const img = document.getElementById('wiz_image')?.value || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80';
+      const desc = document.getElementById('wiz_desc')?.value || '';
 
       const purposeRadio = document.querySelector('input[name="wiz_purpose"]:checked');
       const purpose = purposeRadio ? purposeRadio.value : 'sale';
       const categorySelect = document.getElementById('wiz_category');
       const category = categorySelect ? categorySelect.value : 'house';
 
-      if (state.editingProperty) {
-        // Editing existing property
-        const updatedProp = {
-          ...state.editingProperty,
-          title,
-          purpose,
-          category,
-          city,
-          location,
-          address,
-          price,
-          sizeMarla: size,
-          bedrooms: beds,
-          bathrooms: baths,
-          description: desc,
-          images: [img, ...(state.editingProperty.images ? state.editingProperty.images.slice(1) : [])]
-        };
-
-        saveOrUpdatePropertyInStorage(updatedProp);
-        state.properties = state.properties.map(p => p.id === updatedProp.id ? updatedProp : p);
-        state.showPostWizard = false;
-        state.editingProperty = null;
-        showToast('✏️ Property updated successfully!');
-        renderApp();
-      } else {
-        // Publishing new property
-        const newProp = {
-          id: `prop-${Date.now()}`,
-          title,
-          purpose,
-          category,
-          city,
-          location,
-          address,
-          price,
-          sizeMarla: size,
-          bedrooms: beds,
-          bathrooms: baths,
-          builtYear: 2026,
-          facing: 'North Facing',
-          badges: ['VERIFIED', 'NEW LAUNCH'],
-          images: [img],
-          coords: [31.4722, 74.4371],
-          agency: {
-            name: 'Apna Ghar Prime Realtors',
-            agentName: 'Chaudhry Kamran',
-            phone: '+92 300 8472910',
-            whatsapp: '923008472910',
-            badge: 'PLATINUM DEALER',
-            avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80'
-          },
-          description: desc,
-          features: ['Solar Power Backup', 'Servant Quarter', 'Gas Connection'],
-          status: 'active',
-          postedDate: new Date().toISOString().split('T')[0],
-          views: 1
-        };
-
-        saveCustomProperty(newProp);
-        state.properties = [newProp, ...state.properties];
-        state.showPostWizard = false;
-        showToast('🎉 Property published live on Apna Ghar Portal!');
-        renderApp();
+      if (!title || !location || price === null || isNaN(price) || price <= 0) {
+        showToast('⚠️ Please enter Title, Location/Society, and Asking Price before submitting.');
+        return;
       }
+
+      showToast('⏳ Uploading photos & saving to Neon Database...');
+
+      // Collect checked amenities
+      const features = [];
+      if (document.getElementById('wiz_feat_solar')?.checked) features.push('Solar Power Backup');
+      if (document.getElementById('wiz_feat_servant')?.checked) features.push('Servant Quarter');
+      if (document.getElementById('wiz_feat_corner')?.checked) features.push('Corner Plot');
+      if (document.getElementById('wiz_feat_gas')?.checked) features.push('Gas Connection');
+      if (document.getElementById('wiz_feat_park')?.checked) features.push('Park Facing');
+      if (document.getElementById('wiz_feat_cctv')?.checked) features.push('CCTV & Security');
+
+      const rawImages = (state.uploadedImages && state.uploadedImages.length > 0)
+        ? state.uploadedImages
+        : ['https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80'];
+
+      const agencyName = state.user?.agencyName || state.user?.name || 'Verified Real Estate Agency';
+      const agentName = state.user?.name || 'Verified Dealer';
+      const phone = state.user?.phone || '+92 300 0000000';
+
+      (async () => {
+        // Upload images to Free CDN (ImgBB)
+        const finalImages = await Promise.all(rawImages.map(img => uploadImageToFreeCdn(img)));
+
+        if (state.editingProperty) {
+          // Editing existing property
+          const updatedProp = {
+            ...state.editingProperty,
+            title,
+            purpose,
+            category,
+            city,
+            location,
+            address,
+            price,
+            sizeMarla: size,
+            bedrooms: beds,
+            bathrooms: baths,
+            description: desc,
+            features: features.length > 0 ? features : state.editingProperty.features,
+            images: finalImages
+          };
+
+          saveOrUpdatePropertyInStorage(updatedProp);
+          savePropertyToApi(updatedProp); // Save to Neon PostgreSQL
+          state.properties = state.properties.map(p => p.id === updatedProp.id ? updatedProp : p);
+          state.showPostWizard = false;
+          state.editingProperty = null;
+          state.uploadedImages = [];
+          showToast('✏️ Property updated & saved in Neon Database!');
+          renderApp();
+        } else {
+          // Publishing new property
+          const newProp = {
+            id: `prop-${Date.now()}`,
+            title,
+            purpose,
+            category,
+            city,
+            location,
+            address,
+            price,
+            sizeMarla: size,
+            bedrooms: beds,
+            bathrooms: baths,
+            builtYear: 2026,
+            facing: 'North Facing',
+            badges: ['VERIFIED', 'NEW LAUNCH'],
+            images: finalImages,
+            coords: [31.4722, 74.4371],
+            agency: {
+              name: agencyName,
+              agentName: agentName,
+              phone: phone,
+              whatsapp: phone.replace(/[^0-9]/g, ''),
+              badge: 'VERIFIED DEALER',
+              avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80'
+            },
+            description: desc,
+            features: features.length > 0 ? features : ['Solar Power Backup', 'Gas Connection'],
+            status: 'active',
+            postedDate: new Date().toISOString().split('T')[0],
+            views: 1
+          };
+
+          saveCustomProperty(newProp);
+          savePropertyToApi(newProp); // Save to Neon PostgreSQL Database
+          state.properties = [newProp, ...state.properties];
+          state.showPostWizard = false;
+          state.uploadedImages = [];
+          showToast('🎉 Property published live & saved to Neon PostgreSQL Database!');
+          renderApp();
+        }
+      })();
     }
 
     // Favorites Drawer Toggle
@@ -706,7 +789,7 @@ function setupEventListeners() {
       renderApp();
     }
 
-    // Auth Modal Role Selection Buttons (USER | DEALER | ADMIN)
+    // Auth Modal Role Selection Buttons (DEALER | ADMIN)
     const roleSelectBtn = e.target.closest('.auth-role-select-btn');
     if (roleSelectBtn) {
       state.authRole = roleSelectBtn.getAttribute('data-role');
@@ -728,9 +811,14 @@ function setupEventListeners() {
       if (e.type === 'submit' || e.target.closest('#auth-submit-btn')) {
         e.preventDefault();
         const role = state.authRole || 'DEALER';
-        const emailInput = document.getElementById('auth-email-input')?.value || 'user@apnaghar.pk';
-        const nameInput = document.getElementById('auth-full-name')?.value || (role === 'DEALER' ? 'Chaudhry Kamran' : (role === 'ADMIN' ? 'System Administrator' : 'Usman Malik'));
-        const phoneInput = document.getElementById('auth-phone-num')?.value || '+92 300 8472910';
+        const emailInput = document.getElementById('auth-email-input')?.value?.trim();
+        const nameInput = document.getElementById('auth-full-name')?.value?.trim() || (role === 'ADMIN' ? 'System Administrator' : 'Portal Dealer');
+        const phoneInput = document.getElementById('auth-phone-num')?.value?.trim() || '+92 300 0000000';
+
+        if (!emailInput) {
+          showToast('⚠️ Please enter a valid Email Address.');
+          return;
+        }
 
         const tokenPayload = {
           userId: `user-${Date.now()}`,
@@ -738,23 +826,21 @@ function setupEventListeners() {
           email: emailInput,
           role,
           phone: phoneInput,
+          agencyName: nameInput,
           issuedAt: Date.now(),
-          expiresAt: Date.now() + (48 * 60 * 60 * 1000) // 48 Hours Expiry
+          expiresAt: Date.now() + (48 * 60 * 60 * 1000)
         };
 
         localStorage.setItem('apnaghar_jwt_token', JSON.stringify(tokenPayload));
         state.user = tokenPayload;
         state.showAuthModal = false;
 
-        if (role === 'DEALER') {
-          state.activeTab = 'dealer';
-          showToast(`📊 Signed in as DEALER (${nameInput}). 48h JWT Issued!`);
-        } else if (role === 'ADMIN') {
+        if (role === 'ADMIN') {
           state.activeTab = 'dealer';
           showToast(`🛡️ Signed in as ADMIN (${nameInput}). 48h JWT Issued!`);
         } else {
-          state.activeTab = 'buy';
-          showToast(`🏠 Signed in as USER (${nameInput}). Welcome!`);
+          state.activeTab = 'dealer';
+          showToast(`📊 Signed in as DEALER (${nameInput}). 48h JWT Issued!`);
         }
 
         renderApp();
@@ -783,6 +869,36 @@ function setupEventListeners() {
       if (target) {
         target.status = target.status === 'sold' ? 'active' : 'sold';
         showToast(`Property status updated to ${target.status.toUpperCase()}`);
+        renderApp();
+      }
+    }
+
+    // Admin Dealer Badge Upgrade Handler
+    const badgeBtn = e.target.closest('.toggle-dealer-badge-btn');
+    if (badgeBtn) {
+      const id = badgeBtn.getAttribute('data-id');
+      const dealers = getDealersFromStorage(INITIAL_AGENTS);
+      const targetDealer = dealers.find(d => d.id === id);
+      if (targetDealer) {
+        targetDealer.badge = targetDealer.badge?.includes('PLATINUM') ? 'VERIFIED DEALER' : 'PLATINUM VERIFIED';
+        saveDealersToStorage(dealers);
+        showToast(`🛡️ ${targetDealer.name} status badge updated to ${targetDealer.badge}!`);
+        renderApp();
+      }
+    }
+
+    // Admin Suspend/Delete Dealer Account Handler
+    const deleteDealerBtn = e.target.closest('.delete-dealer-acc-btn');
+    if (deleteDealerBtn) {
+      const id = deleteDealerBtn.getAttribute('data-id');
+      const dealers = getDealersFromStorage(INITIAL_AGENTS);
+      const targetDealer = dealers.find(d => d.id === id);
+      const name = targetDealer ? targetDealer.name : 'this dealer';
+
+      if (confirm(`Are you sure you want to suspend/delete "${name}"? All associated listings will be suspended.`)) {
+        const updatedDealers = dealers.filter(d => d.id !== id);
+        saveDealersToStorage(updatedDealers);
+        showToast(`🚫 Dealer account "${name}" suspended successfully.`);
         renderApp();
       }
     }
@@ -976,6 +1092,97 @@ function bindToolCalculators() {
     mortRate?.addEventListener('input', updateMortgage);
   }
 }
+
+function updateWizardStepUI() {
+  const currentStep = state.wizardStep || 1;
+  for (let i = 1; i <= 4; i++) {
+    const stepDiv = document.getElementById(`wiz-step-${i}`);
+    if (stepDiv) stepDiv.style.display = (i === currentStep) ? 'block' : 'none';
+  }
+  const overlay = document.getElementById('post-wizard-overlay');
+  if (overlay) {
+    const stepItems = overlay.querySelectorAll('.step-item');
+    stepItems.forEach((item, idx) => {
+      const step = idx + 1;
+      item.classList.toggle('active', step === currentStep);
+      item.classList.toggle('completed', step < currentStep);
+    });
+    const footer = overlay.querySelector('.modal-footer');
+    if (footer) {
+      const isEditing = Boolean(state.editingProperty);
+      footer.innerHTML = `
+        ${currentStep > 1 ? `<button type="button" class="btn btn-secondary" id="wizard-prev-btn">Previous Step</button>` : '<div></div>'}
+        ${currentStep < 4 ? `<button type="button" class="btn btn-primary" id="wizard-next-btn">Next Step</button>` : `<button type="button" class="btn btn-gold" id="wizard-submit-btn">${isEditing ? '💾 Save Changes' : '🚀 Publish Property Live'}</button>`}
+      `;
+    }
+    if (window.lucide) window.lucide.createIcons();
+  }
+}
+
+// Global Image Upload File Selector & Drag and Drop Event Listeners
+document.addEventListener('change', (e) => {
+  if (e.target.id === 'wiz_file_input' && e.target.files?.length > 0) {
+    const files = Array.from(e.target.files);
+    let loadedCount = 0;
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        state.uploadedImages = state.uploadedImages || [];
+        state.uploadedImages.push(evt.target.result);
+        loadedCount++;
+        if (loadedCount === files.length) {
+          const container = document.getElementById('wiz-image-previews');
+          if (container) {
+            container.innerHTML = renderImagePreviewsList(state.uploadedImages);
+          }
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+});
+
+document.addEventListener('dragover', (e) => {
+  const dropZone = e.target.closest('#image-drag-drop-zone');
+  if (dropZone) {
+    e.preventDefault();
+    dropZone.style.borderColor = 'var(--gold-marigold)';
+  }
+});
+
+document.addEventListener('dragleave', (e) => {
+  const dropZone = e.target.closest('#image-drag-drop-zone');
+  if (dropZone) {
+    dropZone.style.borderColor = 'var(--emerald-teal)';
+  }
+});
+
+document.addEventListener('drop', (e) => {
+  const dropZone = e.target.closest('#image-drag-drop-zone');
+  if (dropZone) {
+    e.preventDefault();
+    dropZone.style.borderColor = 'var(--emerald-teal)';
+    if (e.dataTransfer.files?.length > 0) {
+      const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+      let loadedCount = 0;
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          state.uploadedImages = state.uploadedImages || [];
+          state.uploadedImages.push(evt.target.result);
+          loadedCount++;
+          if (loadedCount === files.length) {
+            const container = document.getElementById('wiz-image-previews');
+            if (container) {
+              container.innerHTML = renderImagePreviewsList(state.uploadedImages);
+            }
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  }
+});
 
 // Start application when DOM is ready
 window.addEventListener('DOMContentLoaded', initApp);

@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash VARCHAR(255) NOT NULL,
     full_name VARCHAR(150) NOT NULL,
     phone VARCHAR(50) NOT NULL,
-    role VARCHAR(20) NOT NULL DEFAULT 'USER' CHECK (role IN ('USER', 'DEALER', 'ADMIN')),
+    role VARCHAR(20) NOT NULL DEFAULT 'DEALER' CHECK (role IN ('DEALER', 'ADMIN')),
     agency_name VARCHAR(150),
     city VARCHAR(100),
     badge VARCHAR(50) DEFAULT 'VERIFIED',
