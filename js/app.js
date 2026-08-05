@@ -1049,21 +1049,27 @@ function setupEventListeners() {
               });
               const data = await res.json().catch(() => null);
 
-              saveStoredUser({
-                email: emailInput,
-                password: passwordInput,
-                name: nameInput,
-                phone: phoneInput,
-                role: role,
-                agencyName: nameInput
-              });
+              if (res.ok && data && data.success) {
+                saveStoredUser({
+                  email: emailInput,
+                  password: passwordInput,
+                  name: nameInput,
+                  phone: phoneInput,
+                  role: role,
+                  agencyName: nameInput
+                });
 
-              showToast(`🎉 Account created successfully! Please sign in with your password.`);
-              state.authMode = 'login';
-              state.authIsSignup = false;
-              state.authPreFillEmail = emailInput;
-              renderApp();
+                showToast(`🎉 Account created & saved to Neon Database! Please sign in.`);
+                state.authMode = 'login';
+                state.authIsSignup = false;
+                state.authPreFillEmail = emailInput;
+                renderApp();
+              } else {
+                const errMsg = data?.message || 'Error creating account. Please try again.';
+                showToast(`❌ ${errMsg}`);
+              }
             } catch (err) {
+              console.error('Signup fetch error:', err);
               saveStoredUser({
                 email: emailInput,
                 password: passwordInput,
@@ -1072,13 +1078,14 @@ function setupEventListeners() {
                 role: role,
                 agencyName: nameInput
               });
-              showToast(`🎉 Account created successfully! Please sign in with your password.`);
+              showToast(`🎉 Account created locally! Please sign in with your password.`);
               state.authMode = 'login';
               state.authIsSignup = false;
               state.authPreFillEmail = emailInput;
               renderApp();
             }
           })();
+
 
         } else {
           // --- LOGIN FLOW ---
