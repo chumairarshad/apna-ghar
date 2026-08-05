@@ -14,7 +14,7 @@ router.post('/', async (req, res) => {
     const base64Data = image.replace(/^data:image\/\w+;base64,/, '');
 
     // ImgBB Free Unlimited API Key (or process.env.IMGBB_API_KEY)
-    const apiKey = process.env.IMGBB_API_KEY || '6d700a60d008d507058564177d5494d4'; 
+    const apiKey = process.env.IMGBB_API_KEY || 'f6d0ec208aa0c0c984cbc6ef2b5315c3'; 
 
     const formData = new URLSearchParams();
     formData.append('image', base64Data);
