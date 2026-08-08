@@ -322,4 +322,177 @@ header.site-header {
   }
 }
 
+/* ==========================================================
+   MOBILE BOTTOM NAVIGATION BAR (OLX PAKISTAN STYLE)
+   ========================================================== */
+.mobile-bottom-nav {
+  display: none; /* Hidden on desktop screens */
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background-color: #0f172a; /* Dark sleek slate */
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  z-index: 99999;
+  padding: 0 2px;
+  box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+@media (max-width: 768px) {
+  .mobile-bottom-nav {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-around;
+  }
+
+  /* Prevent page content/footer obscuration on mobile devices */
+  body {
+    padding-bottom: 68px !important;
+  }
+
+  /* Position floating AI Chatbot Launcher above bottom navbar on mobile */
+  #ai-chatbot-widget-container {
+    bottom: 75px !important;
+    right: 15px !important;
+  }
+}
+
+/* Nav Item Buttons */
+.mobile-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: #94a3b8; /* Muted inactive text & icon */
+  padding: 6px 0 3px;
+  cursor: pointer;
+  gap: 2px;
+  text-decoration: none;
+  transition: color 0.2s ease, transform 0.15s ease;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+.mobile-nav-item:active {
+  transform: scale(0.90);
+}
+
+.mobile-nav-item.active {
+  color: #ffffff !important;
+}
+
+.mobile-nav-item.active .mobile-nav-icon {
+  color: #38bdf8 !important; /* Cyan active accent for icons */
+}
+
+.mobile-nav-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: inherit;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.mobile-nav-item.active .mobile-nav-icon svg {
+  stroke: #38bdf8;
+  filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.4));
+}
+
+.mobile-nav-badge-dot {
+  position: absolute;
+  top: -1px;
+  right: -2px;
+  width: 7px;
+  height: 7px;
+  background-color: #22c55e;
+  border-radius: 50%;
+  border: 1.5px solid #0f172a;
+}
+
+.mobile-nav-label {
+  font-family: 'Plus Jakarta Sans', var(--font-main, sans-serif);
+  font-size: 0.67rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1;
+}
+
+/* Central Elevated "Sell" Floating Button Wrapper */
+.mobile-nav-sell-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  position: relative;
+  height: 100%;
+}
+
+.mobile-nav-sell-btn {
+  position: absolute;
+  top: -20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  /* Multi-color Ring Gradient: Cyan top left, Blue mid, Yellow/Gold bottom right */
+  background: linear-gradient(135deg, #00E5FF 0%, #3B82F6 45%, #FACC15 100%);
+  padding: 3.5px;
+  box-shadow: 0 4px 18px rgba(0, 229, 255, 0.45), 0 3px 10px rgba(0, 0, 0, 0.6);
+  border: none;
+  cursor: pointer;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+.mobile-nav-sell-btn:hover {
+  transform: translateY(-2px) scale(1.06);
+  box-shadow: 0 6px 24px rgba(0, 229, 255, 0.65), 0 4px 12px rgba(0, 0, 0, 0.7);
+}
+
+.mobile-nav-sell-btn:active {
+  transform: translateY(0px) scale(0.92);
+}
+
+.sell-btn-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #0f172a; /* Dark inner circle matching nav bar background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  transition: background-color 0.2s ease;
+}
+
+.mobile-nav-sell-btn:hover .sell-btn-inner,
+.mobile-nav-sell-btn.active .sell-btn-inner {
+  background-color: #1e293b;
+}
+
+.sell-label {
+  margin-top: auto;
+  margin-bottom: 5px;
+  color: #94a3b8;
+  font-size: 0.67rem;
+  font-weight: 600;
+}
+
+.mobile-nav-sell-wrapper:hover .sell-label,
+.mobile-nav-sell-btn.active ~ .sell-label {
+  color: #ffffff;
+}
+
+
 

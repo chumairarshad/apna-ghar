@@ -33,6 +33,7 @@ import { renderPropertyComparerModal } from './components/PropertyComparer.js';
 import { renderScheduleVisitModal } from './components/ScheduleVisitModal.js';
 import { renderFeaturedBannersSection } from './components/FeaturedBannersSection.js';
 import { renderArticleReaderModal } from './components/ArticleReaderModal.js';
+import { renderMobileBottomNav } from './components/MobileBottomNav.js';
 
 // Application State
 const state = {
@@ -228,6 +229,9 @@ function renderApp() {
 
       <!-- Persistent Floating AI Chatbot Widget -->
       ${renderAIChatbotWidget(state)}
+
+      <!-- Mobile Bottom Navigation Bar (OLX Style) -->
+      ${renderMobileBottomNav(state)}
 
       <!-- Toast Notifications Container -->
       <div id="toast-container"></div>
@@ -468,6 +472,61 @@ function setupEventListeners() {
       state.showMobileNav = false;
       state.showAuthModal = true;
       renderApp();
+    }
+
+    // Mobile Bottom Navigation Bar Actions (OLX Style)
+    if (e.target.closest('#mobile-nav-home-btn')) {
+      state.activeTab = 'buy';
+      state.searchFilters.purpose = 'sale';
+      state.showMobileNav = false;
+      renderApp();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    if (e.target.closest('#mobile-nav-chats-btn')) {
+      state.showAIChatbot = !state.showAIChatbot;
+      renderApp();
+    }
+
+    if (e.target.closest('#mobile-nav-sell-btn')) {
+      e.preventDefault();
+      if (state.user?.role !== 'DEALER' && state.user?.role !== 'ADMIN') {
+        showToast('⚠️ Only registered Dealers can post properties. Please sign in or join as a Dealer.');
+        state.showAuthModal = true;
+        state.authRole = 'DEALER';
+        state.authIsSignup = true;
+        renderApp();
+        return;
+      }
+      state.editingProperty = null;
+      state.uploadedImages = [];
+      state.showPostWizard = true;
+      state.wizardStep = 1;
+      renderApp();
+    }
+
+    if (e.target.closest('#mobile-nav-myads-btn')) {
+      if (state.user?.role === 'DEALER' || state.user?.role === 'ADMIN') {
+        state.activeTab = 'dealer';
+        state.dealerTab = 'inventory';
+        renderApp();
+      } else {
+        state.showFavoritesDrawer = true;
+        renderApp();
+      }
+    }
+
+    if (e.target.closest('#mobile-nav-account-btn')) {
+      if (state.user) {
+        state.activeTab = 'dealer';
+        state.dealerTab = 'profile';
+        renderApp();
+        showToast(`👤 Welcome ${state.user.name}! Opened Profile Settings.`);
+      } else {
+        state.showAuthModal = true;
+        state.phoneStep = 1;
+        renderApp();
+      }
     }
 
     // Navigation Links
