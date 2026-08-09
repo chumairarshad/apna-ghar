@@ -79,6 +79,9 @@ export function renderFooter() {
           <div>
             &copy; 2026 <strong>Sarmayadar</strong>. All Rights Reserved.
           </div>
+          <div style="font-weight:700; color:#FFFFFF; display:flex; align-items:center; gap:5px; font-size:0.85rem;">
+            Made with <span style="color:#EF4444; font-size:0.95rem;">❤️</span> by <strong>Vujood</strong>
+          </div>
           <div style="display:flex; gap:1.25rem;">
             <a href="#" id="footer-privacy-btn" style="color:var(--cream); opacity:0.9; font-weight:700;">Privacy Policy</a>
             <a href="#" id="footer-terms-btn" style="color:var(--cream); opacity:0.9; font-weight:700;">Terms of Service</a>
