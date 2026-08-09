@@ -443,9 +443,9 @@
 }
 
 .filter-select:focus {
-  border-color: #D1266E;
+  border-color: #239c32;
   background-color: #FFFFFF;
-  box-shadow: 0 0 0 3px rgba(209, 38, 110, 0.18);
+  box-shadow: 0 0 0 3px rgba(35, 156, 50, 0.18);
   outline: none;
 }
 
@@ -454,7 +454,7 @@
   width: 100%;
   font-size: 0.92rem;
   border-radius: 10px;
-  box-shadow: 0 4px 14px rgba(209, 38, 110, 0.3);
+  box-shadow: 0 4px 14px rgba(35, 156, 50, 0.3);
 }
 
 /* Quick Chips Bar */
@@ -490,8 +490,104 @@
 }
 
 .filter-chip:hover {
-  background: #D1266E;
+  background: #239c32;
   color: #FFFFFF;
-  border-color: #D1266E;
+  border-color: #239c32;
   transform: translateY(-1px);
+}
+
+/* Mobile View Specific Hero Search Optimization (Higher Up & Bigger Elements) */
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 1rem 0 1.75rem !important;
+    min-height: auto !important;
+  }
+
+  .hero-text-wrapper {
+    margin-bottom: 0.5rem !important;
+  }
+
+  .hero-badge {
+    padding: 3px 12px !important;
+    font-size: 0.68rem !important;
+    margin-bottom: 0.25rem !important;
+  }
+
+  .hero-title {
+    font-size: 1.55rem !important;
+    line-height: 1.15 !important;
+    margin-bottom: 0.15rem !important;
+  }
+
+  /* Make Search Box Bigger & Positioned Right Up Top */
+  .search-engine-box {
+    padding: 1.25rem 1rem !important;
+    border-radius: 18px !important;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3) !important;
+    margin-top: 0.25rem !important;
+    border: 2px solid #239c32 !important;
+  }
+
+  /* Make Purpose Tabs Bigger and Equal-Width on Mobile */
+  .search-tabs-container {
+    display: flex !important;
+    gap: 0.4rem !important;
+    margin-bottom: 1rem !important;
+    padding-bottom: 0.65rem !important;
+  }
+
+  .search-tab {
+    flex: 1 !important;
+    justify-content: center !important;
+    padding: 12px 10px !important;
+    font-size: 0.95rem !important;
+    font-weight: 800 !important;
+    border-radius: 12px !important;
+  }
+
+  /* Bigger AI Input Box & Button on Mobile */
+  .ai-search-container-box {
+    padding: 1rem 0.85rem !important;
+    margin-bottom: 1rem !important;
+  }
+
+  .ai-title {
+    font-size: 0.88rem !important;
+  }
+
+  .ai-main-input-wrap input {
+    height: 52px !important;
+    font-size: 0.98rem !important;
+    font-weight: 600 !important;
+    border-radius: 12px !important;
+  }
+
+  .btn-ai-search {
+    height: 50px !important;
+    width: 100% !important;
+    justify-content: center !important;
+    font-size: 1rem !important;
+    font-weight: 800 !important;
+    border-radius: 12px !important;
+  }
+
+  /* Bigger Select Dropdowns for Mobile Touch Targets */
+  .search-filters-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.85rem !important;
+  }
+
+  .filter-group label {
+    font-size: 0.82rem !important;
+    font-weight: 800 !important;
+  }
+
+  .filter-select {
+    height: 50px !important;
+    font-size: 0.95rem !important;
+    font-weight: 700 !important;
+    border-radius: 12px !important;
+    background-color: #FFFFFF !important;
+    border: 1.5px solid #CBD5E1 !important;
+  }
 }
