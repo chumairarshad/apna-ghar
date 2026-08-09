@@ -166,6 +166,14 @@ async function initApp() {
   } catch (err) {
     console.warn('Neon DB sync notice:', err);
   }
+
+  // Auto-trigger Featured Property Popup Ad 10 seconds after opening website
+  setTimeout(() => {
+    if (!state.showFeaturedModal && !state.selectedProperty && !state.showAuthModal && !state.showPostWizard) {
+      state.showFeaturedModal = true;
+      renderApp();
+    }
+  }, 10000);
 }
 
 function renderApp() {
@@ -664,6 +672,18 @@ function setupEventListeners() {
     // Close Legal Modal
     if (e.target.closest('#close-legal-modal-btn') || e.target.closest('#close-legal-modal-btn-bottom') || e.target.id === 'legal-modal-overlay') {
       state.activeLegalTab = null;
+      renderApp();
+    }
+
+    // Featured Property Ad Modal Controls
+    if (e.target.closest('#open-featured-modal-btn')) {
+      e.preventDefault();
+      state.showFeaturedModal = true;
+      renderApp();
+    }
+
+    if (e.target.closest('#close-featured-btn') || e.target.closest('#close-ad-view-prop-btn') || e.target.id === 'featured-modal-overlay') {
+      state.showFeaturedModal = false;
       renderApp();
     }
 
