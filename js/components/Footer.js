@@ -64,7 +64,7 @@ export function renderFooter() {
               </div>
               <div style="display:flex; gap:0.5rem; align-items:center;">
                 ${renderIcon('mail', 15, 'var(--marigold)')}
-                <span>support@apnaghar.pk</span>
+                <span>support@Sarmayadar.pk</span>
               </div>
               <div style="display:flex; gap:0.5rem; align-items:center;">
                 ${renderIcon('clock', 15, 'var(--marigold)')}

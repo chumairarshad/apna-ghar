@@ -4,7 +4,7 @@ $listener = New-Object System.Net.HttpListener
 $listener.Prefixes.Add($prefix)
 $listener.Start()
 
-Write-Host "ApnaGhar.pk Web Server live at $prefix"
+Write-Host "Sarmayadar.pk Web Server live at $prefix"
 Write-Host "Press Ctrl+C to stop."
 
 $mimeTypes = @{

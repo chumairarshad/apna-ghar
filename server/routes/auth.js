@@ -6,7 +6,7 @@ import { pool } from '../db.js';
 import { authenticateToken } from '../middleware.js';
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'apnaghar_super_secret_jwt_key_2026_48h';
+const JWT_SECRET = process.env.JWT_SECRET || 'Sarmayadar_super_secret_jwt_key_2026_48h';
 
 // 1. SIGNUP API
 // Body: { name, email, password, phone, role: 'DEALER' | 'ADMIN', agencyName, city }

@@ -58,5 +58,5 @@ CREATE TABLE IF NOT EXISTS dealer_leads (
 -- Create Initial Admin User (Default Password: AdminPassword123!)
 -- Hash for 'AdminPassword123!': $2a$10$7vN1tE/Y38pUuGq5RzW8I.Kz2L0cE2zY9R3P1z1z1z1z1z1z1z1z
 INSERT INTO users (email, password_hash, full_name, phone, role, is_verified, badge)
-VALUES ('admin@apnaghar.pk', '$2a$10$Eq.uU9.z1V/F.k5y7F6K9e6j9.r1z.m8z.p2q3r4s5t6u7v8w9x0', 'System Administrator', '+92 300 0000000', 'ADMIN', TRUE, 'SUPER_ADMIN')
+VALUES ('admin@Sarmayadar.pk', '$2a$10$Eq.uU9.z1V/F.k5y7F6K9e6j9.r1z.m8z.p2q3r4s5t6u7v8w9x0', 'System Administrator', '+92 300 0000000', 'ADMIN', TRUE, 'SUPER_ADMIN')
 ON CONFLICT (email) DO NOTHING;

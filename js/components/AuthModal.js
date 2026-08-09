@@ -72,7 +72,7 @@ export function renderAuthModal(state) {
                 <label style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--forest-dk); text-transform: uppercase;">
                   Registered Email Address *
                 </label>
-                <input type="email" id="auth-forgot-email-input" class="form-control" placeholder="${selectedRole === 'ADMIN' ? 'admin@apnaghar.pk' : 'dealer@agency.com'}" value="${state.authPreFillEmail || ''}" required />
+                <input type="email" id="auth-forgot-email-input" class="form-control" placeholder="${selectedRole === 'ADMIN' ? 'admin@Sarmayadar.pk' : 'dealer@agency.com'}" value="${state.authPreFillEmail || ''}" required />
               </div>
 
               <div class="form-group" style="margin-bottom: 1.25rem;">
@@ -108,7 +108,7 @@ export function renderAuthModal(state) {
                 <label style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--forest-dk); text-transform: uppercase;">
                   ${selectedRole === 'ADMIN' ? 'Admin Email Address' : 'Dealer / Agency Email'} *
                 </label>
-                <input type="email" id="auth-email-input" class="form-control" placeholder="${selectedRole === 'ADMIN' ? 'admin@apnaghar.pk' : 'dealer@agency.com'}" value="${state.authPreFillEmail || ''}" required />
+                <input type="email" id="auth-email-input" class="form-control" placeholder="${selectedRole === 'ADMIN' ? 'admin@Sarmayadar.pk' : 'dealer@agency.com'}" value="${state.authPreFillEmail || ''}" required />
               </div>
 
               <div class="form-group" style="margin-bottom: 1.25rem;">

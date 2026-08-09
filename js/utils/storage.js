@@ -1,7 +1,7 @@
-const FAVORITES_KEY = "apnaghar_favorites";
-const CUSTOM_PROPERTIES_KEY = "apnaghar_custom_properties";
-const DEALER_LEADS_KEY = "apnaghar_dealer_leads";
-const AGENCY_PROFILE_KEY = "apnaghar_agency_profile";
+const FAVORITES_KEY = "Sarmayadar_favorites";
+const CUSTOM_PROPERTIES_KEY = "Sarmayadar_custom_properties";
+const DEALER_LEADS_KEY = "Sarmayadar_dealer_leads";
+const AGENCY_PROFILE_KEY = "Sarmayadar_agency_profile";
 
 export function getFavorites() {
   try {
@@ -25,8 +25,8 @@ export function toggleFavorite(propertyId) {
   return updated;
 }
 
-const MODIFIED_PROPERTIES_KEY = "apnaghar_modified_properties";
-const DELETED_PROPERTIES_KEY = "apnaghar_deleted_properties";
+const MODIFIED_PROPERTIES_KEY = "Sarmayadar_modified_properties";
+const DELETED_PROPERTIES_KEY = "Sarmayadar_deleted_properties";
 
 export function getDeletedPropertyIds() {
   try {
@@ -62,7 +62,7 @@ export function getModifiedPropertiesMap() {
 export function saveOrUpdatePropertyInStorage(property) {
   const custom = getCustomProperties();
   const customIdx = custom.findIndex(p => p.id === property.id);
-  
+
   if (customIdx > -1) {
     custom[customIdx] = property;
     localStorage.setItem(CUSTOM_PROPERTIES_KEY, JSON.stringify(custom));
@@ -119,7 +119,7 @@ export function saveDealerLeads(leads) {
 
 export function getAgencyProfile(email) {
   try {
-    const key = email ? `apnaghar_profile_${email.toLowerCase().trim()}` : AGENCY_PROFILE_KEY;
+    const key = email ? `Sarmayadar_profile_${email.toLowerCase().trim()}` : AGENCY_PROFILE_KEY;
     const data = localStorage.getItem(key);
     return data ? JSON.parse(data) : null;
   } catch (e) {
@@ -130,18 +130,18 @@ export function getAgencyProfile(email) {
 export function saveAgencyProfile(profile, email) {
   const targetEmail = email || profile?.email;
   if (targetEmail) {
-    const key = `apnaghar_profile_${targetEmail.toLowerCase().trim()}`;
+    const key = `Sarmayadar_profile_${targetEmail.toLowerCase().trim()}`;
     localStorage.setItem(key, JSON.stringify(profile));
   }
   localStorage.setItem(AGENCY_PROFILE_KEY, JSON.stringify(profile));
 }
 
 
-const DEALERS_LIST_KEY = "apnaghar_dealers_list";
+const DEALERS_LIST_KEY = "Sarmayadar_dealers_list";
 
 export function getDealersFromStorage(initialAgents = []) {
   try {
-    const regUsersData = localStorage.getItem('apnaghar_registered_users');
+    const regUsersData = localStorage.getItem('Sarmayadar_registered_users');
     const registeredUsers = regUsersData ? JSON.parse(regUsersData) : [];
     if (registeredUsers && registeredUsers.length > 0) {
       return registeredUsers.map(u => ({

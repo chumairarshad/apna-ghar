@@ -14,14 +14,14 @@ export function initLeafletMap(properties, onPropertySelect) {
 
   // Default Center: Islamabad / Pakistan center
   const defaultCoords = [31.4722, 74.4371]; // Lahore center
-  
+
   if (window.L) {
     leafletMapInstance = L.map('leaflet-map').setView(defaultCoords, 11);
 
     // OpenStreetMap tiles
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 18,
-      attribution: '&copy; OpenStreetMap & ApnaGhar.pk'
+      attribution: '&copy; OpenStreetMap & Sarmayadar.pk'
     }).addTo(leafletMapInstance);
 
     const bounds = L.latLngBounds();
@@ -32,7 +32,7 @@ export function initLeafletMap(properties, onPropertySelect) {
 
         const customPriceMarker = L.divIcon({
           className: 'custom-map-icon',
-          html: `<div class="map-price-badge"><span class="apnaghar-map-animated-icon">🏡</span> ${formatPKR(prop.price)}</div>`,
+          html: `<div class="map-price-badge"><span class="Sarmayadar-map-animated-icon">🏡</span> ${formatPKR(prop.price)}</div>`,
           iconSize: null,
           iconAnchor: [55, 15]
         });

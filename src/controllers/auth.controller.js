@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import { prisma } from '../config/prisma.js';
 import { signupSchema, loginSchema } from '../validators/auth.validator.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'apnaghar_super_secret_jwt_key_2026_48h';
+const JWT_SECRET = process.env.JWT_SECRET || 'Sarmayadar_super_secret_jwt_key_2026_48h';
 const JWT_EXPIRES_IN = '48h'; // Strictly 48 Hours
 
 /**

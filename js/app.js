@@ -118,7 +118,7 @@ async function initApp() {
 
   // Persistent Login Session with 10-Minute Inactivity Timeout Check
   const INACTIVITY_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
-  const savedTokenStr = localStorage.getItem('apnaghar_jwt_token');
+  const savedTokenStr = localStorage.getItem('Sarmayadar_jwt_token');
 
   if (savedTokenStr) {
     try {
@@ -127,16 +127,16 @@ async function initApp() {
       const lastActive = tokenObj.lastActiveTime || tokenObj.issuedAt || now;
 
       if (now - lastActive > INACTIVITY_TIMEOUT_MS) {
-        localStorage.removeItem('apnaghar_jwt_token');
+        localStorage.removeItem('Sarmayadar_jwt_token');
         state.user = null;
         showToast('⏱️ Session expired due to 10 minutes of inactivity. Please sign in again.');
       } else {
         tokenObj.lastActiveTime = now;
-        localStorage.setItem('apnaghar_jwt_token', JSON.stringify(tokenObj));
+        localStorage.setItem('Sarmayadar_jwt_token', JSON.stringify(tokenObj));
         state.user = tokenObj;
       }
     } catch (e) {
-      localStorage.removeItem('apnaghar_jwt_token');
+      localStorage.removeItem('Sarmayadar_jwt_token');
       state.user = null;
     }
   } else {
@@ -635,7 +635,7 @@ function setupEventListeners() {
     // Logout Handler
     if (e.target.closest('#logout-btn') || e.target.closest('#mobile-logout-btn')) {
       e.preventDefault();
-      localStorage.removeItem('apnaghar_jwt_token');
+      localStorage.removeItem('Sarmayadar_jwt_token');
       state.user = null;
       state.activeTab = 'buy';
       showToast('🔒 Logged out successfully.');
@@ -1005,14 +1005,14 @@ function setupEventListeners() {
     // Helper functions for local auth storage
     function getStoredUsers() {
       try {
-        const data = localStorage.getItem('apnaghar_registered_users');
+        const data = localStorage.getItem('Sarmayadar_registered_users');
         if (data) return JSON.parse(data);
       } catch (e) { }
       const defaultUsers = [
         { email: 'dealer@agency.com', password: 'password123', name: 'Apex Real Estate Agency', phone: '+92 300 1234567', role: 'DEALER', agencyName: 'Apex Real Estate Agency' },
-        { email: 'admin@apnaghar.pk', password: 'adminpassword', name: 'System Administrator', phone: '+92 300 9999999', role: 'ADMIN', agencyName: 'Sarmayadar Admin Panel' }
+        { email: 'admin@Sarmayadar.pk', password: 'adminpassword', name: 'System Administrator', phone: '+92 300 9999999', role: 'ADMIN', agencyName: 'Sarmayadar Admin Panel' }
       ];
-      localStorage.setItem('apnaghar_registered_users', JSON.stringify(defaultUsers));
+      localStorage.setItem('Sarmayadar_registered_users', JSON.stringify(defaultUsers));
       return defaultUsers;
     }
 
@@ -1024,7 +1024,7 @@ function setupEventListeners() {
       } else {
         users.push(userObj);
       }
-      localStorage.setItem('apnaghar_registered_users', JSON.stringify(users));
+      localStorage.setItem('Sarmayadar_registered_users', JSON.stringify(users));
     }
 
     // Forgot Password Form Submit
@@ -1194,7 +1194,7 @@ function setupEventListeners() {
                   issuedAt: Date.now(),
                   expiresAt: Date.now() + (48 * 60 * 60 * 1000)
                 };
-                localStorage.setItem('apnaghar_jwt_token', JSON.stringify(userObj));
+                localStorage.setItem('Sarmayadar_jwt_token', JSON.stringify(userObj));
                 state.user = userObj;
                 state.showAuthModal = false;
                 state.activeTab = 'dealer';
@@ -1254,7 +1254,7 @@ function setupEventListeners() {
             };
 
 
-            localStorage.setItem('apnaghar_jwt_token', JSON.stringify(tokenPayload));
+            localStorage.setItem('Sarmayadar_jwt_token', JSON.stringify(tokenPayload));
             state.user = tokenPayload;
             state.showAuthModal = false;
             state.activeTab = 'dealer';
@@ -1333,7 +1333,7 @@ function setupEventListeners() {
         state.user.bio = bio;
         state.user.avatar = logo;
         state.user.logo = logo;
-        localStorage.setItem('apnaghar_jwt_token', JSON.stringify(state.user));
+        localStorage.setItem('Sarmayadar_jwt_token', JSON.stringify(state.user));
       }
 
       // Update registered users array in localStorage
@@ -1783,12 +1783,12 @@ document.addEventListener('drop', (e) => {
 // Activity Tracker to refresh lastActiveTime for logged-in sessions
 function recordUserActivity() {
   if (state.user) {
-    const savedStr = localStorage.getItem('apnaghar_jwt_token');
+    const savedStr = localStorage.getItem('Sarmayadar_jwt_token');
     if (savedStr) {
       try {
         const tokenObj = JSON.parse(savedStr);
         tokenObj.lastActiveTime = Date.now();
-        localStorage.setItem('apnaghar_jwt_token', JSON.stringify(tokenObj));
+        localStorage.setItem('Sarmayadar_jwt_token', JSON.stringify(tokenObj));
       } catch (e) { }
     }
   }

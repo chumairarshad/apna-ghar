@@ -24,8 +24,10 @@
 }
 
 .map-price-badge {
-  background: #064E3B !important; /* Rich Dark Emerald */
-  color: #FFFFFF !important; /* Ultra sharp white text */
+  background: #064E3B !important;
+  /* Rich Dark Emerald */
+  color: #FFFFFF !important;
+  /* Ultra sharp white text */
   padding: 0.35rem 0.75rem;
   border-radius: 50px;
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
@@ -33,7 +35,8 @@
   font-size: 0.82rem;
   font-weight: 800;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
-  border: 2px solid #F59E0B; /* Vibrant Gold border for high visibility */
+  border: 2px solid #F59E0B;
+  /* Vibrant Gold border for high visibility */
   white-space: nowrap;
   cursor: pointer;
   display: inline-flex;
@@ -45,22 +48,24 @@
   transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
-.apnaghar-map-animated-icon {
+.Sarmayadar-map-animated-icon {
   display: inline-block;
   font-size: 0.92rem;
-  animation: apnagharBadgePulse 1.8s infinite ease-in-out;
+  animation: SarmayadarBadgePulse 1.8s infinite ease-in-out;
   transform-origin: center;
 }
 
-@keyframes apnagharBadgePulse {
+@keyframes SarmayadarBadgePulse {
   0% {
     transform: scale(1);
     filter: drop-shadow(0 0 2px rgba(245, 158, 11, 0.6));
   }
+
   50% {
     transform: scale(1.35) rotate(-6deg);
     filter: drop-shadow(0 0 8px rgba(245, 158, 11, 1));
   }
+
   100% {
     transform: scale(1);
     filter: drop-shadow(0 0 2px rgba(245, 158, 11, 0.6));
