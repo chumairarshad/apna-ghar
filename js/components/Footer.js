@@ -23,7 +23,7 @@ export function renderFooter() {
               <a href="#" class="social-icon-btn" title="Instagram">${renderIcon('instagram', 16, 'var(--cream)')}</a>
               <a href="#" class="social-icon-btn" title="LinkedIn">${renderIcon('linkedin', 16, 'var(--cream)')}</a>
               <a href="#" class="social-icon-btn" title="YouTube">${renderIcon('youtube', 16, 'var(--cream)')}</a>
-              <a href="https://wa.me/923008472910" target="_blank" class="social-icon-btn" title="WhatsApp Support">${renderIcon('message-circle', 16, 'var(--cream)')}</a>
+              <a href="https://wa.me/923327507866" target="_blank" class="social-icon-btn" title="WhatsApp Support">${renderIcon('message-circle', 16, 'var(--cream)')}</a>
             </div>
           </div>
 
@@ -60,11 +60,11 @@ export function renderFooter() {
               </div>
               <div style="display:flex; gap:0.5rem; align-items:center;">
                 ${renderIcon('phone-call', 15, 'var(--marigold)')}
-                <span>+92 300 8472910</span>
+                <span>+92 332 7507866</span>
               </div>
               <div style="display:flex; gap:0.5rem; align-items:center;">
                 ${renderIcon('mail', 15, 'var(--marigold)')}
-                <span>support@Sarmayadar.pk</span>
+                <span>contact@sarmayadar.com</span>
               </div>
               <div style="display:flex; gap:0.5rem; align-items:center;">
                 ${renderIcon('clock', 15, 'var(--marigold)')}
@@ -80,9 +80,9 @@ export function renderFooter() {
             &copy; 2026 <strong>Sarmayadar</strong>. All Rights Reserved.
           </div>
           <div style="display:flex; gap:1.25rem;">
-            <a href="#" style="color:var(--cream); opacity:0.7;">Privacy Policy</a>
-            <a href="#" style="color:var(--cream); opacity:0.7;">Terms of Service</a>
-            <a href="#" style="color:var(--cream); opacity:0.7;">FBR Tax Guide</a>
+            <a href="#" id="footer-privacy-btn" style="color:var(--cream); opacity:0.9; font-weight:700;">Privacy Policy</a>
+            <a href="#" id="footer-terms-btn" style="color:var(--cream); opacity:0.9; font-weight:700;">Terms of Service</a>
+            <a href="#" id="footer-tax-guide-btn" style="color:var(--cream); opacity:0.9;">FBR Tax Guide</a>
           </div>
         </div>
       </div>

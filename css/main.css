@@ -1,20 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-  /* Sarmayadar Palette Tokens */
+  /* Sarmayadar Palette Tokens - Vibrant Zameen Green Scheme */
   --ink: #141c0d;
-  --forest: #223318;
-  --forest-dk: #131d0c;
-  --meadow: #4c6b2f;
-  --meadow-lt: #a9c17e;
+  --forest: #1e6d2b;
+  --forest-dk: #14521f;
+  --meadow: #28a745;
+  --meadow-lt: #82e096;
   --cream: #faf1de;
-  --paper: #fffaf1;
+  --paper: #ffffff;
   --marigold: #f2a71b;
   --marigold-dk: #c9860c;
-  --rani: #d1266e;
-  --rani-dk: #a81a56;
-  --border: #e8d9b8;
-  --border-dk: #d4bd8c;
+  --rani: #239c32;
+  --rani-dk: #1b7a30;
+  --border: #e2e8f0;
+  --border-dk: #cbd5e1;
 
   --font-display: 'Plus Jakarta Sans', sans-serif;
   --font-body: 'Plus Jakarta Sans', sans-serif;

@@ -69,7 +69,7 @@ export function renderFeaturedBannersSection() {
                   <button type="button" class="btn btn-dark btn-sm open-tour-btn" data-id="prop-1" style="padding:6px 10px; font-size:0.75rem;">
                     360° Tour
                   </button>
-                  <a href="https://wa.me/923008472910?text=Hi%20Chaudhry%20Real%20Estate,%20I%20saw%20your%20Paid%20Featured%20listing%20for%20DHA%20Phase%209." target="_blank" class="btn btn-whatsapp btn-sm" style="padding:6px 10px; font-size:0.75rem;">
+                  <a href="https://wa.me/923327507866?text=Hi%20Chaudhry%20Real%20Estate,%20I%20saw%20your%20Paid%20Featured%20listing%20for%20DHA%20Phase%209." target="_blank" class="btn btn-whatsapp btn-sm" style="padding:6px 10px; font-size:0.75rem;">
                     ${renderIcon('message-circle', 12)} WhatsApp
                   </a>
                 </div>
@@ -125,7 +125,7 @@ export function renderFeaturedBannersSection() {
                   <button type="button" class="btn btn-dark btn-sm open-tour-btn" data-id="prop-2" style="padding:6px 10px; font-size:0.75rem;">
                     360° Tour
                   </button>
-                  <a href="https://wa.me/923008472910?text=Hi%20Capital%20Estate,%20I%20saw%20your%20Paid%20Featured%20listing%20for%20Capital%20Smart%20City." target="_blank" class="btn btn-whatsapp btn-sm" style="padding:6px 10px; font-size:0.75rem;">
+                  <a href="https://wa.me/923327507866?text=Hi%20Capital%20Estate,%20I%20saw%20your%20Paid%20Featured%20listing%20for%20Capital%20Smart%20City." target="_blank" class="btn btn-whatsapp btn-sm" style="padding:6px 10px; font-size:0.75rem;">
                     ${renderIcon('message-circle', 12)} WhatsApp
                   </a>
                 </div>

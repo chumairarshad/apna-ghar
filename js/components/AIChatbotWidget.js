@@ -102,7 +102,7 @@ export function renderAIChatbotWidget(state) {
 
               <!-- Direct Agent WhatsApp Consultation Button -->
               ${msg.sender === 'bot' && msg.userQuery ? `
-                <a href="https://wa.me/923008472910?text=${encodeURIComponent(`Assalam-o-Alaikum Sarmayadar Team! I searched for: "${msg.userQuery}". Please help me find or source a property matching my requirements.`)}" 
+                <a href="https://wa.me/923327507866?text=${encodeURIComponent(`Assalam-o-Alaikum Sarmayadar Team! I searched for: "${msg.userQuery}". Please help me find or source a property matching my requirements.`)}" 
                    target="_blank" 
                    style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; margin-top:0.65rem; padding:9px 14px; font-size:0.82rem; font-weight:800; background:#25D366; color:#ffffff; border-radius:10px; text-decoration:none; box-shadow:0 4px 12px rgba(37,211,102,0.35); border:none;">
                   ${renderIcon('message-circle', 16, '#ffffff')} 💬 Chat on WhatsApp (Hum Dhoondh Dain Ge)

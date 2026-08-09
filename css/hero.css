@@ -1,13 +1,13 @@
-/* Premium Modern Executive Hero & Search Engine for Sarmayadar (Rani Pink Theme) */
+/* Premium Modern Executive Hero & Search Engine for Sarmayadar (Zameen Green Theme) */
 .hero-section {
   position: relative;
-  min-height: 560px;
-  background: linear-gradient(180deg, rgba(19, 29, 12, 0.88) 0%, rgba(28, 14, 23, 0.94) 100%),
+  min-height: auto;
+  background: linear-gradient(180deg, rgba(15, 38, 17, 0.92) 0%, rgba(10, 26, 12, 0.95) 100%),
     url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=2000&q=85') center/cover no-repeat;
-  padding: 4.5rem 0 5rem;
+  padding: 2.25rem 0 3rem;
   display: flex;
   align-items: center;
-  border-bottom: 3px solid var(--rani);
+  border-bottom: 3px solid #239c32;
   box-shadow: inset 0 -30px 60px rgba(0, 0, 0, 0.4);
   overflow: hidden;
 }
@@ -20,7 +20,7 @@
   right: -5%;
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle, rgba(209, 38, 110, 0.15), rgba(242, 167, 27, 0.08) 50%, transparent 70%);
+  background: radial-gradient(circle, rgba(35, 156, 50, 0.18), rgba(242, 167, 27, 0.08) 50%, transparent 70%);
   pointer-events: none;
 }
 
@@ -35,63 +35,63 @@
 
 .hero-text-wrapper {
   max-width: 840px;
-  margin: 0 auto 2.25rem;
+  margin: 0 auto 1.25rem;
   animation: fadeInUp 0.5s ease-out;
 }
 
-/* Glassmorphic Badge with Rani Pink Accent */
+/* Glassmorphic Badge with Emerald Accent */
 .hero-badge {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  background: rgba(209, 38, 110, 0.12);
+  background: rgba(35, 156, 50, 0.15);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(209, 38, 110, 0.45);
-  color: #FF70AB;
+  border: 1px solid rgba(35, 156, 50, 0.45);
+  color: #34d399;
   font-family: var(--font-body);
   font-size: 0.78rem;
   font-weight: 700;
-  padding: 6px 18px;
+  padding: 4px 16px;
   border-radius: 50px;
   letter-spacing: 1.2px;
   text-transform: uppercase;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 4px 20px rgba(209, 38, 110, 0.2);
+  margin-bottom: 0.75rem;
+  box-shadow: 0 4px 20px rgba(35, 156, 50, 0.2);
   transition: all 0.3s ease;
 }
 
 .hero-badge:hover {
-  background: rgba(209, 38, 110, 0.2);
-  border-color: rgba(209, 38, 110, 0.7);
+  background: rgba(35, 156, 50, 0.25);
+  border-color: rgba(35, 156, 50, 0.7);
   transform: translateY(-1px);
 }
 
 .pulse-dot {
   width: 8px;
   height: 8px;
-  background-color: #D1266E;
+  background-color: #239c32;
   border-radius: 50%;
-  box-shadow: 0 0 10px #D1266E;
+  box-shadow: 0 0 10px #239c32;
   position: relative;
 }
 
 .hero-title {
   font-family: var(--font-display);
-  font-size: clamp(2.4rem, 4.2vw, 3.8rem);
+  font-size: clamp(2.2rem, 3.8vw, 3.4rem);
   font-weight: 800;
   color: #FFFFFF;
-  line-height: 1.15;
+  line-height: 1.12;
   letter-spacing: -0.02em;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .hero-title span.gradient-text {
-  background: linear-gradient(135deg, #FF3B94 0%, #D1266E 50%, #F2A71B 100%);
+  background: linear-gradient(135deg, #34D399 0%, #239C32 50%, #F2A71B 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   display: inline-block;
-  filter: drop-shadow(0 4px 16px rgba(209, 38, 110, 0.35));
+  filter: drop-shadow(0 4px 16px rgba(35, 156, 50, 0.35));
 }
 
 .hero-subtitle {
@@ -130,22 +130,22 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: linear-gradient(135deg, #D1266E 0%, #A81A56 100%);
+  background: linear-gradient(135deg, #239C32 0%, #1B7A30 100%);
   color: #FFFFFF;
   border: none;
   font-size: 0.95rem;
   font-weight: 700;
   padding: 13px 28px;
   border-radius: 50px;
-  box-shadow: 0 8px 24px rgba(209, 38, 110, 0.38);
+  box-shadow: 0 8px 24px rgba(35, 156, 50, 0.35);
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .btn-hero-primary:hover {
-  background: linear-gradient(135deg, #A81A56 0%, #851242 100%);
+  background: linear-gradient(135deg, #1B7A30 0%, #125722 100%);
   transform: translateY(-2px);
-  box-shadow: 0 12px 30px rgba(209, 38, 110, 0.5);
+  box-shadow: 0 12px 30px rgba(35, 156, 50, 0.5);
 }
 
 .btn-hero-primary .cta-badge {
@@ -274,20 +274,20 @@
 .ai-icon-badge {
   width: 26px;
   height: 26px;
-  background: linear-gradient(135deg, #D1266E, #A81A56);
+  background: linear-gradient(135deg, #239C32, #1B7A30);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(209, 38, 110, 0.4);
+  box-shadow: 0 2px 8px rgba(35, 156, 50, 0.4);
 }
 
 .ai-title {
   font-family: var(--font-display);
   font-size: 0.9rem;
   font-weight: 700;
-  color: #FF70AB;
+  color: #34d399;
   letter-spacing: 0.5px;
   margin: 0;
   display: flex;
@@ -328,8 +328,8 @@
 }
 
 .ai-main-input-wrap input:focus {
-  border-color: #D1266E;
-  box-shadow: 0 0 0 3px rgba(209, 38, 110, 0.2);
+  border-color: #239c32;
+  box-shadow: 0 0 0 3px rgba(35, 156, 50, 0.2);
   outline: none;
 }
 
@@ -338,11 +338,11 @@
   padding: 0 1.5rem;
   font-size: 0.95rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #D1266E 0%, #A81A56 100%);
+  background: linear-gradient(135deg, #239C32 0%, #1B7A30 100%);
   color: #FFFFFF;
   border: none;
   border-radius: 10px;
-  box-shadow: 0 4px 14px rgba(209, 38, 110, 0.35);
+  box-shadow: 0 4px 14px rgba(35, 156, 50, 0.35);
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -352,9 +352,9 @@
 }
 
 .btn-ai-search:hover {
-  background: linear-gradient(135deg, #A81A56 0%, #851242 100%);
+  background: linear-gradient(135deg, #1B7A30 0%, #125722 100%);
   transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(209, 38, 110, 0.45);
+  box-shadow: 0 6px 18px rgba(35, 156, 50, 0.45);
 }
 
 .ai-quick-prompts {

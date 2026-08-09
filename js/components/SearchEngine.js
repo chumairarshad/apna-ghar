@@ -12,34 +12,18 @@ export function renderHeroSearch(state) {
     <section class="hero-section">
       <div class="container hero-content">
         <!-- Hero Text Header -->
-        <div class="hero-text-wrapper">
+        <div class="hero-text-wrapper" style="margin-bottom:1rem;">
           <div class="hero-badge">
             <span class="pulse-dot"></span>
             <span>Pakistan's #1 Verified Property Portal</span>
           </div>
           
-          <h1 class="hero-title">
+          <h1 class="hero-title" style="margin-bottom:0.25rem;">
             Find Your Dream <span class="gradient-text">Property</span> in Pakistan
           </h1>
-          
-          <p class="hero-subtitle">
-            Buy, Rent & Invest in Verified Luxury Houses, Apartments, Commercial Plots & Megaprojects across Lahore, Islamabad, Karachi, and major cities.
-          </p>
-
-          <!-- Dual Action CTA Buttons (List Property & Feature Property) -->
-          <div class="hero-actions">
-            <button type="button" class="btn btn-hero-primary" id="open-post-property-btn">
-              ${renderIcon('plus-circle', 18)} <span>List Free Property</span>
-              <small class="cta-badge">3x Leads</small>
-            </button>
-
-            <button type="button" class="btn btn-hero-secondary" id="open-featured-modal-btn">
-              ${renderIcon('sparkles', 16)} <span>Get Featured Spot</span>
-            </button>
-          </div>
         </div>
 
-        <!-- Search Engine Box Container -->
+        <!-- Search Engine Box Container (Positioned Above the Fold) -->
         <div class="search-engine-box">
           <!-- Purpose Tabs -->
           <div class="search-tabs-container">
@@ -94,7 +78,7 @@ export function renderHeroSearch(state) {
           <div class="search-filters-grid">
             <!-- City Selector -->
             <div class="filter-group">
-              <label>${renderIcon('map-pin', 14, '#D1266E')} City</label>
+              <label>${renderIcon('map-pin', 14, '#239C32')} City</label>
               <select id="filter-city" class="filter-select">
                 <option value="all">All Cities in Pakistan</option>
                 ${CITIES_DATA.map(c => `
@@ -105,7 +89,7 @@ export function renderHeroSearch(state) {
 
             <!-- Society / Location Selector -->
             <div class="filter-group">
-              <label>${renderIcon('building-2', 14, '#D1266E')} Society / Sector</label>
+              <label>${renderIcon('building-2', 14, '#239C32')} Society / Sector</label>
               <select id="filter-society" class="filter-select">
                 <option value="all">All Societies & Locations</option>
                 ${societiesList.map(s => `
@@ -116,7 +100,7 @@ export function renderHeroSearch(state) {
 
             <!-- Property Type Selector -->
             <div class="filter-group">
-              <label>${renderIcon('home', 14, '#D1266E')} Property Type</label>
+              <label>${renderIcon('home', 14, '#239C32')} Property Type</label>
               <select id="filter-type" class="filter-select">
                 <option value="all">All Property Types</option>
                 ${PROPERTY_TYPES.map(t => `
@@ -127,7 +111,7 @@ export function renderHeroSearch(state) {
 
             <!-- Budget Range Selector -->
             <div class="filter-group">
-              <label>${renderIcon('dollar-sign', 14, '#D1266E')} Max Price</label>
+              <label>${renderIcon('dollar-sign', 14, '#239C32')} Max Price</label>
               <select id="filter-price" class="filter-select">
                 <option value="all">Any Price</option>
                 <option value="5000000" ${state.searchFilters.maxPrice === '5000000' ? 'selected' : ''}>Under 50 Lakhs (PKR 5M)</option>
@@ -138,6 +122,18 @@ export function renderHeroSearch(state) {
               </select>
             </div>
           </div>
+        </div>
+
+        <!-- Secondary CTA Actions below Search Engine -->
+        <div class="hero-actions" style="margin-top:1.25rem;">
+          <button type="button" class="btn btn-hero-primary" id="open-post-property-btn">
+            ${renderIcon('plus-circle', 18)} <span>List Free Property</span>
+            <small class="cta-badge">3x Leads</small>
+          </button>
+
+          <button type="button" class="btn btn-hero-secondary" id="open-featured-modal-btn">
+            ${renderIcon('sparkles', 16)} <span>Get Featured Spot</span>
+          </button>
         </div>
       </div>
     </section>

@@ -14,7 +14,7 @@ export function renderHeader(state, onStateChange) {
           <div class="top-bar-left">
             <div class="top-bar-pill">
               <span style="width:7px; height:7px; background-color:#22C55E; border-radius:50%; box-shadow:0 0 8px #22C55E;"></span>
-              <span>24/7 Helpline: <strong>+92 300 8472910</strong></span>
+              <span>24/7 Helpline: <strong>+92 332 7507866</strong></span>
             </div>
 
             <div class="top-bar-pill">

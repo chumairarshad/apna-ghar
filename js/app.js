@@ -33,6 +33,7 @@ import { renderPropertyComparerModal } from './components/PropertyComparer.js';
 import { renderScheduleVisitModal } from './components/ScheduleVisitModal.js';
 import { renderFeaturedBannersSection } from './components/FeaturedBannersSection.js';
 import { renderArticleReaderModal } from './components/ArticleReaderModal.js';
+import { renderLegalModal } from './components/LegalModal.js';
 import { renderMobileBottomNav } from './components/MobileBottomNav.js';
 
 // Application State
@@ -79,7 +80,8 @@ const state = {
   activeTool: 'converter', // converter | mortgage | valuate | fbr
   dealerTab: 'inventory', // inventory | leads | analytics | profile
   user: null,
-  uploadedImages: []
+  uploadedImages: [],
+  activeLegalTab: null // privacy | terms
 };
 
 const ARTICLES_DB = [
@@ -226,6 +228,7 @@ function renderApp() {
       ${renderPropertyComparerModal(state)}
       ${renderScheduleVisitModal(state)}
       ${renderArticleReaderModal(state)}
+      ${renderLegalModal(state.activeLegalTab)}
 
       <!-- Persistent Floating AI Chatbot Widget -->
       ${renderAIChatbotWidget(state)}
@@ -642,6 +645,26 @@ function setupEventListeners() {
       renderApp();
     }
 
+    // Privacy Policy Footer Link Trigger
+    if (e.target.closest('#footer-privacy-btn')) {
+      e.preventDefault();
+      state.activeLegalTab = 'privacy';
+      renderApp();
+    }
+
+    // Terms of Service Footer Link Trigger
+    if (e.target.closest('#footer-terms-btn')) {
+      e.preventDefault();
+      state.activeLegalTab = 'terms';
+      renderApp();
+    }
+
+    // Close Legal Modal
+    if (e.target.closest('#close-legal-modal-btn') || e.target.closest('#close-legal-modal-btn-bottom') || e.target.id === 'legal-modal-overlay') {
+      state.activeLegalTab = null;
+      renderApp();
+    }
+
     // Post Property Modal Controls
     if (e.target.closest('#open-post-property-btn') || e.target.closest('#dealer-post-btn') || e.target.id === 'footer-link-post') {
       e.preventDefault();
@@ -1010,7 +1033,7 @@ function setupEventListeners() {
       } catch (e) { }
       const defaultUsers = [
         { email: 'dealer@agency.com', password: 'password123', name: 'Apex Real Estate Agency', phone: '+92 300 1234567', role: 'DEALER', agencyName: 'Apex Real Estate Agency' },
-        { email: 'admin@sarmayadar.pk', password: 'adminpassword', name: 'System Administrator', phone: '+92 300 9999999', role: 'ADMIN', agencyName: 'Sarmayadar Admin Panel' }
+        { email: 'admin@sarmayadar.com', password: 'adminpassword', name: 'System Administrator', phone: '+92 332 7507866', role: 'ADMIN', agencyName: 'Sarmayadar Admin Panel' }
       ];
       localStorage.setItem('Sarmayadar_registered_users', JSON.stringify(defaultUsers));
       return defaultUsers;

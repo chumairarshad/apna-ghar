@@ -26,8 +26,8 @@ export const INITIAL_PROPERTIES = [
     agency: {
       name: 'Al-Rehman Real Estate & Builders',
       agentName: 'Chaudhry Tariq Rehman',
-      phone: '+92 300 8472910',
-      whatsapp: '923008472910',
+      phone: '+92 332 7507866',
+      whatsapp: '923327507866',
       badge: 'PLATINUM VERIFIED',
       avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80'
     }
@@ -187,8 +187,8 @@ export const INITIAL_PROPERTIES = [
     agency: {
       name: 'Al-Rehman Real Estate & Builders',
       agentName: 'Chaudhry Tariq Rehman',
-      phone: '+92 300 8472910',
-      whatsapp: '923008472910',
+      phone: '+92 332 7507866',
+      whatsapp: '923327507866',
       badge: 'PLATINUM VERIFIED',
       avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80'
     }
