@@ -18,10 +18,11 @@ export function initLeafletMap(properties, onPropertySelect) {
   if (window.L) {
     leafletMapInstance = L.map('leaflet-map').setView(defaultCoords, 11);
 
-    // OpenStreetMap tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    // CartoDB Voyager English tile layer
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
       maxZoom: 18,
-      attribution: '&copy; OpenStreetMap & Sarmayadar.pk'
+      subdomains: 'abcd',
+      attribution: '&copy; OpenStreetMap & CartoDB & Sarmayadar'
     }).addTo(leafletMapInstance);
 
     const bounds = L.latLngBounds();

@@ -1,7 +1,7 @@
 /* Catalog Section for Sarmayadar */
 .catalog-section {
   padding: 4rem 0;
-  background-color: var(--cream);
+  background-color: #F8FAFC;
 }
 
 .catalog-header-bar {
@@ -21,7 +21,7 @@
 }
 
 .results-count span {
-  color: var(--rani);
+  color: #239C32;
 }
 
 .catalog-controls {
@@ -33,36 +33,38 @@
 .view-toggle {
   display: flex;
   background-color: var(--paper);
-  border: 2px solid var(--forest-dk);
-  border-radius: 4px;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 8px;
   padding: 2px;
 }
 
 .view-btn {
   background: transparent;
   padding: 8px 14px;
-  border-radius: 2px;
-  color: var(--forest);
+  border-radius: 6px;
+  color: #475569;
   font-size: 0.82rem;
   font-weight: 700;
   display: flex;
   align-items: center;
   gap: 0.35rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .view-btn.active {
-  background-color: var(--forest-dk);
-  color: var(--cream);
+  background-color: #239C32;
+  color: #FFFFFF;
 }
 
 .sort-select {
   padding: 8px 14px;
-  border: 2px solid var(--border-dk);
-  border-radius: 4px;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 8px;
   font-size: 0.85rem;
   font-weight: 700;
-  color: var(--forest-dk);
-  background-color: var(--paper);
+  color: #0F172A;
+  background-color: #FFFFFF;
 }
 
 /* Dual View Layout */
@@ -109,29 +111,30 @@
   }
 }
 
-/* Listing Card */
+/* Listing Card - Premium Zameen Green Styling */
 .property-card {
-  background-color: var(--paper);
-  border-radius: 8px;
+  background-color: #FFFFFF;
+  border-radius: 14px;
   overflow: hidden;
-  box-shadow: var(--shadow-soft);
-  border: 2px solid var(--forest-dk);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  border: 1.5px solid #E2E8F0;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease;
   display: flex;
   flex-direction: column;
   position: relative;
 }
 
 .property-card:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--shadow-lift);
+  transform: translateY(-5px);
+  border-color: #239C32;
+  box-shadow: 0 12px 30px rgba(35, 156, 50, 0.18);
 }
 
 .card-media {
   position: relative;
   height: 200px;
   overflow: hidden;
-  background-color: var(--forest-dk);
+  background-color: #0F172A;
 }
 
 .card-media img {
@@ -149,16 +152,17 @@
   position: absolute;
   top: 12px;
   left: 0;
-  background: var(--rani);
-  color: var(--paper);
-  font-family: var(--font-mono);
-  font-size: 0.64rem;
+  background: #239C32;
+  color: #FFFFFF;
+  font-family: var(--font-body);
+  font-size: 0.68rem;
   letter-spacing: 0.05em;
-  font-weight: 700;
+  font-weight: 800;
   padding: 6px 14px 6px 12px;
   border-radius: 0 20px 20px 0;
   text-transform: uppercase;
   z-index: 2;
+  box-shadow: 0 2px 8px rgba(35, 156, 50, 0.3);
 }
 
 .save-btn {
@@ -168,35 +172,39 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: rgba(255, 250, 241, 0.95);
+  background: #FFFFFF;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--rani);
-  border: none;
+  color: #239C32;
+  border: 1px solid #E2E8F0;
   z-index: 2;
-  box-shadow: var(--shadow-soft);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .save-btn:hover,
 .save-btn.active {
-  background: var(--rani);
-  color: var(--paper);
+  background: #239C32;
+  color: #FFFFFF;
+  border-color: #1B7A30;
 }
 
 .price-tag-overlay {
   position: absolute;
   bottom: 0.85rem;
   left: 0.85rem;
-  background: rgba(19, 29, 12, 0.92);
-  backdrop-filter: blur(4px);
-  color: var(--marigold);
-  padding: 0.35rem 0.85rem;
-  border-radius: 4px;
-  font-family: var(--font-mono);
-  font-size: 1.1rem;
-  font-weight: 700;
-  border-left: 4px solid var(--rani);
+  background: linear-gradient(135deg, #239C32 0%, #1B7A30 100%);
+  color: #FFFFFF;
+  padding: 0.45rem 1rem;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  font-weight: 800;
+  border: none;
+  box-shadow: 0 4px 14px rgba(35, 156, 50, 0.35);
+  letter-spacing: 0.3px;
 }
 
 .card-body {
@@ -207,10 +215,10 @@
 }
 
 .card-category {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--rani-dk);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #239C32;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 0.35rem;
@@ -220,7 +228,7 @@
   font-family: var(--font-body);
   font-size: 1.05rem;
   font-weight: 700;
-  color: var(--ink);
+  color: #0F172A;
   line-height: 1.35;
   margin-bottom: 0.35rem;
   display: -webkit-box;
@@ -235,8 +243,8 @@
   align-items: center;
   gap: 0.35rem;
   font-size: 0.82rem;
-  color: var(--forest);
-  opacity: 0.8;
+  color: #475569;
+  font-weight: 500;
   margin-bottom: 1rem;
 }
 
@@ -244,20 +252,24 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: var(--cream);
+  background: #F0FDF4;
   padding: 0.65rem 0.85rem;
-  border-radius: 4px;
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--forest);
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #166534;
   margin-bottom: 1rem;
-  border: 1px dashed var(--border-dk);
+  border: 1px solid #BBF7D0;
 }
 
 .metric-item {
   display: flex;
   align-items: center;
+  gap: 0.4rem;
+  color: #166534;
+  font-weight: 700;
+}
   gap: 0.3rem;
 }
 
