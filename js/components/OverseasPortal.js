@@ -40,12 +40,30 @@ export function renderOverseasPortal() {
                 </div>
               </div>
 
-              <!-- CTA Button -->
+              <!-- Fancy Redesigned CTA Button -->
               <a href="https://wa.me/923327507866?text=Hi%20Sarmayadar,%20I%20am%20an%20Overseas%20Pakistani%20interested%20in%20property%20investment." 
                  target="_blank" 
-                 class="btn btn-primary" 
-                 style="font-size:0.92rem; padding:12px 22px; max-width:100%; white-space:normal; text-align:center; border-radius:10px; font-weight:800; background:linear-gradient(135deg, #239C32 0%, #1B7A30 100%); box-shadow:0 4px 16px rgba(0,0,0,0.3);">
-                ${renderIcon('message-circle', 18)} Connect with Overseas Investment Specialist
+                 class="btn-overseas-fancy" 
+                 style="
+                   display: inline-flex;
+                   align-items: center;
+                   justify-content: center;
+                   gap: 10px;
+                   padding: 14px 26px;
+                   background: linear-gradient(135deg, #F2A71B 0%, #D97706 100%);
+                   color: #0F172A;
+                   font-family: var(--font-body);
+                   font-size: 0.98rem;
+                   font-weight: 800;
+                   border-radius: 12px;
+                   border: 2px solid #FFFFFF;
+                   box-shadow: 0 6px 20px rgba(242, 167, 27, 0.45), 0 0 15px rgba(242, 167, 27, 0.25);
+                   text-decoration: none;
+                   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+                   cursor: pointer;
+                   max-width: 100%;
+                 ">
+                ${renderIcon('message-circle', 20, '#0F172A')} <span>Connect with Overseas Investment Specialist</span>
               </a>
             </div>
 

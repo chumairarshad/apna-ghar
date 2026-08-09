@@ -76,11 +76,12 @@ export function renderFooter() {
 
         <!-- Footer Bottom Bar -->
         <div class="footer-bottom" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; padding-top:2rem; margin-top:2.5rem; border-top:1px solid rgba(255,255,255,0.12); font-size:0.8rem;">
-          <div>
-            &copy; 2026 <strong>Sarmayadar</strong>. All Rights Reserved.
-          </div>
-          <div style="font-weight:700; color:#FFFFFF; display:flex; align-items:center; gap:5px; font-size:0.85rem;">
-            Made with <span style="color:#EF4444; font-size:0.95rem;">❤️</span> by <strong>Vujood</strong>
+          <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+            <span>&copy; 2026 <strong>Sarmayadar</strong>. All Rights Reserved.</span>
+            <span style="opacity:0.5;">•</span>
+            <span style="font-weight:700; color:#FFFFFF; display:inline-flex; align-items:center; gap:4px;">
+              Made with <span style="color:#EF4444; font-size:0.9rem;">❤️</span> by <strong>Vujood</strong>
+            </span>
           </div>
           <div style="display:flex; gap:1.25rem;">
             <a href="#" id="footer-privacy-btn" style="color:var(--cream); opacity:0.9; font-weight:700;">Privacy Policy</a>
