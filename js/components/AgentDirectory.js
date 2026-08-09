@@ -78,7 +78,7 @@ function renderProfessionalAgentCard(agent) {
           <a href="tel:${agent.phone}" class="btn btn-dark btn-sm" style="padding:0.5rem 0.4rem; font-size:0.78rem;" title="Call ${agent.name}">
             <i data-lucide="phone" style="width:14px; height:14px;"></i> Call
           </a>
-          <a href="https://wa.me/${agent.whatsapp}?text=Hi%20${encodeURIComponent(agent.name)},%20I%20found%20your%20agency%20on%20Apna%20Ghar." 
+          <a href="https://wa.me/${agent.whatsapp}?text=Hi%20${encodeURIComponent(agent.name)},%20I%20found%20your%20agency%20on%20Sarmayadar." 
              target="_blank" 
              class="btn btn-whatsapp btn-sm" 
              style="padding:0.5rem 0.4rem; font-size:0.78rem;" 

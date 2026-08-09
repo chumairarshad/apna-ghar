@@ -133,7 +133,7 @@ function renderPropertyCard(rawProp, favorites, unit) {
               360°
             </button>
 
-            <a href="https://wa.me/${prop.agency.whatsapp}?text=Hi%20Apna%20Ghar%20Agent,%20I%20am%20interested%20in%20listing%20${encodeURIComponent(prop.title)}%20(ID:%20${prop.id})" 
+            <a href="https://wa.me/${prop.agency.whatsapp}?text=Hi%20Sarmayadar%20Agent,%20I%20am%20interested%20in%20listing%20${encodeURIComponent(prop.title)}%20(ID:%20${prop.id})" 
                target="_blank" 
                class="btn btn-whatsapp" 
                style="padding:0.4rem 0.65rem; font-size:0.8rem;" 

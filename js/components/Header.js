@@ -60,7 +60,7 @@ export function renderHeader(state, onStateChange) {
               <path d="M42 76V58H58V76H42Z" fill="#d1266e"/>
             </svg>
             <div>
-              <div class="logo-word">APNA<span>GHAR</span></div>
+              <div class="logo-word">SARMAYA<span>DAR</span></div>
               <div class="logo-tagline">Pakistan Real Estate</div>
             </div>
           </a>

@@ -41,7 +41,7 @@ export function renderSplashScreen() {
 
       <!-- Brand Title -->
       <h1 style="font-size:2.4rem; color:var(--paper); letter-spacing:-0.03em; margin-bottom:0.25rem;">
-        APNA<span style="color:var(--rani);">GHAR</span>
+        SARMAYA<span style="color:var(--rani);">DAR</span>
       </h1>
 
       <p style="font-family:var(--font-mono); font-size:0.8rem; color:var(--marigold); text-transform:uppercase; letter-spacing:0.15em; margin-bottom:2rem; text-align:center;">

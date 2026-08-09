@@ -188,7 +188,7 @@ function renderDealersManagementTab(dealers) {
                 <td>${d.city}<br/><span style="font-size:0.73rem; color:var(--text-muted);">${d.office || ''}</span></td>
                 <td>
                   <div>${d.phone}</div>
-                  <a href="https://wa.me/${d.whatsapp}?text=Hi%20${encodeURIComponent(d.leadPerson)},%20this%20is%20Apna%20Ghar%20Admin." target="_blank" style="font-size:0.75rem; color:var(--emerald-teal); font-weight:700;">WhatsApp</a>
+                  <a href="https://wa.me/${d.whatsapp}?text=Hi%20${encodeURIComponent(d.leadPerson)},%20this%20is%20Sarmayadar%20Admin." target="_blank" style="font-size:0.75rem; color:var(--emerald-teal); font-weight:700;">WhatsApp</a>
                 </td>
                 <td><span class="badge badge-verified">${d.activeListingsCount || 0} Listings</span></td>
                 <td>
@@ -332,7 +332,7 @@ function renderLeadsCRMTab(leads) {
                 </td>
                 <td>
                   <div>${lead.phone}</div>
-                  <a href="https://wa.me/${lead.whatsapp}?text=Hi%20${encodeURIComponent(lead.clientName)},%20thank%20you%20for%20contacting%20Apna%20Ghar%20Realtors." 
+                  <a href="https://wa.me/${lead.whatsapp}?text=Hi%20${encodeURIComponent(lead.clientName)},%20thank%20you%20for%20contacting%20Sarmayadar%20Realtors." 
                      target="_blank" 
                      class="btn btn-whatsapp" 
                      style="padding:0.2rem 0.5rem; font-size:0.73rem; margin-top:0.2rem; display:inline-flex;">

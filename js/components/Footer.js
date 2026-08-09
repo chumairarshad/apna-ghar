@@ -14,7 +14,7 @@ export function renderFooter() {
                 <circle cx="50" cy="46" r="10" fill="#f2a71b"/>
                 <path d="M42 76V58H58V76H42Z" fill="#d1266e"/>
               </svg>
-              <h2 style="font-family:var(--font-display); font-size:1.4rem; color:var(--paper); margin:0;">APNA<span style="color:var(--rani);">GHAR</span></h2>
+              <h2 style="font-family:var(--font-display); font-size:1.4rem; color:var(--paper); margin:0;">SARMAYA<span style="color:var(--rani);">DAR</span></h2>
             </div>
             <p>Pakistan's most trusted real estate portal connecting home buyers, tenants, and verified real estate agencies across DHA, Bahria Town, and major cities.</p>
             

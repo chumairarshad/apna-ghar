@@ -73,7 +73,7 @@ export function renderFeaturedPropertyModal(state) {
             </label>
           </div>
 
-          <a href="https://wa.me/923008472910?text=Hi%20Apna%20Ghar,%20I%20want%20to%20Feature%20my%20property%20listing." 
+          <a href="https://wa.me/923008472910?text=Hi%20Sarmayadar,%20I%20want%20to%20Feature%20my%20property%20listing." 
              target="_blank" 
              class="btn btn-whatsapp" 
              id="submit-featured-request-btn"

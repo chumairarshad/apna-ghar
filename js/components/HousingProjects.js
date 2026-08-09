@@ -119,7 +119,7 @@ export function renderHousingProjects() {
                     ${(proj.features ?? []).map(f => `<span class="filter-chip" style="font-size:0.72rem; padding:3px 10px; font-weight:700; background:#F1F5F9; border:1px solid #CBD5E1; color:#1E293B; border-radius:20px;">${f}</span>`).join('')}
                   </div>
 
-                  <a href="https://wa.me/923008472910?text=Hi%20Apna%20Ghar,%20please%20send%20me%20brochure%20and%20booking%20form%20for%20${encodeURIComponent(proj.name)}" target="_blank" class="btn btn-primary btn-sm" style="padding:10px 18px; font-size:0.88rem; font-weight:800; border-radius:8px; box-shadow:0 4px 12px rgba(209,38,110,0.3);">
+                  <a href="https://wa.me/923008472910?text=Hi%20Sarmayadar,%20please%20send%20me%20brochure%20and%20booking%20form%20for%20${encodeURIComponent(proj.name)}" target="_blank" class="btn btn-primary btn-sm" style="padding:10px 18px; font-size:0.88rem; font-weight:800; border-radius:8px; box-shadow:0 4px 12px rgba(209,38,110,0.3);">
                     💬 Book On Installments
                   </a>
                 </div>

@@ -36,7 +36,7 @@ export function renderArticleReaderModal(state) {
             <div style="font-size:0.85rem; font-weight:700; color:var(--forest-dk);">
               Need expert tax advice or society investment guidance?
             </div>
-            <a href="https://wa.me/923008472910?text=Hi%20Apna%20Ghar,%20I%20read%20your%20article:%20${encodeURIComponent(article.title)}" target="_blank" class="btn btn-whatsapp btn-sm">
+            <a href="https://wa.me/923008472910?text=Hi%20Sarmayadar,%20I%20read%20your%20article:%20${encodeURIComponent(article.title)}" target="_blank" class="btn btn-whatsapp btn-sm">
               ${renderIcon('message-circle', 14)} Ask Real Estate Legal Consultant
             </a>
           </div>

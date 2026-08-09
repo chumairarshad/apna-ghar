@@ -38,7 +38,7 @@ export function renderOverseasPortal() {
                 </div>
               </div>
 
-              <a href="https://wa.me/923008472910?text=Hi%20Apna%20Ghar,%20I%20am%20an%20Overseas%20Pakistani%20interested%20in%20property%20investment." 
+              <a href="https://wa.me/923008472910?text=Hi%20Sarmayadar,%20I%20am%20an%20Overseas%20Pakistani%20interested%20in%20property%20investment." 
                  target="_blank" 
                  class="btn btn-marigold" 
                  style="font-size:0.88rem; padding:10px 20px; max-width:100%; white-space:normal; text-align:center;">

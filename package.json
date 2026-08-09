@@ -1,5 +1,5 @@
 {
-  "name": "apna-ghar-real-estate-backend",
+  "name": "sarmayadar-real-estate-backend",
   "version": "1.0.0",
   "description": "Production-grade Express.js & Prisma ORM backend API for Sarmayadar Real Estate Portal with Neon PostgreSQL and 48-Hour JWT auth",
   "main": "server.js",

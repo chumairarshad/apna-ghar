@@ -1010,7 +1010,7 @@ function setupEventListeners() {
       } catch (e) { }
       const defaultUsers = [
         { email: 'dealer@agency.com', password: 'password123', name: 'Apex Real Estate Agency', phone: '+92 300 1234567', role: 'DEALER', agencyName: 'Apex Real Estate Agency' },
-        { email: 'admin@Sarmayadar.pk', password: 'adminpassword', name: 'System Administrator', phone: '+92 300 9999999', role: 'ADMIN', agencyName: 'Sarmayadar Admin Panel' }
+        { email: 'admin@sarmayadar.pk', password: 'adminpassword', name: 'System Administrator', phone: '+92 300 9999999', role: 'ADMIN', agencyName: 'Sarmayadar Admin Panel' }
       ];
       localStorage.setItem('Sarmayadar_registered_users', JSON.stringify(defaultUsers));
       return defaultUsers;
