@@ -50,9 +50,12 @@ export function renderHeroSearch(state) {
             </div>
 
             <div class="ai-main-input-wrap">
-              <input type="text" 
-                     id="ai-prompt-input" 
-                     placeholder="e.g. 10 Marla house in DHA Phase 6 Lahore under 4.5 Crore with solar grid..." />
+              <div class="ai-input-inner-wrapper">
+                <span class="ai-search-input-icon">${renderIcon('search', 16, '#239C32')}</span>
+                <input type="text" 
+                       id="ai-prompt-input" 
+                       placeholder="e.g. 10 Marla house in DHA Phase 6 Lahore under 4.5 Crore..." />
+              </div>
 
               <button type="button" class="btn btn-ai-search" id="execute-ai-search-btn">
                 ${renderIcon('sparkles', 18)} <span>AI Match</span>
