@@ -4,9 +4,9 @@ import { formatPKR } from '../utils/formatters.js';
 export function renderAIChatbotWidget(state) {
   const isOpen = state.showAIChatbot || false;
   const messages = state.aiChatMessages || [
-    { 
-      sender: 'bot', 
-      text: 'Assalam-o-Alaikum! 👋 Main aap ka **Apna Ghar AI Property Assistant** hoon. Type any location, budget, or plot size to find matching properties, or chat directly with our Realtor on WhatsApp!' 
+    {
+      sender: 'bot',
+      text: 'Assalam-o-Alaikum! 👋 Main aap ka **Sarmayadar AI Property Assistant** hoon. Type any location, budget, or plot size to find matching properties, or chat directly with our Realtor on WhatsApp!'
     }
   ];
 
@@ -38,7 +38,7 @@ export function renderAIChatbotWidget(state) {
               ${renderIcon('sparkles', 20, 'var(--forest-dk)')}
             </div>
             <div>
-              <div style="font-family:var(--font-display); font-size:1rem; font-weight:800; color:#ffffff;">Apna Ghar AI Advisor</div>
+              <div style="font-family:var(--font-display); font-size:1rem; font-weight:800; color:#ffffff;">Sarmayadar AI Advisor</div>
               <div style="font-family:var(--font-mono); font-size:0.68rem; color:var(--marigold); font-weight:700;">Online • Database & Agent Sourcing</div>
             </div>
           </div>
@@ -56,9 +56,9 @@ export function renderAIChatbotWidget(state) {
                 font-size: 0.88rem;
                 line-height: 1.5;
                 font-weight: 500;
-                ${msg.sender === 'user' 
-                  ? 'background:var(--rani); color:#ffffff; border-bottom-right-radius:2px; font-weight:600; box-shadow:0 3px 10px rgba(209,38,110,0.25);' 
-                  : 'background:#ffffff; color:#0F172A; border:2px solid #E2E8F0; border-bottom-left-radius:2px; box-shadow:0 3px 10px rgba(0,0,0,0.06);'}
+                ${msg.sender === 'user'
+      ? 'background:var(--rani); color:#ffffff; border-bottom-right-radius:2px; font-weight:600; box-shadow:0 3px 10px rgba(209,38,110,0.25);'
+      : 'background:#ffffff; color:#0F172A; border:2px solid #E2E8F0; border-bottom-left-radius:2px; box-shadow:0 3px 10px rgba(0,0,0,0.06);'}
               ">
                 ${msg.text}
               </div>
@@ -102,7 +102,7 @@ export function renderAIChatbotWidget(state) {
 
               <!-- Direct Agent WhatsApp Consultation Button -->
               ${msg.sender === 'bot' && msg.userQuery ? `
-                <a href="https://wa.me/923008472910?text=${encodeURIComponent(`Assalam-o-Alaikum Apna Ghar Team! I searched for: "${msg.userQuery}". Please help me find or source a property matching my requirements.`)}" 
+                <a href="https://wa.me/923008472910?text=${encodeURIComponent(`Assalam-o-Alaikum Sarmayadar Team! I searched for: "${msg.userQuery}". Please help me find or source a property matching my requirements.`)}" 
                    target="_blank" 
                    style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; margin-top:0.65rem; padding:9px 14px; font-size:0.82rem; font-weight:800; background:#25D366; color:#ffffff; border-radius:10px; text-decoration:none; box-shadow:0 4px 12px rgba(37,211,102,0.35); border:none;">
                   ${renderIcon('message-circle', 16, '#ffffff')} 💬 Chat on WhatsApp (Hum Dhoondh Dain Ge)
@@ -149,7 +149,7 @@ export function renderAIChatbotWidget(state) {
         cursor: pointer;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
         position: relative;
-      " title="Ask Apna Ghar AI Assistant">
+      " title="Ask Sarmayadar AI Assistant">
         ${renderIcon('sparkles', 26, '#ffffff')}
         <span style="position:absolute; top:-4px; right:-4px; background:var(--marigold); color:var(--forest-dk); font-family:var(--font-mono); font-size:0.65rem; font-weight:800; padding:2px 6px; border-radius:10px; border:1.5px solid var(--forest-dk);">AI</span>
       </button>

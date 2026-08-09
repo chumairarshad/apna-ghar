@@ -77,7 +77,7 @@ router.post('/', async (req, res) => {
       [
         propId, title, purpose, category, city, location, address || location,
         price, sizeMarla || 10, bedrooms, bathrooms, description, images, features,
-        agentName || 'Verified Agent', agentPhone || '+92 300 0000000', agencyName || 'Apna Ghar Real Estate'
+        agentName || 'Verified Agent', agentPhone || '+92 300 0000000', agencyName || 'Sarmayadar Real Estate'
       ]
     );
 

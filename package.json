@@ -1,7 +1,7 @@
 {
   "name": "apna-ghar-real-estate-backend",
   "version": "1.0.0",
-  "description": "Production-grade Express.js & Prisma ORM backend API for Apna Ghar Real Estate Portal with Neon PostgreSQL and 48-Hour JWT auth",
+  "description": "Production-grade Express.js & Prisma ORM backend API for Sarmayadar Real Estate Portal with Neon PostgreSQL and 48-Hour JWT auth",
   "main": "server.js",
   "type": "module",
   "scripts": {
@@ -24,7 +24,6 @@
     "multer": "^1.4.5-lts.1",
     "pg": "^8.11.5",
     "zod": "^3.23.8"
-
   },
   "devDependencies": {
     "prisma": "^5.14.0"

@@ -45,7 +45,7 @@ app.get('/health', (req, res) => {
   res.json({
     status: 'online',
     timestamp: new Date().toISOString(),
-    service: 'Apna Ghar Real Estate Express API & Neon PostgreSQL'
+    service: 'Sarmayadar Real Estate Express API & Neon PostgreSQL'
   });
 });
 

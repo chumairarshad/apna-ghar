@@ -1,9 +1,9 @@
-/* Premium Modern Executive Hero & Search Engine for Apna Ghar (Rani Pink Theme) */
+/* Premium Modern Executive Hero & Search Engine for Sarmayadar (Rani Pink Theme) */
 .hero-section {
   position: relative;
   min-height: 560px;
-  background: linear-gradient(180deg, rgba(19, 29, 12, 0.88) 0%, rgba(28, 14, 23, 0.94) 100%), 
-              url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=2000&q=85') center/cover no-repeat;
+  background: linear-gradient(180deg, rgba(19, 29, 12, 0.88) 0%, rgba(28, 14, 23, 0.94) 100%),
+    url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=2000&q=85') center/cover no-repeat;
   padding: 4.5rem 0 5rem;
   display: flex;
   align-items: center;
@@ -118,7 +118,9 @@
     flex-direction: column;
     width: 100%;
   }
-  .btn-hero-primary, .btn-hero-secondary {
+
+  .btn-hero-primary,
+  .btn-hero-secondary {
     width: 100%;
     justify-content: center;
   }

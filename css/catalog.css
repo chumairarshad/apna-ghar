@@ -1,4 +1,4 @@
-/* Catalog Section for Apna Ghar */
+/* Catalog Section for Sarmayadar */
 .catalog-section {
   padding: 4rem 0;
   background-color: var(--cream);
@@ -94,13 +94,17 @@
 }
 
 @media (max-width: 900px) {
-  .properties-grid, .catalog-main-layout.with-map .properties-grid {
+
+  .properties-grid,
+  .catalog-main-layout.with-map .properties-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 600px) {
-  .properties-grid, .catalog-main-layout.with-map .properties-grid {
+
+  .properties-grid,
+  .catalog-main-layout.with-map .properties-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -174,7 +178,8 @@
   box-shadow: var(--shadow-soft);
 }
 
-.save-btn:hover, .save-btn.active {
+.save-btn:hover,
+.save-btn.active {
   background: var(--rani);
   color: var(--paper);
 }

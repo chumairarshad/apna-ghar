@@ -40,7 +40,7 @@ app.get(['/api', '/api/health', '/health'], (req, res) => {
   res.json({
     status: 'online',
     timestamp: new Date().toISOString(),
-    service: 'Apna Ghar Real Estate Express API & Neon PostgreSQL'
+    service: 'Sarmayadar Real Estate Express API & Neon PostgreSQL'
   });
 });
 
@@ -51,7 +51,7 @@ if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
     console.log(`====================================================`);
-    console.log(`🚀 Apna Ghar Express Server live at http://localhost:${PORT}`);
+    console.log(`🚀 Sarmayadar Express Server live at http://localhost:${PORT}`);
     console.log(`====================================================`);
   });
 }

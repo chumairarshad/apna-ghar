@@ -70,7 +70,7 @@ const state = {
   selectedArticle: null,
   showAIChatbot: false,
   aiChatMessages: [
-    { sender: 'bot', text: 'Assalam-o-Alaikum! 👋 I am your **Apna Ghar AI Advisor**. Ask me about DHA prices, loan EMI calculations, or hot property deals!' }
+    { sender: 'bot', text: 'Assalam-o-Alaikum! 👋 I am your **Sarmayadar AI Advisor**. Ask me about DHA prices, loan EMI calculations, or hot property deals!' }
   ],
   showSplash: false,
   authMethod: 'phone', // google | phone | email
@@ -335,7 +335,7 @@ function showToast(message) {
   const toast = document.createElement('div');
   toast.className = 'toast';
   const isSpinner = message.includes('⏳') || message.includes('Uploading');
-  const icon = isSpinner 
+  const icon = isSpinner
     ? `<span style="display:inline-block; width:16px; height:16px; border:2.5px solid #ffffff; border-top-color:transparent; border-radius:50%; animation:spin 0.8s linear infinite; vertical-align:middle; margin-right:8px;"></span>`
     : `<i data-lucide="check-circle" style="width:18px; height:18px; color:var(--marigold); vertical-align:middle; margin-right:6px;"></i> `;
   toast.innerHTML = `${icon}<span>${message}</span>`;
@@ -670,7 +670,7 @@ function setupEventListeners() {
     // Step switching with strict required-fields validation
     if (e.target.closest('#wizard-next-btn')) {
       const step = state.wizardStep || 1;
-      
+
       if (step === 1) {
         const purpose = document.querySelector('input[name="wiz_purpose"]:checked')?.value;
         const category = document.getElementById('wiz_category')?.value;
@@ -763,7 +763,7 @@ function setupEventListeners() {
       const id = deletePropBtn.getAttribute('data-id');
       const propToDelete = state.properties.find(p => p.id === id);
       const title = propToDelete ? propToDelete.title : 'this property';
-      
+
       if (confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`)) {
         deletePropertyFromStorage(id);
         state.properties = state.properties.filter(p => p.id !== id);
@@ -1007,10 +1007,10 @@ function setupEventListeners() {
       try {
         const data = localStorage.getItem('apnaghar_registered_users');
         if (data) return JSON.parse(data);
-      } catch (e) {}
+      } catch (e) { }
       const defaultUsers = [
         { email: 'dealer@agency.com', password: 'password123', name: 'Apex Real Estate Agency', phone: '+92 300 1234567', role: 'DEALER', agencyName: 'Apex Real Estate Agency' },
-        { email: 'admin@apnaghar.pk', password: 'adminpassword', name: 'System Administrator', phone: '+92 300 9999999', role: 'ADMIN', agencyName: 'Apna Ghar Admin Panel' }
+        { email: 'admin@apnaghar.pk', password: 'adminpassword', name: 'System Administrator', phone: '+92 300 9999999', role: 'ADMIN', agencyName: 'Sarmayadar Admin Panel' }
       ];
       localStorage.setItem('apnaghar_registered_users', JSON.stringify(defaultUsers));
       return defaultUsers;
@@ -1389,7 +1389,7 @@ function setupEventListeners() {
       const id = deleteDealerBtn.getAttribute('data-id');
       const registeredUsers = getStoredUsers();
       const targetUser = registeredUsers.find(u => (u.userId === id || u.id === id || `dealer-${u.email}` === id));
-      
+
       if (targetUser) {
         if (confirm(`Are you sure you want to suspend dealer account "${targetUser.agencyName || targetUser.name}"?`)) {
           targetUser.isSuspended = true;
@@ -1415,7 +1415,7 @@ function setupEventListeners() {
       const id = unsuspendDealerBtn.getAttribute('data-id');
       const registeredUsers = getStoredUsers();
       const targetUser = registeredUsers.find(u => (u.userId === id || u.id === id || `dealer-${u.email}` === id));
-      
+
       if (targetUser) {
         if (confirm(`Are you sure you want to unsuspend / reactivate dealer "${targetUser.agencyName || targetUser.name}"?`)) {
           targetUser.isSuspended = false;
@@ -1470,7 +1470,7 @@ function setupEventListeners() {
       const isSellerFiler = document.getElementById('fbr-seller-filer')?.value === 'filer';
 
       const res = calculateFBRTaxes(p, isBuyerFiler, isSellerFiler);
-      
+
       const bTaxEl = document.getElementById('fbr-res-buyer-tax');
       const sTaxEl = document.getElementById('fbr-res-seller-tax');
       const stampEl = document.getElementById('fbr-res-stamp');
@@ -1547,7 +1547,7 @@ function setupEventListeners() {
 
 function handleAIChatSubmit(query) {
   state.aiChatMessages.push({ sender: 'user', text: query });
-  
+
   const q = query.toLowerCase();
   const allProps = state.properties || [];
 
@@ -1596,11 +1596,11 @@ function handleAIChatSubmit(query) {
     botReply = '🧮 **Home Loan Rate**: Current bank KIBOR interest rate is ~14.5%. For a **3 Crore** loan over 20 years, estimated monthly EMI is **~PKR 382,000 / month**. Detailed breakdowns ke liye **Calculators & Tools** tab check karein!';
   }
 
-  state.aiChatMessages.push({ 
-    sender: 'bot', 
+  state.aiChatMessages.push({
+    sender: 'bot',
     text: botReply,
     userQuery: query,
-    matchedProperties: (q.includes('loan') || q.includes('emi')) ? [] : matchedProperties 
+    matchedProperties: (q.includes('loan') || q.includes('emi')) ? [] : matchedProperties
   });
   renderApp();
 }
@@ -1724,7 +1724,7 @@ document.addEventListener('change', (e) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = function(evt) {
+      reader.onload = function (evt) {
         const base64Photo = evt.target.result;
         const logoUrlInput = document.getElementById('agency-logo-url-input');
         const logoPreview = document.getElementById('agency-logo-preview');
@@ -1789,7 +1789,7 @@ function recordUserActivity() {
         const tokenObj = JSON.parse(savedStr);
         tokenObj.lastActiveTime = Date.now();
         localStorage.setItem('apnaghar_jwt_token', JSON.stringify(tokenObj));
-      } catch (e) {}
+      } catch (e) { }
     }
   }
 }

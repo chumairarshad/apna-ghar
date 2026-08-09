@@ -1,5 +1,5 @@
 /**
- * Reliable SVG Icon Generator for Apna Ghar Portal
+ * Reliable SVG Icon Generator for Sarmayadar Portal
  * Guarantees 100% immediate rendering without waiting for external library script loads.
  */
 

@@ -14,7 +14,7 @@ export function renderFeaturedPropertyModal(state) {
 
         <div class="modal-body">
           <p style="font-size:0.9rem; color:var(--forest); margin-bottom:1.25rem;">
-            Boost your property visibility by up to <strong>300%</strong> with top homepage placement and verified badges on Apna Ghar.
+            Boost your property visibility by up to <strong>300%</strong> with top homepage placement and verified badges on Sarmayadar.
           </p>
 
           <!-- Featured Benefits -->

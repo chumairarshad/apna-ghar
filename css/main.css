@@ -1,32 +1,32 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-  /* Apna Ghar Palette Tokens */
-  --ink:          #141c0d;
-  --forest:       #223318;
-  --forest-dk:    #131d0c;
-  --meadow:       #4c6b2f;
-  --meadow-lt:    #a9c17e;
-  --cream:        #faf1de;
-  --paper:        #fffaf1;
-  --marigold:     #f2a71b;
-  --marigold-dk:  #c9860c;
-  --rani:         #d1266e;
-  --rani-dk:      #a81a56;
-  --border:       #e8d9b8;
-  --border-dk:    #d4bd8c;
+  /* Sarmayadar Palette Tokens */
+  --ink: #141c0d;
+  --forest: #223318;
+  --forest-dk: #131d0c;
+  --meadow: #4c6b2f;
+  --meadow-lt: #a9c17e;
+  --cream: #faf1de;
+  --paper: #fffaf1;
+  --marigold: #f2a71b;
+  --marigold-dk: #c9860c;
+  --rani: #d1266e;
+  --rani-dk: #a81a56;
+  --border: #e8d9b8;
+  --border-dk: #d4bd8c;
 
   --font-display: 'Plus Jakarta Sans', sans-serif;
-  --font-body:    'Plus Jakarta Sans', sans-serif;
-  --font-mono:    'JetBrains Mono', monospace;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 
 
-  --shadow-soft: 0 3px 16px rgba(20,28,13,0.12);
-  --shadow-lift: 0 20px 44px rgba(20,28,13,0.22);
-  --shadow-sm:   0 1px 3px rgba(0,0,0,0.08);
-  --shadow-md:   0 4px 14px rgba(34,51,24,0.12);
-  --shadow-lg:   0 10px 30px rgba(20,28,13,0.18);
-  --shadow-xl:   0 20px 40px rgba(0,0,0,0.25);
+  --shadow-soft: 0 3px 16px rgba(20, 28, 13, 0.12);
+  --shadow-lift: 0 20px 44px rgba(20, 28, 13, 0.22);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 14px rgba(34, 51, 24, 0.12);
+  --shadow-lg: 0 10px 30px rgba(20, 28, 13, 0.18);
+  --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.25);
 
   --radius-sm: 4px;
   --radius-md: 8px;
@@ -59,7 +59,13 @@ body {
 }
 
 
-h1, h2, h3, h4, h5, h6, .font-display {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.font-display {
   font-family: var(--font-display);
   font-weight: 700;
   color: var(--forest-dk);
@@ -84,12 +90,15 @@ button {
   transition: var(--transition);
 }
 
-input, select, textarea {
+input,
+select,
+textarea {
   font-family: var(--font-body);
   outline: none;
 }
 
-.container, .wrap {
+.container,
+.wrap {
   width: 100%;
   max-width: 1260px;
   margin: 0 auto;
@@ -343,14 +352,30 @@ input, select, textarea {
 
 /* Keyframes for Badge Pulse & Shimmer */
 @keyframes badgePulse {
-  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(209, 38, 110, 0.4); }
-  50% { transform: scale(1.05); box-shadow: 0 0 10px 4px rgba(209, 38, 110, 0.6); }
-  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(209, 38, 110, 0.4); }
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(209, 38, 110, 0.4);
+  }
+
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px 4px rgba(209, 38, 110, 0.6);
+  }
+
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(209, 38, 110, 0.4);
+  }
 }
 
 @keyframes badgeShimmer {
-  0% { filter: brightness(1); }
-  100% { filter: brightness(1.25); }
+  0% {
+    filter: brightness(1);
+  }
+
+  100% {
+    filter: brightness(1.25);
+  }
 }
 
 /* Floating AI Chatbot Button Pulsing Ring */
@@ -359,15 +384,30 @@ input, select, textarea {
 }
 
 @keyframes chatPulse {
-  0% { box-shadow: 0 0 0 0 rgba(242, 167, 27, 0.7), 0 10px 25px rgba(0,0,0,0.3); }
-  70% { box-shadow: 0 0 0 15px rgba(242, 167, 27, 0), 0 10px 25px rgba(0,0,0,0.3); }
-  100% { box-shadow: 0 0 0 0 rgba(242, 167, 27, 0), 0 10px 25px rgba(0,0,0,0.3); }
+  0% {
+    box-shadow: 0 0 0 0 rgba(242, 167, 27, 0.7), 0 10px 25px rgba(0, 0, 0, 0.3);
+  }
+
+  70% {
+    box-shadow: 0 0 0 15px rgba(242, 167, 27, 0), 0 10px 25px rgba(0, 0, 0, 0.3);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(242, 167, 27, 0), 0 10px 25px rgba(0, 0, 0, 0.3);
+  }
 }
 
 /* Keyframes for AI Chat Drawer Slide Up */
 @keyframes chatSlideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Splash Eye Animation Keyframes */
@@ -377,11 +417,25 @@ input, select, textarea {
 }
 
 @keyframes eyeLookAround {
-  0% { transform: translateX(0px); }
-  25% { transform: translateX(-3px); }
-  50% { transform: translateX(3px); }
-  75% { transform: translateY(-2px); }
-  100% { transform: translateX(0px); }
+  0% {
+    transform: translateX(0px);
+  }
+
+  25% {
+    transform: translateX(-3px);
+  }
+
+  50% {
+    transform: translateX(3px);
+  }
+
+  75% {
+    transform: translateY(-2px);
+  }
+
+  100% {
+    transform: translateX(0px);
+  }
 }
 
 .splash-logo-pulse {
@@ -389,18 +443,33 @@ input, select, textarea {
 }
 
 @keyframes splashPulse {
-  0% { transform: scale(1); }
-  100% { transform: scale(1.08); }
+  0% {
+    transform: scale(1);
+  }
+
+  100% {
+    transform: scale(1.08);
+  }
 }
 
 /* Fade-In Up Entrance for Cards */
-.property-card, .kpi-card, .tools-tab-btn, .news-card {
+.property-card,
+.kpi-card,
+.tools-tab-btn,
+.news-card {
   animation: fadeInUp 0.4s ease-out forwards;
 }
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Agent Card Hover */
@@ -436,8 +505,15 @@ input, select, textarea {
 }
 
 @keyframes slideIn {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 /* Section Styling */
@@ -473,7 +549,9 @@ input, select, textarea {
 
 /* Laptop & Desktop Fine-Tuning (1025px - 1440px) */
 @media (max-width: 1280px) {
-  .container, .wrap {
+
+  .container,
+  .wrap {
     padding: 0 1.5rem;
   }
 }
@@ -484,7 +562,10 @@ input, select, textarea {
     padding: 3rem 0;
   }
 
-  button, a, select, input {
+  button,
+  a,
+  select,
+  input {
     -webkit-tap-highlight-color: transparent;
   }
 
@@ -508,7 +589,8 @@ input, select, textarea {
     padding: 2.5rem 0;
   }
 
-  .container, .wrap {
+  .container,
+  .wrap {
     padding: 0 1rem;
   }
 
@@ -525,7 +607,11 @@ input, select, textarea {
   }
 
   /* Minimum 44px touch targets on mobile */
-  .btn, button, select, .filter-chip, .search-tab {
+  .btn,
+  button,
+  select,
+  .filter-chip,
+  .search-tab {
     min-height: 44px;
   }
 }
@@ -561,6 +647,7 @@ input, select, textarea {
     flex-direction: column !important;
     gap: 0.5rem !important;
   }
+
   .ai-main-input-wrap input,
   .ai-main-input-wrap button {
     width: 100% !important;
@@ -594,6 +681,7 @@ input, select, textarea {
     grid-template-columns: 1fr !important;
     gap: 1.5rem !important;
   }
+
   .overseas-grid h2 {
     font-size: 1.5rem !important;
     word-wrap: break-word;
@@ -646,10 +734,12 @@ input, select, textarea {
 .table-responsive::-webkit-scrollbar {
   height: 6px;
 }
+
 .table-responsive::-webkit-scrollbar-track {
   background: #f1f5f9;
   border-radius: 4px;
 }
+
 .table-responsive::-webkit-scrollbar-thumb {
   background: var(--forest-dk);
   border-radius: 4px;
@@ -662,7 +752,12 @@ input, select, textarea {
 
 
 /* Global Word Wrapping Fix for Headings & Titles on Mobile */
-h1, h2, h3, h4, .hero-title, .modal-title {
+h1,
+h2,
+h3,
+h4,
+.hero-title,
+.modal-title {
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
@@ -701,13 +796,12 @@ h1, h2, h3, h4, .hero-title, .modal-title {
   .megaproject-card-body {
     padding: 0.85rem !important;
   }
+
   .mobile-payment-cards-list {
     display: block !important;
   }
+
   .desktop-payment-table-wrap {
     display: none !important;
   }
 }
-
-
-

@@ -11,9 +11,9 @@ export function renderPostPropertyModal(state) {
       <div class="modal-container">
         <div class="modal-header">
           <h3 class="modal-title">
-            ${editingProp 
-              ? `<i data-lucide="edit" style="width:22px; height:22px; color:var(--emerald-teal); vertical-align:middle;"></i> Edit Property Listing` 
-              : `<i data-lucide="plus-circle" style="width:22px; height:22px; color:var(--emerald-teal); vertical-align:middle;"></i> Post Property FREE on Apna Ghar`}
+            ${editingProp
+      ? `<i data-lucide="edit" style="width:22px; height:22px; color:var(--emerald-teal); vertical-align:middle;"></i> Edit Property Listing`
+      : `<i data-lucide="plus-circle" style="width:22px; height:22px; color:var(--emerald-teal); vertical-align:middle;"></i> Post Property FREE on Sarmayadar`}
           </h3>
           <button class="close-modal-btn" id="close-wizard-btn">&times;</button>
         </div>

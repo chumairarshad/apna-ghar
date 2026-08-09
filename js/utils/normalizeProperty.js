@@ -24,7 +24,7 @@ export function normalizeProperty(p = {}) {
 
   const agency = {
     id: agencyObj.id || p.dealer_id || p.dealerId || 'agency-default',
-    name: agencyObj.name || p.agency_name || p.agencyName || 'Apna Ghar Real Estate',
+    name: agencyObj.name || p.agency_name || p.agencyName || 'Sarmayadar Real Estate',
     agentName: agencyObj.agentName || p.agent_name || p.agentName || 'Verified Realtor',
     phone: agencyObj.phone || p.agent_phone || p.agentPhone || '+92 300 0000000',
     whatsapp: agencyObj.whatsapp || (p.agent_phone ? String(p.agent_phone).replace(/[^0-9]/g, '') : '923000000000'),

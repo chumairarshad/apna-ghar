@@ -77,7 +77,7 @@ export function renderFooter() {
         <!-- Footer Bottom Bar -->
         <div class="footer-bottom" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; padding-top:2rem; margin-top:2.5rem; border-top:1px solid rgba(255,255,255,0.12); font-size:0.8rem;">
           <div>
-            &copy; 2026 <strong>Apna Ghar</strong>. All Rights Reserved.
+            &copy; 2026 <strong>Sarmayadar</strong>. All Rights Reserved.
           </div>
           <div style="display:flex; gap:1.25rem;">
             <a href="#" style="color:var(--cream); opacity:0.7;">Privacy Policy</a>
