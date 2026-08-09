@@ -12,12 +12,7 @@ export function renderHeroSearch(state) {
     <section class="hero-section">
       <div class="container hero-content">
         <!-- Hero Text Header -->
-        <div class="hero-text-wrapper" style="margin-bottom:1rem;">
-          <div class="hero-badge">
-            <span class="pulse-dot"></span>
-            <span>Pakistan's #1 Verified Property Portal</span>
-          </div>
-          
+        <div class="hero-text-wrapper" style="margin-bottom:0.75rem;">
           <h1 class="hero-title" style="margin-bottom:0.25rem;">
             Find Your Dream <span class="gradient-text">Property</span> in Pakistan
           </h1>
