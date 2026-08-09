@@ -22,7 +22,7 @@ import { renderFeaturedPropertyModal } from './components/FeaturedPropertyModal.
 import { renderAIChatbotWidget } from './components/AIChatbotWidget.js';
 import { renderNewsSection } from './components/NewsSection.js';
 import { renderFooter } from './components/Footer.js';
-import { renderSplashScreen, triggerSplashAnimation } from './components/SplashScreen.js';
+import { renderSplashScreen, triggerSplashAnimation, triggerQuickPagePreloader } from './components/SplashScreen.js';
 
 // New Recommended Features Imports
 import { renderVirtualTourModal } from './components/VirtualTourModal.js';
@@ -73,7 +73,7 @@ const state = {
   aiChatMessages: [
     { sender: 'bot', text: 'Assalam-o-Alaikum! 👋 I am your **Sarmayadar AI Advisor**. Ask me about DHA prices, loan EMI calculations, or hot property deals!' }
   ],
-  showSplash: false,
+  showSplash: true,
   authMethod: 'phone', // google | phone | email
   phoneStep: 1, // 1: enter number, 2: enter 6-digit OTP
   tempPhone: '',
@@ -594,11 +594,13 @@ function setupEventListeners() {
       const societyVal = document.getElementById('filter-society')?.value || 'all';
       const typeVal = document.getElementById('filter-type')?.value || 'all';
 
-      state.searchFilters.city = cityVal;
-      state.searchFilters.society = societyVal;
-      state.searchFilters.category = typeVal;
-      renderApp();
-      showToast(`Filter applied! Found ${getFilteredProperties().length} properties.`);
+      triggerQuickPagePreloader(() => {
+        state.searchFilters.city = cityVal;
+        state.searchFilters.society = societyVal;
+        state.searchFilters.category = typeVal;
+        renderApp();
+        showToast(`Filter applied! Found ${getFilteredProperties().length} properties.`);
+      });
     }
 
     // Favorite Toggle Button
