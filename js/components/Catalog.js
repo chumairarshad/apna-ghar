@@ -78,12 +78,12 @@ function renderPropertyCard(rawProp, favorites, unit) {
         <img src="${mainImg}" alt="${prop.title}" loading="lazy" />
         
         <!-- 360 Virtual Tour Direct Badge Trigger -->
-        <button type="button" class="open-tour-btn" data-id="${prop.id}" style="position:absolute; top:10px; left:10px; background:rgba(19, 29, 12, 0.9); color:var(--marigold); border:1.5px solid var(--marigold); padding:4px 10px; border-radius:20px; font-family:var(--font-mono); font-size:0.68rem; font-weight:700; display:flex; align-items:center; gap:4px; z-index:3; cursor:pointer;" title="Launch 360 Virtual Tour">
-          ${renderIcon('sparkles', 12, 'var(--marigold)')} 360° Tour
+        <button type="button" class="fancy-360-badge open-tour-btn" data-id="${prop.id}" title="Launch 360° Virtual Tour">
+          ${renderIcon('sparkles', 13, '#F2A71B')} 360° Tour
         </button>
 
         <button class="fav-btn ${isFav ? 'active' : ''}" data-id="${prop.id}" title="Save to Favorites">
-          ${renderIcon('heart', 16, isFav ? 'var(--rani)' : 'var(--forest)')}
+          ${renderIcon('heart', 16, isFav ? '#239C32' : '#475569')}
         </button>
 
         <div class="price-tag-overlay">
@@ -98,22 +98,22 @@ function renderPropertyCard(rawProp, favorites, unit) {
         <h3 class="card-title" title="${prop.title}">${prop.title}</h3>
         
         <div class="card-location">
-          ${renderIcon('map-pin', 14, 'var(--rani)')}
+          ${renderIcon('map-pin', 14, '#239C32')}
           <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${prop.location}, ${prop.city}</span>
         </div>
 
         <!-- Metrics -->
         <div class="card-metrics">
           <div class="metric-item" title="Bedrooms">
-            ${renderIcon('building', 15, 'var(--forest-dk)')}
+            ${renderIcon('building', 15, '#166534')}
             <span>${prop.bedrooms > 0 ? prop.bedrooms + ' Beds' : 'N/A'}</span>
           </div>
           <div class="metric-item" title="Bathrooms">
-            ${renderIcon('building-2', 15, 'var(--forest-dk)')}
+            ${renderIcon('building-2', 15, '#166534')}
             <span>${prop.bathrooms > 0 ? prop.bathrooms + ' Baths' : 'N/A'}</span>
           </div>
           <div class="metric-item" title="Area Size">
-            ${renderIcon('maximize', 15, 'var(--forest-dk)')}
+            ${renderIcon('maximize', 15, '#166534')}
             <span>${formatArea(prop.sizeMarla, unit)}</span>
           </div>
         </div>
@@ -129,8 +129,8 @@ function renderPropertyCard(rawProp, favorites, unit) {
           </div>
 
           <div class="card-actions">
-            <button type="button" class="btn btn-dark open-tour-btn" data-id="${prop.id}" style="padding:0.4rem 0.5rem; font-size:0.75rem;" title="360 Tour">
-              360°
+            <button type="button" class="fancy-360-btn open-tour-btn" data-id="${prop.id}" title="Launch 360° VR Tour">
+              ${renderIcon('sparkles', 13, '#F2A71B')} 360°
             </button>
 
             <a href="https://wa.me/${prop.agency.whatsapp}?text=Hi%20Sarmayadar%20Agent,%20I%20am%20interested%20in%20listing%20${encodeURIComponent(prop.title)}%20(ID:%20${prop.id})" 
