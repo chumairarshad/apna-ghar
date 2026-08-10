@@ -61,7 +61,7 @@ if (process.env.NODE_ENV !== 'test') {
     console.log(`=======================================================`);
     console.log(`🚀 Real Estate API Server live on port ${PORT}`);
     console.log(`🔒 Security: Helmet.js, CORS, and Rate-Limiter Enabled`);
-    console.log(`🔑 Auth Endpoints: http://localhost:${PORT}/api/auth/signup | /login`);
+    console.log(`🔑 Auth Endpoints: http://localhost:${PORT}/api/auth/Register | /login`);
     console.log(`=======================================================`);
   });
 }

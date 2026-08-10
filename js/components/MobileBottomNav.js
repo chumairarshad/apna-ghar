@@ -1,9 +1,9 @@
 import { renderIcon } from '../utils/icons.js';
 
 /**
- * Mobile Bottom Navigation Bar Component (OLX Style)
- * Displays a fixed 5-item bottom bar on mobile screens (< 768px).
- * Features Home, Chats, Central Raised 'Sell' (+), My Ads, and Account.
+ * Mobile Bottom Navigation Bar Component (OLX / Zameen Pakistan Style)
+ * Fixed 5-item bottom bar on mobile screens (< 768px).
+ * Features: Home, Chats, Central Raised 'Sell' (+), My Ads, and Account.
  */
 export function renderMobileBottomNav(state) {
   const activeTab = state.activeTab || 'buy';
@@ -22,7 +22,7 @@ export function renderMobileBottomNav(state) {
         <span class="mobile-nav-label">Home</span>
       </button>
 
-      <!-- 2. Chats (AI Advisor & Messaging) -->
+      <!-- 2. Chats (AI Advisor & Support) -->
       <button type="button" class="mobile-nav-item ${isAIChatOpen ? 'active' : ''}" id="mobile-nav-chats-btn" title="Chats & AI Support">
         <div class="mobile-nav-icon">
           ${renderIcon('message-square', 22)}
@@ -41,7 +41,7 @@ export function renderMobileBottomNav(state) {
         <span class="mobile-nav-label sell-label">Sell</span>
       </div>
 
-      <!-- 4. My Ads / Saved Listings -->
+      <!-- 4. My Ads / Saved Properties -->
       <button type="button" class="mobile-nav-item ${isFavoritesOpen || (activeTab === 'dealer' && state.dealerTab === 'inventory') ? 'active' : ''}" id="mobile-nav-myads-btn" title="My Ads & Saved Properties">
         <div class="mobile-nav-icon">
           ${renderIcon('layers', 22)}
@@ -49,7 +49,7 @@ export function renderMobileBottomNav(state) {
         <span class="mobile-nav-label">My Ads</span>
       </button>
 
-      <!-- 5. Account -->
+      <!-- 5. Account / Settings -->
       <button type="button" class="mobile-nav-item ${isProfileActive || state.showAuthModal ? 'active' : ''}" id="mobile-nav-account-btn" title="User Account & Settings">
         <div class="mobile-nav-icon">
           ${renderIcon('user', 22)}

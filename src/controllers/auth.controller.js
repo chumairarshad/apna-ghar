@@ -1,20 +1,20 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../config/prisma.js';
-import { signupSchema, loginSchema } from '../validators/auth.validator.js';
+import { RegisterSchema, loginSchema } from '../validators/auth.validator.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'Sarmayadar_super_secret_jwt_key_2026_48h';
 const JWT_EXPIRES_IN = '48h'; // Strictly 48 Hours
 
 /**
- * @route   POST /api/auth/signup
+ * @route   POST /api/auth/Register
  * @desc    Register a new User or Dealer account
  * @access  Public
  */
-export async function signup(req, res, next) {
+export async function Register(req, res, next) {
   try {
     // 1. Zod Input Validation
-    const validationResult = signupSchema.safeParse(req.body);
+    const validationResult = RegisterSchema.safeParse(req.body);
     if (!validationResult.success) {
       const errorMessages = validationResult.error.errors.map(err => `${err.path.join('.')}: ${err.message}`);
       return res.status(400).json({

@@ -119,6 +119,9 @@ export function renderDealerDashboard(rawProperties, state) {
             <button class="dealer-tab ${activeTab === 'dealers' ? 'active' : ''}" data-dtab="dealers">
               <i data-lucide="shield-check" style="width:18px; height:18px;"></i> Manage Dealers (${dealersList.length})
             </button>
+            <button class="dealer-tab ${activeTab === 'blogs' ? 'active' : ''}" data-dtab="blogs">
+              <i data-lucide="book-open" style="width:18px; height:18px;"></i> Blog & Article Studio (${(state.blogsList || []).length})
+            </button>
           ` : ''}
 
           <button class="dealer-tab ${activeTab === 'inventory' ? 'active' : ''}" data-dtab="inventory">
@@ -138,6 +141,7 @@ export function renderDealerDashboard(rawProperties, state) {
 
         <!-- Tab Content Views -->
         ${activeTab === 'dealers' && isAdmin ? renderDealersManagementTab(dealersList) : ''}
+        ${activeTab === 'blogs' && isAdmin ? renderAdminBlogsTab(state.blogsList || [], state) : ''}
         ${activeTab === 'inventory' ? renderInventoryTab(properties, state) : ''}
         ${activeTab === 'leads' ? renderLeadsCRMTab(leads) : ''}
         ${activeTab === 'analytics' ? renderAnalyticsTab(properties) : ''}
@@ -481,3 +485,160 @@ function renderProfileSettingsTab(profile, isAdmin = false) {
     </div>
   `;
 }
+
+function renderAdminBlogsTab(blogs, state) {
+  const isCreatingNew = state?.showBlogCreateModal || false;
+  const editingBlog = state?.editingBlog || null;
+
+  return `
+    <div style="background:var(--paper); border-radius:12px; border:2px solid var(--forest-dk); padding:1.5rem; box-shadow:var(--shadow-sm);">
+      
+      <!-- Top Action Header -->
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem; border-bottom:2px solid var(--border-dk); padding-bottom:1rem;">
+        <div>
+          <h3 style="font-family:var(--font-display); color:var(--forest-dk); font-size:1.3rem; font-weight:800; margin:0;">
+            📰 Master Blog & Article Studio
+          </h3>
+          <p style="font-size:0.85rem; color:var(--forest); opacity:0.85; margin-top:4px;">
+            Exclusively for Portal Supervisors: Write, publish, edit, and manage market insights & FBR tax guides for public users.
+          </p>
+        </div>
+
+        <button type="button" class="btn btn-primary" id="open-create-blog-modal-btn" style="padding:10px 18px; font-weight:800; font-size:0.88rem; border-radius:8px; background:var(--forest-dk); color:var(--paper);">
+          <i data-lucide="plus-circle" style="width:16px; height:16px; vertical-align:middle;"></i> Write New Blog Article
+        </button>
+      </div>
+
+      <!-- Blogs Data Table -->
+      <div style="overflow-x:auto;">
+        <table class="inventory-table" style="width:100%; border-collapse:collapse; text-align:left;">
+          <thead>
+            <tr style="background:var(--cream); border-bottom:2px solid var(--border-dk); font-family:var(--font-mono); font-size:0.75rem; text-transform:uppercase; color:var(--forest-dk);">
+              <th style="padding:12px;">Cover</th>
+              <th style="padding:12px;">Title & Category</th>
+              <th style="padding:12px;">Author</th>
+              <th style="padding:12px;">Date & Read Time</th>
+              <th style="padding:12px;">Status</th>
+              <th style="padding:12px; text-align:right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${blogs.length === 0 ? `
+              <tr>
+                <td colspan="6" style="padding:2rem; text-align:center; color:var(--forest); opacity:0.75;">
+                  No blogs published yet. Click "Write New Blog Article" to publish your first post!
+                </td>
+              </tr>
+            ` : blogs.map(b => `
+              <tr style="border-bottom:1px solid var(--border-dk); font-size:0.88rem;">
+                <td style="padding:10px;">
+                  <img src="${b.img || b.image}" style="width:60px; height:45px; object-fit:cover; border-radius:6px; border:1px solid var(--border-dk);" alt="${b.title}" />
+                </td>
+                <td style="padding:10px;">
+                  <strong style="color:var(--forest-dk); display:block;">${b.title}</strong>
+                  <span class="badge" style="font-size:0.68rem; background:var(--forest); color:var(--paper); padding:2px 6px;">${b.badge || 'INSIGHTS'}</span>
+                </td>
+                <td style="padding:10px; color:var(--ink); font-weight:600;">
+                  ${b.author || 'Sarmayadar Editorial'}
+                </td>
+                <td style="padding:10px; font-family:var(--font-mono); font-size:0.78rem;">
+                  📅 ${b.date}<br/>⏱️ ${b.readTime || '5 min read'}
+                </td>
+                <td style="padding:10px;">
+                  <span class="badge" style="background:${b.status === 'DRAFT' ? '#F59E0B' : '#10B981'}; color:white; font-size:0.72rem; padding:4px 8px; border-radius:4px;">
+                    ${b.status === 'DRAFT' ? '📝 DRAFT' : 'LIVE PUBLISHED'}
+                  </span>
+                </td>
+                <td style="padding:10px; text-align:right; white-space:nowrap;">
+                  <button type="button" class="btn btn-sm btn-ghost edit-blog-btn" data-id="${b.id}" style="padding:4px 8px; font-size:0.78rem; font-weight:700; color:var(--forest-dk);" title="Edit Blog">
+                    ✏️ Edit
+                  </button>
+                  <button type="button" class="btn btn-sm btn-danger delete-blog-btn" data-id="${b.id}" style="padding:4px 8px; font-size:0.78rem; font-weight:700; background:#EF4444; color:white; border:none; border-radius:4px; margin-left:4px;" title="Delete Blog">
+                    🗑️ Delete
+                  </button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- Admin Blog Editor Modal -->
+    <div class="modal-overlay ${isCreatingNew || editingBlog ? 'active' : ''}" id="admin-blog-modal-overlay">
+      <div class="modal-container" style="max-width:680px; border-radius:16px; border:3px solid var(--forest-dk); overflow:hidden;">
+        
+        <div class="modal-header" style="background:var(--forest-dk); color:var(--paper); padding:1.25rem 1.5rem; border-bottom:3px solid var(--marigold);">
+          <h3 class="modal-title" style="color:var(--paper); font-size:1.2rem;">
+            ${editingBlog ? '✏️ Edit Blog Post Article' : '🚀 Publish New Real Estate Blog Article'}
+          </h3>
+          <button type="button" class="close-modal-btn" id="close-blog-modal-btn" style="color:var(--paper); background:rgba(255,255,255,0.1); width:36px; height:36px;">&times;</button>
+        </div>
+
+        <div class="modal-body" style="padding:1.5rem; background:var(--paper);">
+          <form id="admin-blog-editor-form">
+            <input type="hidden" id="blog-edit-id-input" value="${editingBlog ? editingBlog.id : ''}" />
+
+            <div class="form-group" style="margin-bottom:1rem;">
+              <label style="font-weight:700; font-size:0.85rem; color:var(--forest-dk);">Article Title *</label>
+              <input type="text" id="blog-title-input" class="form-control" placeholder="e.g. FBR Property Tax Rules 2026: Filer vs Non-Filer Rates" value="${editingBlog ? editingBlog.title : ''}" required />
+            </div>
+
+            <div class="form-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+              <div class="form-group">
+                <label style="font-weight:700; font-size:0.85rem; color:var(--forest-dk);">Category Tag *</label>
+                <select id="blog-category-select" class="form-control" required>
+                  <option value="FBR TAXES 2026" ${editingBlog?.badge === 'FBR TAXES 2026' ? 'selected' : ''}>FBR TAXES 2026</option>
+                  <option value="INVESTMENT ANALYSIS" ${editingBlog?.badge === 'INVESTMENT ANALYSIS' ? 'selected' : ''}>INVESTMENT ANALYSIS</option>
+                  <option value="DEVELOPMENT UPDATE" ${editingBlog?.badge === 'DEVELOPMENT UPDATE' ? 'selected' : ''}>DEVELOPMENT UPDATE</option>
+                  <option value="LEGAL & SOCIETY" ${editingBlog?.badge === 'LEGAL & SOCIETY' ? 'selected' : ''}>LEGAL & SOCIETY</option>
+                  <option value="BUYING ADVICE" ${editingBlog?.badge === 'BUYING ADVICE' ? 'selected' : ''}>BUYING ADVICE</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label style="font-weight:700; font-size:0.85rem; color:var(--forest-dk);">Reading Time *</label>
+                <input type="text" id="blog-readtime-input" class="form-control" placeholder="e.g. 5 min read" value="${editingBlog ? (editingBlog.readTime || '5 min read') : '5 min read'}" required />
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:1rem;">
+              <label style="font-weight:700; font-size:0.85rem; color:var(--forest-dk);">Author Name</label>
+              <input type="text" id="blog-author-input" class="form-control" placeholder="e.g. Sarmayadar Editorial Board" value="${editingBlog ? (editingBlog.author || 'Sarmayadar Editorial Board') : 'Sarmayadar Editorial Board'}" />
+            </div>
+
+            <div class="form-group" style="margin-bottom:1rem;">
+              <label style="font-weight:700; font-size:0.85rem; color:var(--forest-dk);">
+                Cover Photo (Auto Watermarked) *
+              </label>
+              <div style="display:flex; gap:0.5rem; align-items:center;">
+                <input type="text" id="blog-img-url-input" class="form-control" placeholder="Enter image URL or browse gallery →" value="${editingBlog ? (editingBlog.img || editingBlog.image || '') : ''}" required style="flex:1;" />
+                <button type="button" class="btn btn-ghost btn-sm" id="blog-upload-photo-btn" style="padding:10px 14px; font-weight:700;">
+                  Browse Gallery
+                </button>
+                <input type="file" id="blog-cover-file-input" accept="image/*" style="display:none;" />
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:1rem;">
+              <label style="font-weight:700; font-size:0.85rem; color:var(--forest-dk);">Short Summary / Snippet *</label>
+              <textarea id="blog-snippet-input" class="form-control" rows="2" placeholder="Brief summary displayed on blog cards..." required>${editingBlog ? (editingBlog.snippet || '') : ''}</textarea>
+            </div>
+
+            <div class="form-group" style="margin-bottom:1.25rem;">
+              <label style="font-weight:700; font-size:0.85rem; color:var(--forest-dk);">Full Article Content *</label>
+              <textarea id="blog-fulltext-input" class="form-control" rows="6" placeholder="Write full article body text, detailed legal breakdowns, investment takeaways..." required>${editingBlog ? (editingBlog.fullText || editingBlog.content || '') : ''}</textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="save-blog-post-btn" style="width:100%; padding:12px; font-size:0.95rem; font-weight:800; border-radius:8px; background:var(--forest-dk); color:var(--paper); box-shadow:var(--shadow-md);">
+              ${editingBlog ? '💾 Update & Save Changes' : '🚀 Publish Article Live'}
+            </button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  `;
+}
+

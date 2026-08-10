@@ -1,7 +1,7 @@
 export function renderAuthModal(state) {
   const isVisible = state.showAuthModal || false;
-  const authMode = state.authMode || (state.authIsSignup ? 'signup' : 'login'); // 'login' | 'signup' | 'forgot'
-  const isSignup = authMode === 'signup';
+  const authMode = state.authMode || (state.authIsRegister ? 'signup' : 'login');
+  const isRegister = authMode === 'signup' || authMode === 'register' || authMode === 'Register' || Boolean(state.authIsRegister);
   const isForgot = authMode === 'forgot';
   const selectedRole = state.authRole || 'DEALER'; // 'DEALER' | 'ADMIN'
 
@@ -10,7 +10,7 @@ export function renderAuthModal(state) {
   const roleBadgeColor = selectedRole === 'ADMIN' ? 'var(--paper)' : 'var(--marigold)';
 
   let titleText = 'Portal Sign In';
-  if (isSignup) titleText = 'Register Portal Account';
+  if (isRegister) titleText = 'Register Portal Account';
   if (isForgot) titleText = 'Reset Account Password';
 
   return `
@@ -50,13 +50,13 @@ export function renderAuthModal(state) {
           </div>
 
           ${!isForgot ? `
-            <!-- Auth Mode Toggle (Login vs Signup) -->
+            <!-- Auth Mode Toggle (Login vs Register) -->
             <div style="display: flex; border-bottom: 2px solid var(--border-dk); margin-bottom: 1.25rem;">
-              <button type="button" id="toggle-login-mode-btn" style="flex: 1; padding: 0.65rem; border: none; background: none; font-family: var(--font-body); font-weight: 700; font-size: 0.9rem; color: ${!isSignup ? 'var(--rani-dk)' : 'var(--forest)'}; border-bottom: 3px solid ${!isSignup ? 'var(--rani)' : 'transparent'}; cursor: pointer; transition: all 0.2s;">
+              <button type="button" id="toggle-login-mode-btn" style="flex: 1; padding: 0.65rem; border: none; background: none; font-family: var(--font-body); font-weight: 700; font-size: 0.9rem; color: ${!isRegister ? 'var(--rani-dk)' : 'var(--forest)'}; border-bottom: 3px solid ${!isRegister ? 'var(--rani)' : 'transparent'}; cursor: pointer; transition: all 0.2s;">
                 <i data-lucide="log-in" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i> Sign In
               </button>
-              <button type="button" id="toggle-signup-mode-btn" style="flex: 1; padding: 0.65rem; border: none; background: none; font-family: var(--font-body); font-weight: 700; font-size: 0.9rem; color: ${isSignup ? 'var(--rani-dk)' : 'var(--forest)'}; border-bottom: 3px solid ${isSignup ? 'var(--rani)' : 'transparent'}; cursor: pointer; transition: all 0.2s;">
-                <i data-lucide="user-plus" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i> Create Account
+              <button type="button" id="toggle-signup-mode-btn" style="flex: 1; padding: 0.65rem; border: none; background: none; font-family: var(--font-body); font-weight: 700; font-size: 0.9rem; color: ${isRegister ? 'var(--rani-dk)' : 'var(--forest)'}; border-bottom: 3px solid ${isRegister ? 'var(--rani)' : 'transparent'}; cursor: pointer; transition: all 0.2s;">
+                <i data-lucide="user-plus" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i> Register
               </button>
             </div>
           ` : ''}
@@ -91,9 +91,9 @@ export function renderAuthModal(state) {
               </div>
             </form>
           ` : `
-            <!-- LOGIN / SIGNUP FORM -->
+            <!-- LOGIN / Register FORM -->
             <form id="email-auth-form">
-              ${isSignup ? `
+              ${isRegister ? `
                 <div class="form-group" style="margin-bottom: 1rem;">
                   <label style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--forest-dk); text-transform: uppercase;">Full Name / Agency Name *</label>
                   <input type="text" id="auth-full-name" class="form-control" placeholder="${selectedRole === 'ADMIN' ? 'e.g. System Administrator' : 'e.g. Apex Real Estate Agency'}" value="" required />
@@ -114,7 +114,7 @@ export function renderAuthModal(state) {
               <div class="form-group" style="margin-bottom: 1.25rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                   <label style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--forest-dk); text-transform: uppercase;">Password *</label>
-                  ${!isSignup ? `
+                  ${!isRegister ? `
                     <button type="button" id="toggle-forgot-mode-btn" style="background: none; border: none; color: var(--rani); font-family: var(--font-mono); font-size: 0.75rem; font-weight: 700; cursor: pointer; text-decoration: underline; padding: 0;">
                       Forgot Password?
                     </button>
@@ -129,7 +129,7 @@ export function renderAuthModal(state) {
               </div>
 
               <button type="submit" class="btn btn-primary" id="auth-submit-btn" style="width: 100%; padding: 0.85rem; font-size: 0.95rem; font-weight: 800; border-radius: 8px; box-shadow: var(--shadow-md);">
-                ${isSignup ? `🚀 Register as ${selectedRole}` : `🔓 Sign In as ${selectedRole}`}
+                ${isRegister ? `🚀 Register as ${selectedRole}` : `🔓 Sign In as ${selectedRole}`}
               </button>
             </form>
           `}

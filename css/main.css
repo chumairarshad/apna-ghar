@@ -805,3 +805,108 @@ h4,
     display: none !important;
   }
 }
+
+/* ==========================================================
+   GLOBAL AUTOMATED IMAGE WATERMARK OVERLAY BADGE
+   ========================================================== */
+.watermarked-image-container,
+.card-media,
+.news-card-media {
+  position: relative;
+  overflow: hidden;
+}
+
+.watermarked-image-container::after,
+.card-media::after,
+.news-card-media::after {
+  content: 'SARMAYADAR.COM';
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(19, 29, 12, 0.90);
+  color: #faf1de;
+  border: 1.5px solid #f2a71b;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  font-size: 0.68rem;
+  letter-spacing: 0.5px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.watermarked-image-container::before,
+.card-media::before,
+.news-card-media::before {
+  content: 'SARMAYADAR.COM';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-24deg);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 900;
+  font-size: clamp(1rem, 2.8vw, 1.8rem);
+  color: rgba(255, 255, 255, 0.28);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  letter-spacing: 2.5px;
+  pointer-events: none;
+  z-index: 9;
+  white-space: nowrap;
+}
+
+/* ==========================================================
+   PREMIUM REDESIGNED WHATSAPP ACTION BUTTON
+   ========================================================== */
+.btn-whatsapp-premium {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 11px 16px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  border-radius: 12px;
+  text-decoration: none !important;
+  box-shadow: 0 6px 18px rgba(37, 211, 102, 0.35);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.btn-whatsapp-premium:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(37, 211, 102, 0.5);
+  background: linear-gradient(135deg, #20bd5a 0%, #0e7569 100%);
+}
+
+.btn-whatsapp-premium:active {
+  transform: translateY(0);
+}
+
+.btn-whatsapp-premium::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(60deg, transparent 30%, rgba(255, 255, 255, 0.25) 50%, transparent 70%);
+  transform: rotate(30deg);
+  animation: btnShine 4s infinite ease-in-out;
+}
+
+@keyframes btnShine {
+  0% { transform: translateX(-100%) rotate(30deg); }
+  20% { transform: translateX(100%) rotate(30deg); }
+  100% { transform: translateX(100%) rotate(30deg); }
+}

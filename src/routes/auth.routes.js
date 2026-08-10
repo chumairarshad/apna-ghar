@@ -1,11 +1,11 @@
 import express from 'express';
-import { signup, login, getMe } from '../controllers/auth.controller.js';
+import { Register, login, getMe } from '../controllers/auth.controller.js';
 import { verifyToken } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 
 // Public Routes
-router.post('/signup', signup);
+router.post('/Register', Register);
 router.post('/login', login);
 
 // Protected Profile Route

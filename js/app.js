@@ -4,7 +4,7 @@ import { getFavorites, toggleFavorite, getCustomProperties, saveCustomProperty, 
 import { convertArea, calculateMortgage, formatPKR } from './utils/formatters.js';
 import { normalizeProperty, normalizeProperties } from './utils/normalizeProperty.js';
 import { fetchPropertiesFromApi, savePropertyToApi, uploadImageToFreeCdn } from './utils/api.js';
-
+import { addWatermarkToImage } from './utils/watermark.js';
 
 import { renderHeader } from './components/Header.js';
 import { renderHeroSearch } from './components/SearchEngine.js';
@@ -35,6 +35,7 @@ import { renderFeaturedBannersSection } from './components/FeaturedBannersSectio
 import { renderArticleReaderModal } from './components/ArticleReaderModal.js';
 import { renderLegalModal } from './components/LegalModal.js';
 import { renderMobileBottomNav } from './components/MobileBottomNav.js';
+import { renderBlogsPage } from './components/BlogsPage.js';
 
 // Application State
 const state = {
@@ -69,9 +70,9 @@ const state = {
   selectedVisitProperty: null,
   showArticleModal: false,
   selectedArticle: null,
-  showAIChatbot: false,
+  chatLanguage: 'en', // 'en' | 'ur'
   aiChatMessages: [
-    { sender: 'bot', text: 'Assalam-o-Alaikum! 👋 I am your **Sarmayadar AI Advisor**. Ask me about DHA prices, loan EMI calculations, or hot property deals!' }
+    { sender: 'bot', text: 'Hello! 👋 I am your **Sarmayadar Assistant**. Type any location, budget, or plot size to find matching properties, or select 🇵🇰 Roman Urdu language above!' }
   ],
   showSplash: true,
   authMethod: 'phone', // google | phone | email
@@ -81,42 +82,112 @@ const state = {
   dealerTab: 'inventory', // inventory | leads | analytics | profile
   user: null,
   uploadedImages: [],
-  activeLegalTab: null // privacy | terms
+  activeLegalTab: null, // privacy | terms
+  blogsList: [],
+  selectedBlogCategory: 'ALL',
+  blogSearchQuery: '',
+  showBlogCreateModal: false,
+  editingBlog: null
 };
 
 const ARTICLES_DB = [
   {
     id: 'news-1',
     badge: 'FBR TAXES 2026',
+    category: 'FBR TAXES 2026',
     title: 'FBR Property Tax & Capital Gains Guide (Filer vs Non-Filer)',
     date: 'Aug 2026',
     readTime: '4 min read',
+    author: 'Sarmayadar Editorial',
     img: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80',
-    fullText: `FBR has updated income tax withholding rates under Sections 236C (Seller) and 236K (Buyer) for FY 2025-26. Active Tax Filers pay a reduced 3% tax rate on property transactions, whereas Non-Filers face 10.5% advance tax. Additionally, Section 7E imposes a 1% tax on deemed rental income of un-utilized properties valued above PKR 2.5 Crore.`
+    snippet: 'Complete breakdown of Filer (3%) vs Non-Filer (10.5%) withholding tax rates, Section 7E wealth tax, and Stamp Duty on buying & selling properties in Pakistan.',
+    fullText: `FBR has updated income tax withholding rates under Sections 236C (Seller) and 236K (Buyer) for FY 2025-26. Active Tax Filers pay a reduced 3% tax rate on property transactions, whereas Non-Filers face 10.5% advance tax. Additionally, Section 7E imposes a 1% tax on deemed rental income of un-utilized properties valued above PKR 2.5 Crore.`,
+    status: 'PUBLISHED'
   },
   {
     id: 'news-2',
     badge: 'INVESTMENT ANALYSIS',
+    category: 'INVESTMENT ANALYSIS',
     title: 'DHA vs Bahria Town: Where Should You Invest in 2026?',
     date: 'Jul 2026',
     readTime: '6 min read',
+    author: 'Sarmayadar Editorial',
     img: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
-    fullText: `DHA continues to lead capital appreciation with 14.8% annual ROI driven by overseas Pakistani demand and corporate leases. Bahria Town offers superior commercial rental yields (up to 9.2%) and immediate possession for end-users seeking ready infrastructure.`
+    snippet: 'Comparative analysis of ROI, rental yields, possession timelines, and resale velocity between DHA Lahore Phase 6/8 and Bahria Town Sector F.',
+    fullText: `DHA continues to lead capital appreciation with 14.8% annual ROI driven by overseas Pakistani demand and corporate leases. Bahria Town offers superior commercial rental yields (up to 9.2%) and immediate possession for end-users seeking ready infrastructure.`,
+    status: 'PUBLISHED'
   },
   {
     id: 'news-3',
-    badge: 'DEVELOPMENT UPDATE',
+    badge: 'MEGAPROJECTS',
+    category: 'MEGAPROJECTS',
     title: 'Rawalpindi Ring Road & Motorway Interchange Impact',
     date: 'Jul 2026',
     readTime: '5 min read',
+    author: 'Sarmayadar Editorial',
     img: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80',
-    fullText: `The inauguration of the 38km Rawalpindi Ring Road economic corridor has slashed heavy transport travel time between N-5 and M-2 Motorway, triggering a 28% surge in land valuation for adjacent housing projects in Rawalpindi and Islamabad West.`
+    snippet: 'How the new Rawalpindi Ring Road interchange is driving massive appreciation for housing societies near M-2 Motorway and Airport corridor.',
+    fullText: `The inauguration of the 38km Rawalpindi Ring Road economic corridor has slashed heavy transport travel time between N-5 and M-2 Motorway, triggering a 28% surge in land valuation for adjacent housing projects in Rawalpindi and Islamabad West.`,
+    status: 'PUBLISHED'
+  },
+  {
+    id: 'news-4',
+    badge: 'FBR TAXES 2026',
+    category: 'FBR TAXES 2026',
+    title: 'Capital Gains Tax (CGT) Holding Period Rules 2026',
+    date: 'Jun 2026',
+    readTime: '5 min read',
+    author: 'FBR Tax Advisor',
+    img: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=800&q=80',
+    snippet: 'Understanding the slab rates for open plots versus constructed properties depending on holding periods up to 6 years.',
+    fullText: `Under Finance Act 2025-26, open plot sellers face 15% CGT for holding periods up to 1 year, scaling down to 0% after 6 years for Active Filers. Constructed properties receive lower holding slabs (0% tax after 4 years).`,
+    status: 'PUBLISHED'
+  },
+  {
+    id: 'news-5',
+    badge: 'INVESTMENT ANALYSIS',
+    category: 'INVESTMENT ANALYSIS',
+    title: 'Top 5 High Rental Yield Societies in Lahore & Islamabad',
+    date: 'Jun 2026',
+    readTime: '7 min read',
+    author: 'Real Estate Research Lab',
+    img: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=800&q=80',
+    snippet: 'Detailed analysis of 10 Marla and 1 Kanal residential rental yields in Gulberg, DHA Phase 5, E-11 Islamabad, and Faisal Town.',
+    fullText: `Properties located near tech hubs, universities, and ring road interchanges generate robust monthly rental cashflows exceeding 7.5% per annum. Commercial plazas in Gulberg and DHA Sector CCA offer up to 10% net yield.`,
+    status: 'PUBLISHED'
+  },
+  {
+    id: 'news-6',
+    badge: 'BUYING ADVICE',
+    category: 'BUYING ADVICE',
+    title: 'Overseas Pakistanis Property Purchasing & Power of Attorney Guide',
+    date: 'May 2026',
+    readTime: '6 min read',
+    author: 'Legal Desk Sarmayadar',
+    img: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80',
+    snippet: 'Step-by-step guide for overseas Pakistanis to safely purchase, transfer, and verify property titles via Roshan Digital Account (RDA).',
+    fullText: `Overseas Pakistanis can execute property purchases remotely using NADRA Digital Power of Attorney attested via Pakistan Embassy. RDA accounts offer fast 24-hour tax refund clearing and repatriation of capital sale proceeds.`,
+    status: 'PUBLISHED'
   }
 ];
 
 // Initialize Application
 async function initApp() {
   state.properties = getEffectiveProperties(INITIAL_PROPERTIES);
+
+  // Initialize Blogs DB from LocalStorage or seed default articles
+  const savedBlogs = localStorage.getItem('Sarmayadar_blogs_db');
+  if (savedBlogs) {
+    try {
+      const parsed = JSON.parse(savedBlogs);
+      state.blogsList = (Array.isArray(parsed) && parsed.length > 0) ? parsed : ARTICLES_DB;
+    } catch (e) {
+      state.blogsList = ARTICLES_DB;
+    }
+  } else {
+    state.blogsList = ARTICLES_DB;
+    localStorage.setItem('Sarmayadar_blogs_db', JSON.stringify(ARTICLES_DB));
+  }
 
   // Persistent Login Session with 10-Minute Inactivity Timeout Check
   const INACTIVITY_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
@@ -211,6 +282,10 @@ function renderApp() {
     } else if (state.activeTab === 'agents') {
       mainContentHTML = `
         ${renderAgentDirectory()}
+      `;
+    } else if (state.activeTab === 'blogs') {
+      mainContentHTML = `
+        ${renderBlogsPage(state)}
       `;
     } else if (state.activeTab === 'dealer') {
       mainContentHTML = `
@@ -428,6 +503,12 @@ function setupEventListeners() {
       renderApp();
     }
 
+    const chatLangBtn = e.target.closest('.chat-lang-btn');
+    if (chatLangBtn) {
+      state.chatLanguage = chatLangBtn.getAttribute('data-lang') || 'en';
+      renderApp();
+    }
+
     // AI Quick Prompt Chips in Chatbot
     const quickChip = e.target.closest('.ai-quick-chip');
     if (quickChip) {
@@ -494,6 +575,20 @@ function setupEventListeners() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    if (e.target.closest('#mobile-nav-signin-btn')) {
+      state.showAuthModal = true;
+      state.authMode = 'login';
+      state.authIsSignup = false;
+      renderApp();
+    }
+
+    if (e.target.closest('#mobile-nav-signup-btn')) {
+      state.showAuthModal = true;
+      state.authMode = 'signup';
+      state.authIsSignup = true;
+      renderApp();
+    }
+
     if (e.target.closest('#mobile-nav-chats-btn')) {
       state.showAIChatbot = !state.showAIChatbot;
       renderApp();
@@ -505,7 +600,7 @@ function setupEventListeners() {
         showToast('⚠️ Only registered Dealers can post properties. Please sign in or join as a Dealer.');
         state.showAuthModal = true;
         state.authRole = 'DEALER';
-        state.authIsSignup = true;
+        state.authIsRegister = true;
         renderApp();
         return;
       }
@@ -549,7 +644,7 @@ function setupEventListeners() {
         showToast('⚠️ Dealer Portal is strictly for verified Agencies & Brokers. Please sign in or register as a Dealer.');
         state.showAuthModal = true;
         state.authRole = 'DEALER';
-        state.authIsSignup = true;
+        state.authIsRegister = true;
         state.showMobileNav = false;
         renderApp();
         return;
@@ -694,7 +789,7 @@ function setupEventListeners() {
         showToast('⚠️ Only verified Dealers can post properties. Please sign in as a Dealer.');
         state.showAuthModal = true;
         state.authRole = 'DEALER';
-        state.authIsSignup = true;
+        state.authIsRegister = true;
         renderApp();
         return;
       }
@@ -1000,11 +1095,93 @@ function setupEventListeners() {
       showToast('Item removed from saved list.');
     }
 
-    // Auth Modal Controls (Guest Sign In Button)
-    if (e.target.closest('#open-auth-btn')) {
+    // Auth Modal Controls (Guest Sign In & Sign Up Buttons)
+    if (e.target.closest('#open-auth-login-btn') || e.target.closest('#open-auth-btn') || e.target.closest('#mobile-auth-login-btn')) {
       state.showAuthModal = true;
+      state.authMode = 'login';
+      state.authIsRegister = false;
       state.phoneStep = 1;
+      state.showMobileNav = false;
       renderApp();
+    }
+
+    if (e.target.closest('#open-auth-signup-btn') || e.target.closest('#mobile-auth-signup-btn') || e.target.closest('#open-auth-Register-btn') || e.target.closest('#mobile-auth-Register-btn')) {
+      state.showAuthModal = true;
+      state.authMode = 'signup';
+      state.authIsRegister = true;
+      state.phoneStep = 1;
+      state.showMobileNav = false;
+      renderApp();
+    }
+
+    if (e.target.closest('#open-admin-login-for-blog-btn')) {
+      state.showAuthModal = true;
+      state.authRole = 'ADMIN';
+      state.authMode = 'login';
+      state.authIsRegister = false;
+      renderApp();
+    }
+
+    // Blog & Article Controls
+    const blogCatBtn = e.target.closest('.blog-cat-btn');
+    if (blogCatBtn) {
+      state.selectedBlogCategory = blogCatBtn.getAttribute('data-cat');
+      renderApp();
+    }
+
+    if (e.target.closest('#go-to-admin-blogs-btn')) {
+      state.activeTab = 'dealer';
+      state.dealerTab = 'blogs';
+      renderApp();
+    }
+
+    if (e.target.closest('#open-create-blog-modal-btn')) {
+      state.showBlogCreateModal = true;
+      state.editingBlog = null;
+      renderApp();
+    }
+
+    if (e.target.closest('#close-blog-modal-btn') || e.target.id === 'admin-blog-modal-overlay') {
+      state.showBlogCreateModal = false;
+      state.editingBlog = null;
+      renderApp();
+    }
+
+    const editBlogBtn = e.target.closest('.edit-blog-btn');
+    if (editBlogBtn) {
+      const bId = editBlogBtn.getAttribute('data-id');
+      const targetBlog = (state.blogsList || []).find(b => b.id === bId);
+      if (targetBlog) {
+        state.editingBlog = targetBlog;
+        state.showBlogCreateModal = true;
+        renderApp();
+      }
+    }
+
+    const deleteBlogBtn = e.target.closest('.delete-blog-btn');
+    if (deleteBlogBtn) {
+      const bId = deleteBlogBtn.getAttribute('data-id');
+      if (confirm('Are you sure you want to delete this blog post?')) {
+        state.blogsList = (state.blogsList || []).filter(b => b.id !== bId);
+        localStorage.setItem('Sarmayadar_blogs_db', JSON.stringify(state.blogsList));
+        showToast('🗑️ Blog post deleted successfully!');
+        renderApp();
+      }
+    }
+
+    if (e.target.closest('#blog-upload-photo-btn')) {
+      document.getElementById('blog-cover-file-input')?.click();
+    }
+
+    const shareArticleBtn = e.target.closest('.share-article-btn');
+    if (shareArticleBtn) {
+      const title = shareArticleBtn.getAttribute('data-title') || 'Article';
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(window.location.href);
+        showToast('🔗 Article link copied to clipboard!');
+      } else {
+        showToast('🔗 Share: ' + title);
+      }
     }
 
     // Logged-in User Profile Button (Navigates directly to Profile & Account Settings)
@@ -1032,13 +1209,13 @@ function setupEventListeners() {
 
     if (e.target.closest('#toggle-login-mode-btn')) {
       state.authMode = 'login';
-      state.authIsSignup = false;
+      state.authIsRegister = false;
       renderApp();
     }
 
-    if (e.target.closest('#toggle-signup-mode-btn')) {
+    if (e.target.closest('#toggle-signup-mode-btn') || e.target.closest('#toggle-Register-mode-btn')) {
       state.authMode = 'signup';
-      state.authIsSignup = true;
+      state.authIsRegister = true;
       renderApp();
     }
 
@@ -1111,7 +1288,7 @@ function setupEventListeners() {
               showToast('✅ Password reset successfully! Please sign in with your new password.');
             }
             state.authMode = 'login';
-            state.authIsSignup = false;
+            state.authIsRegister = false;
             state.authPreFillEmail = email;
             renderApp();
           } catch (err) {
@@ -1125,7 +1302,7 @@ function setupEventListeners() {
             saveStoredUser(user);
             showToast('✅ Password reset successfully! Please sign in with your new password.');
             state.authMode = 'login';
-            state.authIsSignup = false;
+            state.authIsRegister = false;
             state.authPreFillEmail = email;
             renderApp();
           }
@@ -1134,12 +1311,12 @@ function setupEventListeners() {
       }
     }
 
-    // Email & Password Auth Form Submit (Login & Signup)
+    // Email & Password Auth Form Submit (Login & Register)
     if (e.target.id === 'email-auth-form' || e.target.closest('#email-auth-form')) {
       if (e.type === 'submit' || e.target.closest('#auth-submit-btn')) {
         e.preventDefault();
         const role = state.authRole || 'DEALER';
-        const isSignup = state.authMode === 'signup';
+        const isRegister = state.authMode === 'Register';
         const emailInput = document.getElementById('auth-email-input')?.value?.trim()?.toLowerCase();
         const passwordInput = document.getElementById('auth-password-input')?.value;
 
@@ -1152,8 +1329,8 @@ function setupEventListeners() {
           return;
         }
 
-        if (isSignup) {
-          // --- SIGNUP FLOW ---
+        if (isRegister) {
+          // --- Register FLOW ---
           const nameInput = document.getElementById('auth-full-name')?.value?.trim();
           const phoneInput = document.getElementById('auth-phone-num')?.value?.trim();
 
@@ -1164,7 +1341,7 @@ function setupEventListeners() {
 
           (async () => {
             try {
-              const res = await fetch('/api/auth/signup', {
+              const res = await fetch('/api/auth/Register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -1190,7 +1367,7 @@ function setupEventListeners() {
 
                 showToast(`🎉 Account created successfully! Please sign in.`);
                 state.authMode = 'login';
-                state.authIsSignup = false;
+                state.authIsRegister = false;
                 state.authPreFillEmail = emailInput;
                 renderApp();
               } else {
@@ -1198,7 +1375,7 @@ function setupEventListeners() {
                 showToast(`❌ ${errMsg}`);
               }
             } catch (err) {
-              console.error('Signup fetch error:', err);
+              console.error('Register fetch error:', err);
               saveStoredUser({
                 email: emailInput,
                 password: passwordInput,
@@ -1209,7 +1386,7 @@ function setupEventListeners() {
               });
               showToast(`🎉 Account created locally! Please sign in with your password.`);
               state.authMode = 'login';
-              state.authIsSignup = false;
+              state.authIsRegister = false;
               state.authPreFillEmail = emailInput;
               renderApp();
             }
@@ -1635,10 +1812,19 @@ function handleAIChatSubmit(query) {
   scored.sort((a, b) => b.matchScore - a.matchScore);
   const matchedProperties = scored.slice(0, 3);
 
-  let botReply = `Assalam-o-Alaikum! 🤖 Aap ki requirement **"${query}"** ke mutabiq database se ye milte julte (similar) verified options match huay hain. Details dekhnay ke liye niche card par click karein, ya agar koi khas location/budget chahiye toh **WhatsApp button** par click karke hamare Agent se direct baat karein (Hum dhoondh dain ge)!`;
+  const lang = state.chatLanguage || 'en';
+  let botReply = '';
 
-  if (q.includes('loan') || q.includes('emi') || q.includes('calculator')) {
-    botReply = '🧮 **Home Loan Rate**: Current bank KIBOR interest rate is ~14.5%. For a **3 Crore** loan over 20 years, estimated monthly EMI is **~PKR 382,000 / month**. Detailed breakdowns ke liye **Calculators & Tools** tab check karein!';
+  if (lang === 'en') {
+    botReply = `Hello! 🤖 I am your **Sarmayadar Assistant**. Based on your query **"${query}"**, here are verified matching properties from our database. Click any card below for details, or tap the WhatsApp button to consult our Realtor directly!`;
+    if (q.includes('loan') || q.includes('emi') || q.includes('calculator')) {
+      botReply = '🧮 **Home Loan Estimate**: Current bank KIBOR interest rate is ~14.5%. For a **PKR 3 Crore** loan over 20 years, estimated monthly EMI is **~PKR 382,000 / month**. Check out our Calculators & Tools tab for detailed breakdowns!';
+    }
+  } else {
+    botReply = `Assalam-o-Alaikum! 🤖 Main **Sarmayadar Assistant** hoon. Aap ki requirement **"${query}"** ke mutabiq database se ye verified options match huay hain. Details dekhnay ke liye niche card par click karein, ya WhatsApp button par click karke hamare Agent se direct baat karein (Hum dhoondh dain ge)!`;
+    if (q.includes('loan') || q.includes('emi') || q.includes('calculator')) {
+      botReply = '🧮 **Home Loan Rate**: Current bank KIBOR interest rate ~14.5% ha. **3 Crore** ke loan par 20 saal ki monthly EMI **~PKR 382,000 / month** banti ha. Detailed breakdowns ke liye Calculators & Tools tab check karein!';
+    }
   }
 
   state.aiChatMessages.push({
@@ -1741,49 +1927,58 @@ function updateWizardStepUI() {
   }
 }
 
-// Global Image Upload File Selector & Drag and Drop Event Listeners
-document.addEventListener('change', (e) => {
+// Global Image Upload File Selector & Drag and Drop Event Listeners (With Auto Watermark)
+document.addEventListener('change', async (e) => {
   if (e.target.id === 'wiz_file_input' && e.target.files?.length > 0) {
+    showToast('🎨 Adding Sarmayadar watermark to photos...');
     const files = Array.from(e.target.files);
-    let loadedCount = 0;
-    files.forEach(file => {
+    for (const file of files) {
+      const dataUrl = await new Promise(r => {
+        const reader = new FileReader();
+        reader.onload = evt => r(evt.target.result);
+        reader.readAsDataURL(file);
+      });
+      const watermarked = await addWatermarkToImage(dataUrl);
+      state.uploadedImages = state.uploadedImages || [];
+      state.uploadedImages.push(watermarked);
+    }
+    const container = document.getElementById('wiz-image-previews');
+    if (container) {
+      container.innerHTML = renderImagePreviewsList(state.uploadedImages);
+    }
+    showToast('✨ Photos uploaded & watermarked successfully!');
+  }
+
+  if (e.target.id === 'agency-photo-file-input' && e.target.files?.[0]) {
+    const file = e.target.files[0];
+    const dataUrl = await new Promise(r => {
       const reader = new FileReader();
-      reader.onload = (evt) => {
-        state.uploadedImages = state.uploadedImages || [];
-        state.uploadedImages.push(evt.target.result);
-        loadedCount++;
-        if (loadedCount === files.length) {
-          const container = document.getElementById('wiz-image-previews');
-          if (container) {
-            container.innerHTML = renderImagePreviewsList(state.uploadedImages);
-          }
-        }
-      };
+      reader.onload = evt => r(evt.target.result);
       reader.readAsDataURL(file);
     });
+    const watermarked = await addWatermarkToImage(dataUrl);
+    const logoUrlInput = document.getElementById('agency-logo-url-input');
+    const logoPreview = document.getElementById('agency-logo-preview');
+    if (logoUrlInput) logoUrlInput.value = watermarked;
+    if (logoPreview) logoPreview.src = watermarked;
+    showToast('📸 Profile picture selected & watermarked!');
   }
-});
 
-document.addEventListener('change', (e) => {
-  if (e.target.id === 'agency-photo-file-input') {
-    const file = e.target.files?.[0];
-    if (file) {
+  if (e.target.id === 'blog-cover-file-input' && e.target.files?.[0]) {
+    const file = e.target.files[0];
+    const dataUrl = await new Promise(r => {
       const reader = new FileReader();
-      reader.onload = function (evt) {
-        const base64Photo = evt.target.result;
-        const logoUrlInput = document.getElementById('agency-logo-url-input');
-        const logoPreview = document.getElementById('agency-logo-preview');
-        if (logoUrlInput) logoUrlInput.value = base64Photo;
-        if (logoPreview) logoPreview.src = base64Photo;
-        showToast('📸 Profile picture selected from gallery!');
-      };
+      reader.onload = evt => r(evt.target.result);
       reader.readAsDataURL(file);
-    }
+    });
+    const watermarked = await addWatermarkToImage(dataUrl);
+    const blogImgInput = document.getElementById('blog-img-url-input');
+    if (blogImgInput) blogImgInput.value = watermarked;
+    showToast('📸 Blog cover photo selected & watermarked!');
   }
 });
 
 document.addEventListener('dragover', (e) => {
-
   const dropZone = e.target.closest('#image-drag-drop-zone');
   if (dropZone) {
     e.preventDefault();
@@ -1798,30 +1993,84 @@ document.addEventListener('dragleave', (e) => {
   }
 });
 
-document.addEventListener('drop', (e) => {
+document.addEventListener('drop', async (e) => {
   const dropZone = e.target.closest('#image-drag-drop-zone');
   if (dropZone) {
     e.preventDefault();
     dropZone.style.borderColor = 'var(--emerald-teal)';
     if (e.dataTransfer.files?.length > 0) {
+      showToast('🎨 Adding Sarmayadar watermark to dropped photos...');
       const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
-      let loadedCount = 0;
-      files.forEach(file => {
-        const reader = new FileReader();
-        reader.onload = (evt) => {
-          state.uploadedImages = state.uploadedImages || [];
-          state.uploadedImages.push(evt.target.result);
-          loadedCount++;
-          if (loadedCount === files.length) {
-            const container = document.getElementById('wiz-image-previews');
-            if (container) {
-              container.innerHTML = renderImagePreviewsList(state.uploadedImages);
-            }
-          }
-        };
-        reader.readAsDataURL(file);
-      });
+      for (const file of files) {
+        const dataUrl = await new Promise(r => {
+          const reader = new FileReader();
+          reader.onload = evt => r(evt.target.result);
+          reader.readAsDataURL(file);
+        });
+        const watermarked = await addWatermarkToImage(dataUrl);
+        state.uploadedImages = state.uploadedImages || [];
+        state.uploadedImages.push(watermarked);
+      }
+      const container = document.getElementById('wiz-image-previews');
+      if (container) {
+        container.innerHTML = renderImagePreviewsList(state.uploadedImages);
+      }
+      showToast('✨ Photos dropped & watermarked successfully!');
     }
+  }
+});
+
+// Admin Blog Editor Form Submit
+document.addEventListener('submit', async (e) => {
+  if (e.target.id === 'admin-blog-editor-form' || e.target.closest('#admin-blog-editor-form')) {
+    e.preventDefault();
+    const editId = document.getElementById('blog-edit-id-input')?.value;
+    const title = document.getElementById('blog-title-input')?.value?.trim();
+    const badge = document.getElementById('blog-category-select')?.value;
+    const readTime = document.getElementById('blog-readtime-input')?.value?.trim() || '5 min read';
+    const author = document.getElementById('blog-author-input')?.value?.trim() || 'Sarmayadar Editorial Board';
+    let img = document.getElementById('blog-img-url-input')?.value?.trim() || 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80';
+    const snippet = document.getElementById('blog-snippet-input')?.value?.trim();
+    const fullText = document.getElementById('blog-fulltext-input')?.value?.trim();
+
+    if (img.startsWith('data:image')) {
+      img = await addWatermarkToImage(img);
+    }
+
+    state.blogsList = state.blogsList || [];
+
+    if (editId) {
+      const idx = state.blogsList.findIndex(b => b.id === editId);
+      if (idx !== -1) {
+        state.blogsList[idx] = {
+          ...state.blogsList[idx],
+          title, badge, category: badge, readTime, author, img, image: img, snippet, fullText, content: fullText, date: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+        };
+      }
+    } else {
+      const newBlog = {
+        id: 'blog-' + Date.now(),
+        title,
+        badge,
+        category: badge,
+        readTime,
+        author,
+        img,
+        image: img,
+        snippet,
+        fullText,
+        content: fullText,
+        date: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+        status: 'PUBLISHED'
+      };
+      state.blogsList.unshift(newBlog);
+    }
+
+    localStorage.setItem('Sarmayadar_blogs_db', JSON.stringify(state.blogsList));
+    state.showBlogCreateModal = false;
+    state.editingBlog = null;
+    showToast('🚀 Blog post saved & published live!');
+    renderApp();
   }
 });
 

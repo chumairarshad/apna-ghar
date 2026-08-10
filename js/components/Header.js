@@ -71,6 +71,7 @@ export function renderHeader(state, onStateChange) {
               <li><a href="#" class="${activeTab === 'buy' ? 'active' : ''}" data-nav="buy">Properties for Sale</a></li>
               <li><a href="#" class="${activeTab === 'rent' ? 'active' : ''}" data-nav="rent">Rental Properties</a></li>
               <li><a href="#" class="${activeTab === 'projects' ? 'active' : ''}" data-nav="projects">Housing Megaprojects</a></li>
+              <li><a href="#" class="${activeTab === 'blogs' ? 'active' : ''}" data-nav="blogs">Blogs & Insights</a></li>
               <li><a href="#" class="${activeTab === 'tools' ? 'active' : ''}" data-nav="tools">Calculators & Tools</a></li>
               <li><a href="#" class="${activeTab === 'agents' ? 'active' : ''}" data-nav="agents">Agents Directory</a></li>
               ${state.user?.role === 'ADMIN' ? `
@@ -96,9 +97,9 @@ export function renderHeader(state, onStateChange) {
           </nav>
 
           <!-- Header Actions -->
-          <div class="header-actions" style="display:flex; align-items:center; gap:0.85rem;">
+          <div class="header-actions" style="display:flex; align-items:center; gap:0.5rem;">
             ${state.user ? `
-              <!-- Logged-in Profile Button (Navigates directly to Profile Settings) -->
+              <!-- Logged-in Profile Button -->
               <button type="button" class="btn-header-profile" id="header-user-profile-btn" title="Open My Profile & Settings">
                 ${renderIcon('user', 14, 'var(--marigold)')} ${userName} (${state.user.role})
               </button>
@@ -106,14 +107,17 @@ export function renderHeader(state, onStateChange) {
                 Logout
               </button>
             ` : `
-              <!-- Guest Sign In Button -->
-              <button type="button" class="btn btn-primary btn-sm" id="open-auth-btn" style="padding:7px 16px; font-size:0.82rem; border-radius:20px; font-weight:700; box-shadow:var(--shadow-sm);">
-                ${renderIcon('user', 14)} Sign In / Join
+              <!-- 2 Separate Buttons for Guest View (Desktop Only): Sign In & Register -->
+              <button type="button" class="btn btn-sm desktop-auth-btn" id="open-auth-login-btn" style="padding:6px 12px; font-size:0.78rem; border-radius:20px; font-weight:700; border:2px solid var(--forest); color:var(--forest-dk); background:transparent; cursor:pointer; transition:var(--transition);" title="Sign In">
+                ${renderIcon('log-in', 13)} Sign In
+              </button>
+              <button type="button" class="btn btn-primary btn-sm desktop-auth-btn" id="open-auth-signup-btn" style="padding:6px 14px; font-size:0.78rem; border-radius:20px; font-weight:700; background:linear-gradient(135deg, var(--forest), var(--forest-dk)); color:var(--paper); border:none; box-shadow:var(--shadow-sm); cursor:pointer; transition:var(--transition);" title="Register">
+                ${renderIcon('user-plus', 13)} Register
               </button>
             `}
 
             <!-- Mobile Hamburger Menu Toggle -->
-            <button type="button" class="mobile-hamburger-btn" id="toggle-mobile-menu-btn" title="Toggle Navigation Menu" style="margin-left:4px;">
+            <button type="button" class="mobile-hamburger-btn" id="toggle-mobile-menu-btn" title="Toggle Navigation Menu" style="margin-left:2px;">
               ${renderIcon('menu', 20)}
             </button>
           </div>
@@ -124,15 +128,23 @@ export function renderHeader(state, onStateChange) {
           <a href="#" class="${activeTab === 'buy' ? 'active' : ''}" data-nav="buy">Properties for Sale</a>
           <a href="#" class="${activeTab === 'rent' ? 'active' : ''}" data-nav="rent">Rental Properties</a>
           <a href="#" class="${activeTab === 'projects' ? 'active' : ''}" data-nav="projects">Housing Megaprojects</a>
+          <a href="#" class="${activeTab === 'blogs' ? 'active' : ''}" data-nav="blogs">Blogs & Market Insights</a>
           <a href="#" class="${activeTab === 'tools' ? 'active' : ''}" data-nav="tools">Calculators & Land Tools</a>
           <a href="#" class="${activeTab === 'agents' ? 'active' : ''}" data-nav="agents">Agents Directory</a>
           ${state.user?.role === 'DEALER' ? `<a href="#" class="${activeTab === 'dealer' ? 'active' : ''}" data-nav="dealer">Dealer Portal CRM</a>` : ''}
-          ${state.user?.role === 'ADMIN' ? `<a href="#" class="${activeTab === 'dealer' ? 'active' : ''}" data-nav="dealer">Admin Portal</a>` : ''}
+          ${state.user?.role === 'ADMIN' ? `<a href="#" class="${activeTab === 'dealer' ? 'active' : ''}" data-nav="dealer">Admin Portal & Blog Studio</a>` : ''}
           ${state.user ? `
             <a href="#" id="mobile-user-profile-btn" style="color:var(--forest-dk) !important; font-weight:700;">👤 My Profile & Account Settings (${userName})</a>
             <a href="#" id="mobile-logout-btn" style="color:#EF4444 !important; font-weight:700;">Logout (${userName})</a>
           ` : `
-            <a href="#" id="mobile-open-auth-btn">Sign In / Create Account</a>
+            <div style="display:flex; gap:0.5rem; margin-top:0.75rem; padding-top:0.75rem; border-top:1.5px solid var(--border-dk);">
+              <button type="button" class="btn btn-sm" id="mobile-auth-login-btn" style="flex:1; padding:9px 12px; font-size:0.85rem; font-weight:700; border:2px solid var(--forest); color:var(--forest-dk); background:transparent; border-radius:8px; cursor:pointer;">
+                ${renderIcon('log-in', 14)} Sign In
+              </button>
+              <button type="button" class="btn btn-primary btn-sm" id="mobile-auth-signup-btn" style="flex:1; padding:9px 12px; font-size:0.85rem; font-weight:700; background:linear-gradient(135deg, var(--forest), var(--forest-dk)); color:white; border-radius:8px; border:none; cursor:pointer; box-shadow:var(--shadow-sm);">
+                ${renderIcon('user-plus', 14)} Register
+              </button>
+            </div>
           `}
         </div>
 

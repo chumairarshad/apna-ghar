@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-// Zod Signup Validation Schema
-export const signupSchema = z.object({
+// Zod Register Validation Schema
+export const RegisterSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters long'),
   email: z.string().email('Invalid email address format'),
   password: z

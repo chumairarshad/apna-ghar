@@ -8,12 +8,12 @@ import { authenticateToken } from '../middleware.js';
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'Sarmayadar_super_secret_jwt_key_2026_48h';
 
-// 1. SIGNUP API
+// 1. Register API
 // Body: { name, email, password, phone, role: 'DEALER' | 'ADMIN', agencyName, city }
-router.post(['/', '/signup', '/api/auth/signup'], async (req, res) => {
+router.post(['/', '/Register', '/api/auth/Register'], async (req, res) => {
 
   console.log('----------------------------------------------------');
-  console.log('📌 [POST /api/auth/signup] STARTING REQUEST TRACE');
+  console.log('📌 [POST /api/auth/Register] STARTING REQUEST TRACE');
   console.log('1. REQ.BODY:', JSON.stringify(req.body, null, 2));
 
   try {
@@ -100,7 +100,7 @@ router.post(['/', '/signup', '/api/auth/signup'], async (req, res) => {
     return res.status(201).json(successRes);
 
   } catch (error) {
-    console.error('🔥 [SIGNUP EXCEPTION THROWN]:', error);
+    console.error('🔥 [Register EXCEPTION THROWN]:', error);
     console.error('🔥 [STACK TRACE]:', error.stack);
 
     const errorRes = {

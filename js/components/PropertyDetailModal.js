@@ -18,8 +18,8 @@ export function renderPropertyDetailModal(state) {
         </div>
 
         <div class="modal-body" style="padding-top:1rem;">
-          <!-- Image Gallery Grid with 360° Overlay -->
-          <div style="position:relative; margin-bottom:1.5rem; border-radius:12px; overflow:hidden; border:2px solid var(--forest-dk);">
+          <!-- Image Gallery Grid with 360° Overlay & Sarmayadar Watermark -->
+          <div class="watermarked-image-container" style="position:relative; margin-bottom:1.5rem; border-radius:12px; overflow:hidden; border:2px solid var(--forest-dk);">
             <div style="display:grid; grid-template-columns: 2fr 1fr; gap:0.5rem;">
               <img src="${prop.images[0]}" style="width:100%; height:320px; object-fit:cover;" />
               <div style="display:flex; flex-direction:column; gap:0.5rem;">

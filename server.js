@@ -35,6 +35,9 @@ app.use('/admin', adminRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/upload', uploadRoutes);
 
+// Serve static files (index.html, css, js)
+app.use(express.static(__dirname));
+
 // Health check endpoint
 app.get(['/api', '/api/health', '/health'], (req, res) => {
   res.json({
