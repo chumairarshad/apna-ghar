@@ -67,13 +67,17 @@ export async function initDb() {
         p256dh TEXT NOT NULL,
         auth TEXT NOT NULL,
         user_agent TEXT,
+        device_type VARCHAR(20) DEFAULT 'desktop',
         is_active BOOLEAN DEFAULT TRUE,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
 
+      ALTER TABLE push_subscriptions ADD COLUMN IF NOT EXISTS device_type VARCHAR(20) DEFAULT 'desktop';
+
       CREATE INDEX IF NOT EXISTS idx_push_sub_is_active ON push_subscriptions(is_active);
       CREATE INDEX IF NOT EXISTS idx_push_sub_user_id ON push_subscriptions(user_id);
+      CREATE INDEX IF NOT EXISTS idx_push_sub_device_type ON push_subscriptions(device_type);
     `);
     isInitialized = true;
     console.log('✅ Neon PostgreSQL Database schema ready!');

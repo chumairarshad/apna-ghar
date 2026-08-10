@@ -124,6 +124,9 @@ export function renderDealerDashboard(rawProperties, state) {
             </button>
           ` : ''}
 
+          <button class="dealer-tab ${activeTab === 'push' ? 'active' : ''}" data-dtab="push">
+            <i data-lucide="smartphone" style="width:18px; height:18px;"></i> Mobile Push Broadcast
+          </button>
           <button class="dealer-tab ${activeTab === 'inventory' ? 'active' : ''}" data-dtab="inventory">
             <i data-lucide="layers" style="width:18px; height:18px;"></i> Listing Inventory (${totalListings})
           </button>
@@ -142,12 +145,92 @@ export function renderDealerDashboard(rawProperties, state) {
         <!-- Tab Content Views -->
         ${activeTab === 'dealers' && isAdmin ? renderDealersManagementTab(dealersList) : ''}
         ${activeTab === 'blogs' && isAdmin ? renderAdminBlogsTab(state.blogsList || [], state) : ''}
+        ${activeTab === 'push' ? renderPushBroadcastTab(state) : ''}
         ${activeTab === 'inventory' ? renderInventoryTab(properties, state) : ''}
         ${activeTab === 'leads' ? renderLeadsCRMTab(leads) : ''}
         ${activeTab === 'analytics' ? renderAnalyticsTab(properties) : ''}
         ${activeTab === 'profile' ? renderProfileSettingsTab(agencyProfile, isAdmin) : ''}
       </div>
     </section>
+  `;
+}
+
+function renderPushBroadcastTab(state) {
+  setTimeout(() => {
+    fetch('/api/push/stats')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.stats) {
+          const mobEl = document.getElementById('push-stat-mobile');
+          const deskEl = document.getElementById('push-stat-desktop');
+          const totEl = document.getElementById('push-stat-total');
+          if (mobEl) mobEl.innerText = `${data.stats.mobile_count || 0} Phones`;
+          if (deskEl) deskEl.innerText = `${data.stats.desktop_count || 0} Devices`;
+          if (totEl) totEl.innerText = `${data.stats.total || 0} Total`;
+        }
+      })
+      .catch(err => console.warn('Push stats fetch notice:', err));
+  }, 100);
+
+  return `
+    <div class="dashboard-card" style="background:#ffffff; border-radius:14px; padding:24px; box-shadow:var(--shadow-md);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px; border-bottom:1px solid #e2e8f0; padding-bottom:16px;">
+        <div>
+          <h3 style="margin:0 0 4px 0; color:var(--forest-dk); font-size:1.25rem; font-weight:800; display:flex; align-items:center; gap:8px;">
+            <i data-lucide="smartphone" style="color:#10b981;"></i> Mobile & Web Push Broadcast Studio
+          </h3>
+          <p style="margin:0; color:var(--text-muted); font-size:0.88rem;">Send instant notifications to mobile phone subscribers & desktop visitors across Pakistan.</p>
+        </div>
+
+        <div style="display:flex; gap:10px;">
+          <div style="background:#ECFDF5; border:1px solid #10B981; padding:8px 16px; border-radius:10px; text-align:center;">
+            <div style="font-size:0.7rem; color:#059669; font-weight:800; text-transform:uppercase;">Mobile Phone Subs</div>
+            <div style="font-size:1.25rem; color:#065F46; font-weight:900;" id="push-stat-mobile">Syncing...</div>
+          </div>
+          <div style="background:#EFF6FF; border:1px solid #3B82F6; padding:8px 16px; border-radius:10px; text-align:center;">
+            <div style="font-size:0.7rem; color:#1D4ED8; font-weight:800; text-transform:uppercase;">Desktop Subs</div>
+            <div style="font-size:1.25rem; color:#1E40AF; font-weight:900;" id="push-stat-desktop">Syncing...</div>
+          </div>
+          <div style="background:#FEF3C7; border:1px solid #F59E0B; padding:8px 16px; border-radius:10px; text-align:center;">
+            <div style="font-size:0.7rem; color:#B45309; font-weight:800; text-transform:uppercase;">Total Active</div>
+            <div style="font-size:1.25rem; color:#78350F; font-weight:900;" id="push-stat-total">Syncing...</div>
+          </div>
+        </div>
+      </div>
+
+      <form id="admin-broadcast-push-form" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:24px;">
+        <h4 style="margin:0 0 16px 0; font-size:1.05rem; color:#0f172a; font-weight:800;">📢 Compose & Dispatch Mobile Push Notification</h4>
+        
+        <div class="form-group" style="margin-bottom:16px;">
+          <label style="font-weight:700; font-size:0.88rem; color:#1e293b; display:block; margin-bottom:6px;">Notification Title *</label>
+          <input type="text" id="push-title-input" class="form-control" placeholder="e.g. 🏠 Hot Listing Alert: 1 Kanal House in DHA Lahore Phase 6" required style="width:100%; padding:11px; border-radius:8px; border:1px solid #cbd5e1; font-weight:600;" />
+        </div>
+
+        <div class="form-group" style="margin-bottom:16px;">
+          <label style="font-weight:700; font-size:0.88rem; color:#1e293b; display:block; margin-bottom:6px;">Message Body *</label>
+          <textarea id="push-body-input" class="form-control" rows="3" placeholder="Write compelling notification message to pop up on user phone screens..." required style="width:100%; padding:11px; border-radius:8px; border:1px solid #cbd5e1;"></textarea>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
+          <div>
+            <label style="font-weight:700; font-size:0.88rem; color:#1e293b; display:block; margin-bottom:6px;">Target Device Audience</label>
+            <select id="push-target-select" class="form-control" style="width:100%; padding:11px; border-radius:8px; border:1px solid #cbd5e1; font-weight:600;">
+              <option value="all">📱 Mobile Phones & 💻 Desktops (All Active Subscribers)</option>
+              <option value="mobile">📱 Mobile Devices Only (Android & iOS PWA)</option>
+              <option value="desktop">💻 Desktop Browsers Only</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-weight:700; font-size:0.88rem; color:#1e293b; display:block; margin-bottom:6px;">Target URL / Link Path</label>
+            <input type="text" id="push-url-input" class="form-control" placeholder="/" value="/" style="width:100%; padding:11px; border-radius:8px; border:1px solid #cbd5e1; font-weight:600;" />
+          </div>
+        </div>
+
+        <button type="submit" id="btn-send-push-broadcast" style="background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:#ffffff; border:none; padding:12px 28px; border-radius:10px; font-weight:800; font-size:0.95rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px; box-shadow:0 4px 14px rgba(16,185,129,0.35); transition:all 0.2s ease;">
+          <i data-lucide="send" style="width:18px; height:18px;"></i> Dispatch Mobile Push Alert
+        </button>
+      </form>
+    </div>
   `;
 }
 

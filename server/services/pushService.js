@@ -31,32 +31,48 @@ export function getVapidPublicKey() {
 }
 
 /**
- * Save or update a browser Push Subscription in Neon PostgreSQL
+ * Helper to determine device type from payload or User-Agent string
+ */
+function determineDeviceType(explicitDeviceType, userAgent = '') {
+  if (explicitDeviceType && (explicitDeviceType === 'mobile' || explicitDeviceType === 'desktop')) {
+    return explicitDeviceType;
+  }
+  if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent || '')) {
+    return 'mobile';
+  }
+  return 'desktop';
+}
+
+/**
+ * Save or update a browser Push Subscription in Neon PostgreSQL with device type
  */
 export async function saveSubscription(subscriptionPayload, userId = null, userAgent = null) {
   if (!subscriptionPayload || !subscriptionPayload.endpoint || !subscriptionPayload.keys) {
     throw new Error('Invalid subscription payload structure. Endpoint and keys (p256dh, auth) are required.');
   }
 
-  const { endpoint, keys } = subscriptionPayload;
+  const { endpoint, keys, deviceType } = subscriptionPayload;
   if (!keys.p256dh || !keys.auth) {
     throw new Error('Subscription keys must include p256dh and auth tokens.');
   }
 
+  const detectedDevice = determineDeviceType(deviceType, userAgent);
+
   const query = `
-    INSERT INTO push_subscriptions (user_id, endpoint, p256dh, auth, user_agent, is_active)
-    VALUES ($1, $2, $3, $4, $5, TRUE)
+    INSERT INTO push_subscriptions (user_id, endpoint, p256dh, auth, user_agent, device_type, is_active)
+    VALUES ($1, $2, $3, $4, $5, $6, TRUE)
     ON CONFLICT (endpoint) DO UPDATE SET
       user_id = COALESCE(EXCLUDED.user_id, push_subscriptions.user_id),
       p256dh = EXCLUDED.p256dh,
       auth = EXCLUDED.auth,
       user_agent = COALESCE(EXCLUDED.user_agent, push_subscriptions.user_agent),
+      device_type = EXCLUDED.device_type,
       is_active = TRUE,
       updated_at = CURRENT_TIMESTAMP
     RETURNING *;
   `;
 
-  const values = [userId || null, endpoint, keys.p256dh, keys.auth, userAgent || null];
+  const values = [userId || null, endpoint, keys.p256dh, keys.auth, userAgent || null, detectedDevice];
   const result = await pool.query(query, values);
   return result.rows[0];
 }
@@ -94,6 +110,101 @@ export async function deactivateSubscription(idOrEndpoint) {
 }
 
 /**
+ * Get active Push Subscription Statistics (Total, Mobile, Desktop)
+ */
+export async function getPushSubscriptionStats() {
+  try {
+    const res = await pool.query(`
+      SELECT 
+        COUNT(*)::int as total,
+        COUNT(CASE WHEN device_type = 'mobile' THEN 1 END)::int as mobile_count,
+        COUNT(CASE WHEN device_type = 'desktop' OR device_type IS NULL THEN 1 END)::int as desktop_count
+      FROM push_subscriptions
+      WHERE is_active = TRUE;
+    `);
+    return res.rows[0] || { total: 0, mobile_count: 0, desktop_count: 0 };
+  } catch (err) {
+    console.error('Error fetching push stats:', err);
+    return { total: 0, mobile_count: 0, desktop_count: 0 };
+  }
+}
+
+/**
+ * Dispatch Custom Broadcast Push Notification (Supports targeting mobile, desktop, or all subscribers)
+ */
+export async function sendCustomBroadcastNotification({ title, body, targetDevice = 'all', url = '/' }) {
+  try {
+    let query = `SELECT id, endpoint, p256dh, auth, device_type FROM push_subscriptions WHERE is_active = TRUE`;
+    const params = [];
+
+    if (targetDevice === 'mobile') {
+      query += ` AND device_type = $1`;
+      params.push('mobile');
+    } else if (targetDevice === 'desktop') {
+      query += ` AND (device_type = $1 OR device_type IS NULL)`;
+      params.push('desktop');
+    }
+
+    const subResult = await pool.query(query, params);
+    const subscriptions = subResult.rows;
+
+    if (subscriptions.length === 0) {
+      return { success: true, count: 0, sent: 0, message: 'No subscribers match target device criteria.' };
+    }
+
+    const payload = JSON.stringify({
+      title: title || '📱 Sarmayadar Real Estate Alert',
+      body: body || 'Check out latest verified property listings in Pakistan!',
+      icon: '/css/favicon.png',
+      badge: '/css/favicon.png',
+      tag: `broadcast-${Date.now()}`,
+      renotify: true,
+      vibrate: [200, 100, 200, 100, 200],
+      data: {
+        propertyUrl: url || '/'
+      }
+    });
+
+    let sentCount = 0;
+    let failedCount = 0;
+
+    const sendPromises = subscriptions.map(async (sub) => {
+      const pushSubscription = {
+        endpoint: sub.endpoint,
+        keys: {
+          p256dh: sub.p256dh,
+          auth: sub.auth
+        }
+      };
+
+      try {
+        await webpush.sendNotification(pushSubscription, payload);
+        sentCount++;
+      } catch (err) {
+        failedCount++;
+        if (err.statusCode === 404 || err.statusCode === 410) {
+          await deactivateSubscription(sub.id);
+        }
+      }
+    });
+
+    await Promise.allSettled(sendPromises);
+
+    return {
+      success: true,
+      count: subscriptions.length,
+      sent: sentCount,
+      failed: failedCount,
+      targetDevice
+    };
+
+  } catch (error) {
+    console.error('Broadcast push error:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
  * Dispatch Push Notification for a newly published property to all active subscribers
  */
 export async function sendNewPropertyNotification(property) {
@@ -105,7 +216,7 @@ export async function sendNewPropertyNotification(property) {
   try {
     // 1. Fetch active push subscriptions
     const subResult = await pool.query(
-      `SELECT id, endpoint, p256dh, auth FROM push_subscriptions WHERE is_active = TRUE`
+      `SELECT id, endpoint, p256dh, auth, device_type FROM push_subscriptions WHERE is_active = TRUE`
     );
 
     const subscriptions = subResult.rows;
@@ -124,12 +235,13 @@ export async function sendNewPropertyNotification(property) {
 
     const payload = JSON.stringify({
       title: '🏠 New Property Published!',
-      body: `"${property.title}" in ${formattedLocation} ${formattedPrice ? `(${formattedPrice})` : ''} is now available. Click to view full details!`,
+      body: `"${property.title}" in ${formattedLocation} ${formattedPrice ? `(${formattedPrice})` : ''} is now available. Click to view details!`,
       icon: '/css/favicon.png',
       image: Array.isArray(property.images) && property.images.length > 0 ? property.images[0] : null,
       badge: '/css/favicon.png',
       tag: `property-${property.id}`,
       renotify: true,
+      vibrate: [200, 100, 200, 100, 200],
       data: {
         propertyId: property.id,
         propertyUrl: `/?propertyId=${property.id}`
@@ -174,3 +286,4 @@ export async function sendNewPropertyNotification(property) {
     return { success: false, error: error.message };
   }
 }
+

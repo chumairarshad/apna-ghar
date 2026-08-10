@@ -75,6 +75,31 @@ export async function fetchVapidPublicKey() {
 }
 
 /**
+ * Helper: Detect if current client is mobile or desktop device
+ */
+export function getDeviceType() {
+  const userAgent = navigator.userAgent || '';
+  if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent) || (window.innerWidth && window.innerWidth <= 768)) {
+    return 'mobile';
+  }
+  return 'desktop';
+}
+
+/**
+ * Helper: Check if client device is running iOS (iPhone/iPad)
+ */
+export function isIOS() {
+  return /iPhone|iPad|iPod/i.test(navigator.userAgent || '');
+}
+
+/**
+ * Helper: Check if web app is running in Standalone PWA mode
+ */
+export function isStandalone() {
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+
+/**
  * Subscribe visitor to Web Push Notifications
  */
 export async function subscribeToPushNotifications() {
@@ -118,6 +143,7 @@ export async function subscribeToPushNotifications() {
     });
 
     const subJson = subscription.toJSON();
+    const deviceType = getDeviceType();
 
     // 5. Sync Subscription with Backend Database
     const headers = { 'Content-Type': 'application/json' };
@@ -126,10 +152,15 @@ export async function subscribeToPushNotifications() {
       headers['Authorization'] = `Bearer ${userToken}`;
     }
 
+    const payload = {
+      ...subJson,
+      deviceType: deviceType
+    };
+
     const response = await fetch('/api/push/subscribe', {
       method: 'POST',
       headers,
-      body: JSON.stringify(subJson)
+      body: JSON.stringify(payload)
     });
 
     const resData = await response.json();
@@ -138,7 +169,7 @@ export async function subscribeToPushNotifications() {
       localStorage.removeItem(PUSH_DISMISSED_KEY);
       return {
         success: true,
-        message: resData.message || "You're all set! We'll notify you when new properties are published.",
+        message: resData.message || `You're all set! Mobile property push alerts enabled for your ${deviceType} device.`,
         subscription: subJson
       };
     } else {
@@ -177,10 +208,22 @@ export async function unsubscribeFromPushNotifications() {
     }
 
     localStorage.removeItem(PUSH_STORAGE_KEY);
-    return { success: true, message: 'Unsubscribed successfully.' };
+    return { success: true, message: 'Push notifications disabled.' };
   } catch (error) {
     console.error('Unsubscribe error:', error);
     return { success: false, message: error.message };
+  }
+}
+
+/**
+ * Toggle Mobile / Web Push Notification Subscription
+ */
+export async function togglePushNotifications() {
+  const support = checkPushSupport();
+  if (support.isSubscribed) {
+    return await unsubscribeFromPushNotifications();
+  } else {
+    return await subscribeToPushNotifications();
   }
 }
 
@@ -190,3 +233,4 @@ export async function unsubscribeFromPushNotifications() {
 export function dismissPushPrompt() {
   localStorage.setItem(PUSH_DISMISSED_KEY, 'true');
 }
+

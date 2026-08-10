@@ -38,7 +38,7 @@ import { renderMobileBottomNav } from './components/MobileBottomNav.js';
 import { renderBlogsPage } from './components/BlogsPage.js';
 import { renderAdvertisePage } from './components/AdvertisePage.js';
 import { renderPushNotificationBanner, initPushBannerEvents } from './components/PushNotificationBanner.js';
-import { registerServiceWorker } from './utils/pushClient.js';
+import { registerServiceWorker, togglePushNotifications } from './utils/pushClient.js';
 
 // Tab Persistence Helper Functions (Hash & LocalStorage Sync)
 function getSavedActiveTab() {
@@ -642,6 +642,14 @@ function setupEventListeners() {
     if (e.target.closest('#close-featured-btn') || e.target.id === 'featured-modal-overlay') {
       state.showFeaturedModal = false;
       renderApp();
+    }
+
+    if (e.target.closest('#mobile-push-toggle-btn')) {
+      e.preventDefault();
+      togglePushNotifications().then(res => {
+        if (showToast) showToast(res.message);
+        renderApp();
+      });
     }
 
     // Mobile Hamburger Menu Toggle
@@ -1669,6 +1677,54 @@ function setupEventListeners() {
 
       showToast('✅ Profile & Account details updated successfully!');
       renderApp();
+    }
+
+    // Admin / Supervisor Mobile Push Broadcast Form Handler
+    const pushForm = e.target.closest('#admin-broadcast-push-form');
+    if (pushForm && (e.type === 'submit' || (e.type === 'click' && e.target.closest('#btn-send-push-broadcast')))) {
+      e.preventDefault();
+      const title = document.getElementById('push-title-input')?.value?.trim();
+      const body = document.getElementById('push-body-input')?.value?.trim();
+      const targetDevice = document.getElementById('push-target-select')?.value || 'all';
+      const url = document.getElementById('push-url-input')?.value?.trim() || '/';
+
+      if (!title || !body) {
+        showToast('⚠️ Please enter Notification Title and Message Body.');
+        return;
+      }
+
+      const btn = document.getElementById('btn-send-push-broadcast');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<i data-lucide="loader" class="spin" style="width:18px; height:18px;"></i> Broadcasting Push Alert...`;
+        if (window.lucide) window.lucide.createIcons();
+      }
+
+      fetch('/api/push/broadcast', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, body, targetDevice, url })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          showToast(`🚀 Broadcast sent! ${data.sent} notification(s) dispatched successfully.`);
+          const formEl = document.getElementById('admin-broadcast-push-form');
+          if (formEl) formEl.reset();
+        } else {
+          showToast(`⚠️ Broadcast notice: ${data.message || data.error || 'Failed to dispatch push notification.'}`);
+        }
+      })
+      .catch(err => {
+        showToast(`❌ Push error: ${err.message}`);
+      })
+      .finally(() => {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = `<i data-lucide="send" style="width:18px; height:18px;"></i> Dispatch Mobile Push Alert`;
+          if (window.lucide) window.lucide.createIcons();
+        }
+      });
     }
 
 

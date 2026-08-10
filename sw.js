@@ -1,5 +1,5 @@
-/* Sarmayadar Real Estate - Web Push Service Worker */
-const SW_VERSION = 'v1.0.0';
+/* Sarmayadar Real Estate - Web Push Service Worker (Mobile & Desktop PWA) */
+const SW_VERSION = 'v1.1.0';
 
 self.addEventListener('install', (event) => {
   console.log(`[ServiceWorker] Installed version: ${SW_VERSION}`);
@@ -11,7 +11,7 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(self.clients.claim());
 });
 
-// Handle incoming Web Push Notifications
+// Handle incoming Web Push Notifications on Mobile & Desktop
 self.addEventListener('push', (event) => {
   console.log('[ServiceWorker] Push event received.');
 
@@ -19,6 +19,7 @@ self.addEventListener('push', (event) => {
     title: '🏠 New Property Published!',
     body: 'A new verified property has just been listed on Sarmayadar Real Estate Portal.',
     icon: '/css/favicon.png',
+    badge: '/css/favicon.png',
     data: {
       propertyUrl: '/'
     }
@@ -39,10 +40,11 @@ self.addEventListener('push', (event) => {
     image: payload.image || undefined,
     tag: payload.tag || 'new-property-notification',
     renotify: payload.renotify !== undefined ? payload.renotify : true,
-    vibrate: [200, 100, 200],
+    vibrate: payload.vibrate || [200, 100, 200, 100, 200],
     data: payload.data || { propertyUrl: '/' },
     actions: [
-      { action: 'view', title: '👁️ View Property' }
+      { action: 'view', title: '👁️ View Property' },
+      { action: 'close', title: '✖️ Dismiss' }
     ]
   };
 
@@ -51,10 +53,12 @@ self.addEventListener('push', (event) => {
   );
 });
 
-// Handle Notification Click
+// Handle Notification Click & Touch Actions
 self.addEventListener('notificationclick', (event) => {
-  console.log('[ServiceWorker] Notification clicked:', event.notification);
+  console.log('[ServiceWorker] Notification clicked:', event.notification, 'Action:', event.action);
   event.notification.close();
+
+  if (event.action === 'close') return;
 
   const notificationData = event.notification.data || {};
   const propertyId = notificationData.propertyId;
@@ -91,3 +95,8 @@ self.addEventListener('notificationclick', (event) => {
     })
   );
 });
+
+self.addEventListener('notificationclose', (event) => {
+  console.log('[ServiceWorker] Notification dismissed:', event.notification.tag);
+});
+

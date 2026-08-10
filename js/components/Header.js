@@ -1,9 +1,14 @@
 import { renderIcon } from '../utils/icons.js';
+import { checkPushSupport } from '../utils/pushClient.js';
 
 export function renderHeader(state, onStateChange) {
   const activeTab = state.activeTab || 'buy';
   const userName = state.user?.name || '';
   const isMobileDrawerOpen = state.showMobileNav || false;
+  const pushSupport = checkPushSupport();
+  const pushStatusLabel = pushSupport.isSubscribed 
+    ? '🟢 Mobile Push Alerts (ON)' 
+    : '🔔 Enable Mobile Push Alerts';
 
   return `
     <!-- Top Announcement & Currency Utility Bar -->
@@ -131,6 +136,10 @@ export function renderHeader(state, onStateChange) {
           <a href="#" class="${activeTab === 'agents' ? 'active' : ''}" data-nav="agents">Agents Directory</a>
           ${state.user?.role === 'DEALER' ? `<a href="#" class="${activeTab === 'dealer' ? 'active' : ''}" data-nav="dealer">Dealer Portal CRM</a>` : ''}
           ${state.user?.role === 'ADMIN' ? `<a href="#" class="${activeTab === 'dealer' ? 'active' : ''}" data-nav="dealer">Admin Portal & Blog Studio</a>` : ''}
+          <a href="#" id="mobile-push-toggle-btn" style="color:#059669 !important; font-weight:800; background:rgba(16,185,129,0.08); padding:8px 12px; border-radius:8px; border:1px solid rgba(16,185,129,0.25); margin:4px 0; display:flex; align-items:center; justify-content:space-between;">
+            <span>${pushStatusLabel}</span>
+            <span style="font-size:0.75rem; background:#10b981; color:#fff; padding:2px 8px; border-radius:12px; font-weight:700;">TOGGLE</span>
+          </a>
           ${state.user ? `
             <a href="#" id="mobile-user-profile-btn" style="color:var(--forest-dk) !important; font-weight:700;">👤 My Profile & Account Settings (${userName})</a>
             <a href="#" id="mobile-logout-btn" style="color:#EF4444 !important; font-weight:700;">Logout (${userName})</a>

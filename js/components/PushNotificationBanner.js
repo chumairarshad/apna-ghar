@@ -1,10 +1,11 @@
-import { checkPushSupport, subscribeToPushNotifications, dismissPushPrompt } from '../utils/pushClient.js';
+import { checkPushSupport, subscribeToPushNotifications, dismissPushPrompt, isIOS, isStandalone, getDeviceType } from '../utils/pushClient.js';
 
 /**
- * Render the Web Push Notification Opt-in UI Banner
+ * Render the Web Push Notification Opt-in UI Banner (Mobile & Desktop Responsive)
  */
 export function renderPushNotificationBanner(state) {
   const support = checkPushSupport();
+  const deviceType = getDeviceType();
 
   // Do not show banner if already subscribed, denied, dismissed, or unsupported
   if (!support.supported || support.isSubscribed || support.permission === 'denied' || support.isDismissed || state.hidePushBanner) {
@@ -12,23 +13,37 @@ export function renderPushNotificationBanner(state) {
   }
 
   return `
-    <div id="push-notification-banner" class="push-banner-container" style="
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      z-index: 9999;
-      max-width: 420px;
-      width: calc(100% - 32px);
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-      color: #ffffff;
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.4), 0 0 15px rgba(16, 185, 129, 0.15);
-      border-radius: 16px;
-      padding: 20px;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      animation: pushSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    ">
+    <div id="push-notification-banner" class="push-banner-container">
       <style>
+        .push-banner-container {
+          position: fixed;
+          bottom: 24px;
+          right: 24px;
+          z-index: 9999;
+          max-width: 420px;
+          width: calc(100% - 32px);
+          background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+          color: #ffffff;
+          border: 1px solid rgba(16, 185, 129, 0.35);
+          box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(16, 185, 129, 0.2);
+          border-radius: 16px;
+          padding: 20px;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          animation: pushSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @media (max-width: 768px) {
+          .push-banner-container {
+            bottom: 72px !important;
+            left: 12px !important;
+            right: 12px !important;
+            width: auto !important;
+            max-width: none !important;
+            padding: 16px !important;
+            border-radius: 14px !important;
+          }
+        }
+
         @keyframes pushSlideUp {
           from { transform: translateY(100px); opacity: 0; }
           to { transform: translateY(0); opacity: 1; }
@@ -40,7 +55,7 @@ export function renderPushNotificationBanner(state) {
           padding: 10px 18px;
           border-radius: 10px;
           font-weight: 700;
-          font-size: 0.9rem;
+          font-size: 0.88rem;
           cursor: pointer;
           transition: all 0.2s ease;
           display: inline-flex;
@@ -97,20 +112,20 @@ export function renderPushNotificationBanner(state) {
           flex-shrink: 0;
           color: #10b981;
         ">
-          <i data-lucide="bell-ring" style="width:24px; height:24px;"></i>
+          <i data-lucide="smartphone" style="width:24px; height:24px;"></i>
         </div>
 
         <div style="flex: 1; padding-right: 12px;">
-          <h4 style="margin: 0 0 4px 0; font-size: 1.05rem; font-weight: 700; color: #f8fafc; display: flex; align-items: center; gap: 6px;">
-            Get New Property Alerts
+          <h4 style="margin: 0 0 4px 0; font-size: 1.02rem; font-weight: 700; color: #f8fafc; display: flex; align-items: center; gap: 6px;">
+            Get Instant ${deviceType === 'mobile' ? 'Mobile' : 'Property'} Alerts
           </h4>
-          <p style="margin: 0 0 16px 0; font-size: 0.85rem; color: #94a3b8; line-height: 1.45;">
-            Be the first to know when new verified houses, plots, and apartments are published across Pakistan.
+          <p style="margin: 0 0 14px 0; font-size: 0.84rem; color: #94a3b8; line-height: 1.45;">
+            Be the first to receive notifications on your ${deviceType} when verified houses, plots & flats are listed across Pakistan.
           </p>
 
           <div style="display: flex; gap: 10px; flex-wrap: wrap;">
             <button class="push-banner-btn" id="btn-enable-push">
-              <i data-lucide="bell" style="width:16px; height:16px;"></i> Enable Notifications
+              <i data-lucide="bell-ring" style="width:16px; height:16px;"></i> Enable ${deviceType === 'mobile' ? 'Mobile ' : ''}Push Alerts
             </button>
             <button class="push-dismiss-btn" id="btn-dismiss-push">
               Maybe Later
@@ -153,6 +168,13 @@ export function initPushBannerEvents(state, renderApp, showToast) {
       enableBtn.innerHTML = `<i data-lucide="loader" class="spin" style="width:16px; height:16px;"></i> Enabling...`;
       if (window.lucide) window.lucide.createIcons();
 
+      // Check iOS Safari specific notice
+      if (isIOS() && !isStandalone()) {
+        if (showToast) {
+          showToast(`📱 On iOS, tap Safari Share ➔ "Add to Home Screen" to receive background push notifications!`, 6000);
+        }
+      }
+
       const result = await subscribeToPushNotifications();
 
       if (result.success) {
@@ -162,13 +184,13 @@ export function initPushBannerEvents(state, renderApp, showToast) {
       } else {
         if (showToast) {
           if (result.reason === 'denied') {
-            showToast(`⚠️ Notifications are currently disabled. You can enable them from your browser settings.`);
+            showToast(`⚠️ Notifications are currently disabled. You can enable them from your device browser settings.`);
           } else {
             showToast(`⚠️ ${result.message}`);
           }
         }
         enableBtn.disabled = false;
-        enableBtn.innerHTML = `<i data-lucide="bell" style="width:16px; height:16px;"></i> Enable Notifications`;
+        enableBtn.innerHTML = `<i data-lucide="bell" style="width:16px; height:16px;"></i> Enable Push Alerts`;
         if (window.lucide) window.lucide.createIcons();
         if (result.reason === 'denied') {
           handleDismiss();
@@ -177,3 +199,4 @@ export function initPushBannerEvents(state, renderApp, showToast) {
     });
   }
 }
+
