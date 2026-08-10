@@ -34,7 +34,7 @@ export function renderFooter() {
               <li><a href="#" data-nav="buy">${renderIcon('chevron-right', 12)} Properties for Sale</a></li>
               <li><a href="#" data-nav="rent">${renderIcon('chevron-right', 12)} Rental Properties</a></li>
               <li><a href="#" data-nav="projects">${renderIcon('chevron-right', 12)} Housing Megaprojects</a></li>
-              <li><a href="#" data-nav="agents">${renderIcon('chevron-right', 12)} Verified Broker Directory</a></li>
+              <li><a href="#" data-nav="advertise">${renderIcon('chevron-right', 12)} Advertise on Sarmayadar</a></li>
               <li><a href="#" data-nav="dealer">${renderIcon('chevron-right', 12)} Dealer Portal CRM</a></li>
             </ul>
           </div>
@@ -56,7 +56,7 @@ export function renderFooter() {
             <div style="font-size:0.85rem; display:flex; flex-direction:column; gap:0.6rem; color:var(--cream); opacity:0.88;">
               <div style="display:flex; gap:0.5rem; align-items:flex-start;">
                 ${renderIcon('building', 15, 'var(--marigold)', 'margin-top:2px;')}
-                <span>Suite 402, MB Commercial Broadway, DHA Phase 6, Lahore, Pakistan</span>
+                <span>Head office 99 Westwood colony, Thoker, Lahore.</span>
               </div>
               <div style="display:flex; gap:0.5rem; align-items:center;">
                 ${renderIcon('phone-call', 15, 'var(--marigold)')}
@@ -68,7 +68,7 @@ export function renderFooter() {
               </div>
               <div style="display:flex; gap:0.5rem; align-items:center;">
                 ${renderIcon('clock', 15, 'var(--marigold)')}
-                <span>Mon - Sat: 9:00 AM - 8:00 PM</span>
+                <span>Monday to Saturday 9am to 6 pm</span>
               </div>
             </div>
           </div>

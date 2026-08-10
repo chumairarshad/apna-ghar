@@ -130,11 +130,12 @@ header.site-header {
 .main-nav {
   display: flex;
   align-items: center;
+  margin: 0 auto;
 }
 
 .main-nav ul {
   display: flex;
-  gap: 0.95rem;
+  gap: 1.75rem;
   align-items: center;
   list-style: none;
   margin: 0;
@@ -143,17 +144,34 @@ header.site-header {
 }
 
 .main-nav a {
-  font-size: 0.84rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: var(--forest-dk);
   position: relative;
-  padding: 4px 2px;
+  padding: 6px 4px;
   white-space: nowrap;
+  transition: all 0.2s ease;
+  border-radius: 6px;
 }
 
-.main-nav a:hover,
+.main-nav a:hover {
+  color: var(--forest);
+}
+
 .main-nav a.active {
-  color: var(--rani-dk);
+  color: var(--forest-dk);
+  font-weight: 800;
+}
+
+.main-nav a.active::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: var(--forest);
+  border-radius: 4px;
 }
 
 .dealer-nav-badge {

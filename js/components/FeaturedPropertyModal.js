@@ -62,6 +62,10 @@ export function renderFeaturedPropertyModal(state) {
             </button>
           </div>
 
+          <button type="button" class="btn" data-nav="advertise" onclick="document.getElementById('close-featured-btn')?.click();" style="width:100%; margin-top:0.75rem; background:#E8F5E9; color:#15803D; font-weight:800; font-size:0.88rem; padding:10px; border-radius:8px; border:1px solid #A5D6A7; display:flex; align-items:center; justify-content:center; gap:6px; cursor:pointer;">
+            ${renderIcon('sparkles', 16, '#15803D')} Want to Feature Your Property? Explore Packages &rarr;
+          </button>
+
         </div>
 
       </div>

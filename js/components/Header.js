@@ -71,13 +71,11 @@ export function renderHeader(state, onStateChange) {
               <li><a href="#" class="${activeTab === 'buy' ? 'active' : ''}" data-nav="buy">Properties for Sale</a></li>
               <li><a href="#" class="${activeTab === 'rent' ? 'active' : ''}" data-nav="rent">Rental Properties</a></li>
               <li><a href="#" class="${activeTab === 'projects' ? 'active' : ''}" data-nav="projects">Housing Megaprojects</a></li>
-              <li><a href="#" class="${activeTab === 'blogs' ? 'active' : ''}" data-nav="blogs">Blogs & Insights</a></li>
-              <li><a href="#" class="${activeTab === 'tools' ? 'active' : ''}" data-nav="tools">Calculators & Tools</a></li>
-              <li><a href="#" class="${activeTab === 'agents' ? 'active' : ''}" data-nav="agents">Agents Directory</a></li>
+              <li><a href="#" class="${activeTab === 'advertise' ? 'active' : ''}" data-nav="advertise" class="adv-nav-highlight" style="color:var(--marigold-dk); font-weight:800; background:var(--cream); padding:6px 12px; border-radius:20px; border:1px solid rgba(242,167,27,0.4);">📢 Advertise</a></li>
               ${state.user?.role === 'ADMIN' ? `
                 <li>
                   <a href="#" class="${activeTab === 'dealer' ? 'active' : ''}" data-nav="dealer">
-                    Admin Portal <span class="dealer-nav-badge" style="background:#EF4444;">SUPERVISOR</span>
+                    Admin Portal <span class="dealer-nav-badge" style="background:#EF4444; color:#FFF;">SUPERVISOR</span>
                   </a>
                 </li>
               ` : (state.user?.role === 'DEALER' ? `

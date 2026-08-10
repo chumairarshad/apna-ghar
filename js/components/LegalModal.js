@@ -144,7 +144,7 @@ export function renderLegalModal(activeTab) {
 
               <div style="background:#F0FDF4; border-left:4px solid #239C32; padding:1rem; border-radius:8px; margin-top:1.5rem;">
                 <strong>Legal Inquiries & Corporate Contact</strong><br/>
-                Suite 402, MB Commercial Broadway, DHA Phase 6, Lahore.<br/>
+                Head office 99 Westwood colony, Thoker, Lahore.<br/>
                 Email: <a href="mailto:contact@sarmayadar.com" style="color:#239C32; font-weight:700;">contact@sarmayadar.com</a> | Phone: <strong>+92 332 7507866</strong>.
               </div>
             </div>

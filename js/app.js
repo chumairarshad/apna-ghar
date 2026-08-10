@@ -36,12 +36,41 @@ import { renderArticleReaderModal } from './components/ArticleReaderModal.js';
 import { renderLegalModal } from './components/LegalModal.js';
 import { renderMobileBottomNav } from './components/MobileBottomNav.js';
 import { renderBlogsPage } from './components/BlogsPage.js';
+import { renderAdvertisePage } from './components/AdvertisePage.js';
+
+// Tab Persistence Helper Functions (Hash & LocalStorage Sync)
+function getSavedActiveTab() {
+  if (typeof window !== 'undefined') {
+    const validTabs = ['buy', 'rent', 'projects', 'tools', 'agents', 'blogs', 'advertise', 'dealer'];
+    const hash = window.location.hash.replace('#', '').toLowerCase();
+    if (validTabs.includes(hash)) {
+      return hash;
+    }
+    const saved = localStorage.getItem('Sarmayadar_active_tab');
+    if (saved && validTabs.includes(saved)) {
+      return saved;
+    }
+  }
+  return 'buy';
+}
+
+function setActiveTab(tabName) {
+  const validTabs = ['buy', 'rent', 'projects', 'tools', 'agents', 'blogs', 'advertise', 'dealer'];
+  if (!validTabs.includes(tabName)) return;
+  state.activeTab = tabName;
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('Sarmayadar_active_tab', tabName);
+    if (window.location.hash !== `#${tabName}`) {
+      history.replaceState(null, '', `#${tabName}`);
+    }
+  }
+}
 
 // Application State
 const state = {
   properties: [],
   editingProperty: null,
-  activeTab: 'buy', // buy | rent | projects | tools | agents | dealer | overseas
+  activeTab: getSavedActiveTab(), // buy | rent | projects | tools | agents | dealer | blogs | advertise
   currency: 'PKR',
   unit: 'Marla',
   viewMode: 'grid', // grid | map
@@ -216,6 +245,19 @@ async function initApp() {
     state.user = null;
   }
 
+  // Ensure activeTab is persisted in LocalStorage & URL Hash
+  setActiveTab(state.activeTab);
+
+  // Hashchange listener for browser back/forward and URL navigation
+  window.addEventListener('hashchange', () => {
+    const hash = window.location.hash.replace('#', '').toLowerCase();
+    const validTabs = ['buy', 'rent', 'projects', 'tools', 'agents', 'blogs', 'advertise', 'dealer'];
+    if (validTabs.includes(hash) && state.activeTab !== hash) {
+      setActiveTab(hash);
+      renderApp();
+    }
+  });
+
   renderApp();
   setupEventListeners();
 
@@ -286,6 +328,10 @@ function renderApp() {
     } else if (state.activeTab === 'blogs') {
       mainContentHTML = `
         ${renderBlogsPage(state)}
+      `;
+    } else if (state.activeTab === 'advertise') {
+      mainContentHTML = `
+        ${renderAdvertisePage(state)}
       `;
     } else if (state.activeTab === 'dealer') {
       mainContentHTML = `
@@ -361,7 +407,11 @@ function renderApp() {
 }
 
 function onStateChange(key, value) {
-  state[key] = value;
+  if (key === 'activeTab') {
+    setActiveTab(value);
+  } else {
+    state[key] = value;
+  }
   renderApp();
 }
 
@@ -542,10 +592,13 @@ function setupEventListeners() {
       if (catalog) catalog.scrollIntoView({ behavior: 'smooth' });
     }
 
-    // Featured Property Modal Triggers
+    // Featured Property Modal Triggers -> Redirect to Advertise Packages Page
     if (e.target.closest('#open-featured-modal-btn')) {
-      state.showFeaturedModal = true;
+      e.preventDefault();
+      setActiveTab('advertise');
+      state.showFeaturedModal = false;
       renderApp();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     if (e.target.closest('#close-featured-btn') || e.target.id === 'featured-modal-overlay') {
@@ -568,7 +621,7 @@ function setupEventListeners() {
 
     // Mobile Bottom Navigation Bar Actions (OLX Style)
     if (e.target.closest('#mobile-nav-home-btn')) {
-      state.activeTab = 'buy';
+      setActiveTab('buy');
       state.searchFilters.purpose = 'sale';
       state.showMobileNav = false;
       renderApp();
@@ -613,7 +666,7 @@ function setupEventListeners() {
 
     if (e.target.closest('#mobile-nav-myads-btn')) {
       if (state.user?.role === 'DEALER' || state.user?.role === 'ADMIN') {
-        state.activeTab = 'dealer';
+        setActiveTab('dealer');
         state.dealerTab = 'inventory';
         renderApp();
       } else {
@@ -624,7 +677,7 @@ function setupEventListeners() {
 
     if (e.target.closest('#mobile-nav-account-btn')) {
       if (state.user) {
-        state.activeTab = 'dealer';
+        setActiveTab('dealer');
         state.dealerTab = 'profile';
         renderApp();
         showToast(`👤 Welcome ${state.user.name}! Opened Profile Settings.`);
@@ -649,7 +702,7 @@ function setupEventListeners() {
         renderApp();
         return;
       }
-      state.activeTab = tab;
+      setActiveTab(tab);
       state.showMobileNav = false;
       if (tab === 'buy') state.searchFilters.purpose = 'sale';
       if (tab === 'rent') state.searchFilters.purpose = 'rent';
@@ -770,11 +823,13 @@ function setupEventListeners() {
       renderApp();
     }
 
-    // Featured Property Ad Modal Controls
+    // Featured Property Ad Modal Controls -> Redirect to Advertise Packages
     if (e.target.closest('#open-featured-modal-btn')) {
       e.preventDefault();
-      state.showFeaturedModal = true;
+      setActiveTab('advertise');
+      state.showFeaturedModal = false;
       renderApp();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     if (e.target.closest('#close-featured-btn') || e.target.closest('#close-ad-view-prop-btn') || e.target.id === 'featured-modal-overlay') {
@@ -2099,6 +2154,76 @@ let activityDebounceTimer = null;
     }
   }, { passive: true });
 });
+
+// Advertise Page Global Handlers
+window.scrollToAdvSection = function(secId) {
+  const target = document.getElementById('adv-sec-' + secId);
+  if (target) {
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  document.querySelectorAll('.adv-audience-tab').forEach(tab => tab.classList.remove('active'));
+  const activeTabBtn = document.getElementById('tab-btn-' + secId);
+  if (activeTabBtn) activeTabBtn.classList.add('active');
+};
+
+window.handleAdvBuy = function(packageName, price) {
+  showToast(`🛒 Selected: ${packageName} (PKR ${price.toLocaleString()}). Redirecting to Checkout...`);
+  if (!state.user) {
+    setTimeout(() => {
+      state.showAuthModal = true;
+      renderApp();
+    }, 1200);
+  } else {
+    setTimeout(() => {
+      state.showPostWizard = true;
+      renderApp();
+    }, 1200);
+  }
+};
+
+window.updateAdvCalc = function(budgetVal) {
+  const budget = parseInt(budgetVal, 10);
+  const displayEl = document.getElementById('adv-calc-budget-display');
+  const viewsEl = document.getElementById('calc-out-views');
+  const leadsEl = document.getElementById('calc-out-leads');
+  const planEl = document.getElementById('calc-out-plan');
+
+  if (displayEl) displayEl.innerText = `PKR ${budget.toLocaleString()}`;
+  
+  const estViews = Math.round((budget / 50000) * 85000);
+  const minLeads = Math.round((budget / 50000) * 180);
+  const maxLeads = Math.round((budget / 50000) * 240);
+
+  if (viewsEl) viewsEl.innerText = `${estViews.toLocaleString()}+`;
+  if (leadsEl) leadsEl.innerText = `${minLeads} - ${maxLeads}`;
+
+  let recommended = 'Basic Listing';
+  if (budget >= 150000) recommended = 'Platinum Master';
+  else if (budget >= 65000) recommended = 'Agency Gold Pro';
+  else if (budget >= 25000) recommended = 'Agency Silver';
+  else if (budget >= 14000) recommended = 'Super Hot Listing';
+  else if (budget >= 7000) recommended = 'Hot Listing';
+
+  if (planEl) planEl.innerText = recommended;
+};
+
+window.handleAdvFormSubmit = function(e) {
+  e.preventDefault();
+  const name = document.getElementById('adv-input-name')?.value || 'Valued User';
+  const phone = document.getElementById('adv-input-phone')?.value || '';
+  const pkg = document.getElementById('adv-input-package')?.value || '';
+
+  showToast(`✅ Thank you ${name}! Your inquiry for ${pkg} has been submitted. Our Sales Advisor will call ${phone} within 2 hours.`);
+  const form = document.getElementById('adv-contact-form');
+  if (form) form.reset();
+};
+
+window.toggleAdvFaq = function(el) {
+  const faqItem = el.closest('.adv-faq-item');
+  if (faqItem) {
+    faqItem.classList.toggle('open');
+  }
+};
 
 // Start application when DOM is ready or immediately if already loaded
 if (document.readyState === 'loading') {
