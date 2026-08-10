@@ -47,6 +47,7 @@ model User {
   // Relations
   properties   Property[]
   leads        Lead[]     @relation("DealerLeads")
+  pushSubscriptions PushSubscription[]
 
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
@@ -103,3 +104,21 @@ model Lead {
 
   @@map("leads")
 }
+
+model PushSubscription {
+  id        String   @id @default(uuid())
+  userId    String?  @map("user_id")
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  userAgent String?  @map("user_agent")
+  isActive  Boolean  @default(true) @map("is_active")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("push_subscriptions")
+}
+

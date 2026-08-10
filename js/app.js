@@ -37,6 +37,8 @@ import { renderLegalModal } from './components/LegalModal.js';
 import { renderMobileBottomNav } from './components/MobileBottomNav.js';
 import { renderBlogsPage } from './components/BlogsPage.js';
 import { renderAdvertisePage } from './components/AdvertisePage.js';
+import { renderPushNotificationBanner, initPushBannerEvents } from './components/PushNotificationBanner.js';
+import { registerServiceWorker } from './utils/pushClient.js';
 
 // Tab Persistence Helper Functions (Hash & LocalStorage Sync)
 function getSavedActiveTab() {
@@ -280,6 +282,36 @@ async function initApp() {
     console.warn('Neon DB sync notice:', err);
   }
 
+  // Auto-register Web Push Service Worker if supported
+  if ('serviceWorker' in navigator && 'PushManager' in window) {
+    registerServiceWorker().catch(err => console.warn('SW auto-registration notice:', err.message));
+
+    // Listen for Service Worker messages (e.g. notification clicked)
+    navigator.serviceWorker.addEventListener('message', (event) => {
+      if (event.data && event.data.type === 'OPEN_PROPERTY_DETAIL' && event.data.propertyId) {
+        const propId = event.data.propertyId;
+        const matchedProp = state.properties.find(p => p.id === propId);
+        if (matchedProp) {
+          state.selectedProperty = normalizeProperty(matchedProp);
+          renderApp();
+        }
+      }
+    });
+  }
+
+  // Check URL Query Parameters for direct property detail link from push notification
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetPropertyId = urlParams.get('propertyId');
+    if (targetPropertyId) {
+      const matchedProp = state.properties.find(p => p.id === targetPropertyId);
+      if (matchedProp) {
+        state.selectedProperty = normalizeProperty(matchedProp);
+        renderApp();
+      }
+    }
+  } catch (e) {}
+
   // Auto-trigger Featured Property Popup Ad 10 seconds after opening website
   setTimeout(() => {
     if (!state.showFeaturedModal && !state.selectedProperty && !state.showAuthModal && !state.showPostWizard) {
@@ -365,9 +397,15 @@ function renderApp() {
       <!-- Mobile Bottom Navigation Bar (OLX Style) -->
       ${renderMobileBottomNav(state)}
 
+      <!-- Web Push Notification Banner -->
+      ${renderPushNotificationBanner(state)}
+
       <!-- Toast Notifications Container -->
       <div id="toast-container"></div>
     `;
+
+    // Initialize Push Banner Event Listeners
+    initPushBannerEvents(state, renderApp, showToast);
 
     // Re-initialize Lucide Icons
     if (window.lucide) {

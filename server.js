@@ -8,9 +8,13 @@ import authRoutes from './server/routes/auth.js';
 import propertyRoutes from './server/routes/properties.js';
 import adminRoutes from './server/routes/admin.js';
 import uploadRoutes from './server/routes/upload.js';
+import pushRoutes from './server/routes/push.js';
 import { initDb } from './server/db.js';
 
 dotenv.config();
+
+// Initialize DB schema (users, properties, push_subscriptions tables)
+initDb();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -34,6 +38,9 @@ app.use('/admin', adminRoutes);
 
 app.use('/api/upload', uploadRoutes);
 app.use('/upload', uploadRoutes);
+
+app.use('/api/push', pushRoutes);
+app.use('/push', pushRoutes);
 
 // Serve static files (index.html, css, js)
 app.use(express.static(__dirname));

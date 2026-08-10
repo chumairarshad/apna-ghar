@@ -1,8 +1,16 @@
 import express from 'express';
 import { pool } from '../db.js';
 import { authenticateToken, requireRole } from '../middleware.js';
+import { sendNewPropertyNotification } from '../services/pushService.js';
 
 const router = express.Router();
+
+// Helper to normalize active status checks
+function isPublishedStatus(status) {
+  if (!status) return false;
+  const s = String(status).toLowerCase().trim();
+  return s === 'active' || s === 'published' || s === 'public';
+}
 
 // 1. PUBLIC: Search & List All Active Properties
 router.get('/', async (req, res) => {
@@ -13,7 +21,7 @@ router.get('/', async (req, res) => {
       SELECT p.*, u.full_name as agent_name, u.agency_name, u.phone as agent_phone, u.badge as agent_badge
       FROM properties p
       LEFT JOIN users u ON p.dealer_id = u.id
-      WHERE p.status = 'active'
+      WHERE p.status = 'active' OR p.status = 'published' OR p.status = 'public'
     `;
     const params = [];
 
@@ -53,7 +61,7 @@ router.post('/', async (req, res) => {
     const {
       id, title, purpose = 'sale', category = 'house', city, location, address,
       price, sizeMarla, bedrooms = 4, bathrooms = 5, description = '', images = [], features = [],
-      agentName, agentPhone, agencyName
+      agentName, agentPhone, agencyName, status = 'active'
     } = req.body;
 
     if (!title || !price || !city || !location) {
@@ -62,29 +70,44 @@ router.post('/', async (req, res) => {
 
     const propId = id || `prop-${Date.now()}`;
 
+    // Check pre-existing status to prevent duplicate notifications on edit
+    const existingCheck = await pool.query('SELECT status FROM properties WHERE id = $1', [propId]);
+    const oldStatus = existingCheck.rows.length > 0 ? existingCheck.rows[0].status : null;
+
     const result = await pool.query(
       `INSERT INTO properties 
        (id, title, purpose, category, city, location, address, price, size_marla, bedrooms, bathrooms, description, images, features, agent_name, agent_phone, agency_name, status)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, 'active')
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
        ON CONFLICT (id) DO UPDATE SET
          title = EXCLUDED.title,
          price = EXCLUDED.price,
          location = EXCLUDED.location,
          address = EXCLUDED.address,
          images = EXCLUDED.images,
-         features = EXCLUDED.features
+         features = EXCLUDED.features,
+         status = EXCLUDED.status
        RETURNING *`,
       [
         propId, title, purpose, category, city, location, address || location,
         price, sizeMarla || 10, bedrooms, bathrooms, description, images, features,
-        agentName || 'Verified Agent', agentPhone || '+92 300 0000000', agencyName || 'Sarmayadar Real Estate'
+        agentName || 'Verified Agent', agentPhone || '+92 300 0000000', agencyName || 'Sarmayadar Real Estate',
+        status
       ]
     );
+
+    const savedProperty = result.rows[0];
+
+    // Trigger push notification ONLY if status transitions to published/active
+    if (isPublishedStatus(savedProperty.status) && !isPublishedStatus(oldStatus)) {
+      sendNewPropertyNotification(savedProperty).catch(err => {
+        console.warn('Async Push notification notice:', err.message);
+      });
+    }
 
     return res.status(201).json({
       success: true,
       message: 'Property saved successfully in Neon PostgreSQL Database.',
-      property: result.rows[0]
+      property: savedProperty
     });
   } catch (error) {
     console.error('Create property error in Neon DB:', error);
@@ -110,7 +133,8 @@ router.post('/dealer/properties', authenticateToken, requireRole('DEALER', 'ADMI
   try {
     const {
       title, purpose = 'sale', category = 'house', city, location, address,
-      price, sizeMarla, bedrooms = 4, bathrooms = 5, description, images = [], features = []
+      price, sizeMarla, bedrooms = 4, bathrooms = 5, description, images = [], features = [],
+      status = 'active'
     } = req.body;
 
     if (!title || !price || !city || !location) {
@@ -120,18 +144,27 @@ router.post('/dealer/properties', authenticateToken, requireRole('DEALER', 'ADMI
     const result = await pool.query(
       `INSERT INTO properties 
        (dealer_id, title, purpose, category, city, location, address, price, size_marla, bedrooms, bathrooms, description, images, features, status)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, 'active')
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
        RETURNING *`,
       [
         req.user.userId, title, purpose, category, city, location, address || location,
-        price, sizeMarla || 10, bedrooms, bathrooms, description || '', images, features
+        price, sizeMarla || 10, bedrooms, bathrooms, description || '', images, features, status
       ]
     );
+
+    const savedProperty = result.rows[0];
+
+    // Trigger push notification for new publication
+    if (isPublishedStatus(savedProperty.status)) {
+      sendNewPropertyNotification(savedProperty).catch(err => {
+        console.warn('Async Push notification notice:', err.message);
+      });
+    }
 
     return res.status(201).json({
       success: true,
       message: 'Property created successfully.',
-      property: result.rows[0]
+      property: savedProperty
     });
   } catch (error) {
     console.error('Create property error:', error);
@@ -145,8 +178,8 @@ router.put('/dealer/properties/:id', authenticateToken, requireRole('DEALER', 'A
     const { id } = req.params;
     const { title, purpose, category, city, location, address, price, sizeMarla, bedrooms, bathrooms, description, images, features, status } = req.body;
 
-    // Check ownership
-    const check = await pool.query('SELECT dealer_id FROM properties WHERE id = $1', [id]);
+    // Check ownership & existing status
+    const check = await pool.query('SELECT dealer_id, status FROM properties WHERE id = $1', [id]);
     if (check.rows.length === 0) {
       return res.status(404).json({ success: false, message: 'Property not found.' });
     }
@@ -154,6 +187,8 @@ router.put('/dealer/properties/:id', authenticateToken, requireRole('DEALER', 'A
     if (req.user.role !== 'ADMIN' && check.rows[0].dealer_id !== req.user.userId) {
       return res.status(403).json({ success: false, message: 'Unauthorized to edit this property.' });
     }
+
+    const oldStatus = check.rows[0].status;
 
     const result = await pool.query(
       `UPDATE properties SET
@@ -177,7 +212,16 @@ router.put('/dealer/properties/:id', authenticateToken, requireRole('DEALER', 'A
       [title, purpose, category, city, location, address, price, sizeMarla, bedrooms, bathrooms, description, images, features, status, id]
     );
 
-    return res.json({ success: true, message: 'Property updated.', property: result.rows[0] });
+    const updatedProperty = result.rows[0];
+
+    // Trigger push notification ONLY when status transitions from non-active to active
+    if (isPublishedStatus(updatedProperty.status) && !isPublishedStatus(oldStatus)) {
+      sendNewPropertyNotification(updatedProperty).catch(err => {
+        console.warn('Async Push notification notice:', err.message);
+      });
+    }
+
+    return res.json({ success: true, message: 'Property updated.', property: updatedProperty });
   } catch (error) {
     console.error('Update property error:', error);
     return res.status(500).json({ success: false, message: 'Error updating property.' });
