@@ -723,16 +723,7 @@ function showToast(message) {
 
 function canUserPostProperty(state) {
   if (!state.user) {
-    showToast('🔒 Please sign in or register an account to post a property listing.');
-    state.authMode = 'signup';
-    state.authIsRegister = true;
-    state.authIsSignup = true;
-    state.showAuthModal = false;
-    state.showMobileNav = false;
-    setActiveTab('register');
-    renderApp();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    return false;
+    return true; // Allow guests to fill out property details form first
   }
 
   // Count existing properties posted by this user
@@ -743,8 +734,8 @@ function canUserPostProperty(state) {
     p.postedByEmail === state.user.email
   ).length;
 
-  if (state.user.role !== 'DEALER' && state.user.role !== 'ADMIN' && userListingsCount >= 5) {
-    showToast('⚠️ Free accounts are limited to 5 property listings. Upgrade to a Dealer account for unlimited listings!');
+  if (state.user.role !== 'DEALER' && state.user.role !== 'ADMIN' && userListingsCount >= 15) {
+    showToast('⚠️ Free accounts are limited to 15 property listings. Upgrade to a Dealer account for unlimited listings!');
     state.showAuthModal = true;
     state.authRole = 'DEALER';
     state.authIsRegister = true;
@@ -761,10 +752,12 @@ function setupEventListeners() {
     // Top Bar + Mobile Drawer Post Free Listing Trigger
     if (e.target.closest('#top-bar-post-free-btn') || e.target.closest('#mobile-drawer-post-free-btn')) {
       state.showMobileNav = false;
-      if (canUserPostProperty(state)) {
-        setActiveTab('post-property');
-        renderApp();
-      }
+      state.editingProperty = null;
+      state.uploadedImages = [];
+      state.wizardStep = 1;
+      setActiveTab('post-property');
+      renderApp();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
@@ -945,12 +938,12 @@ function setupEventListeners() {
 
     if (e.target.closest('#mobile-nav-sell-btn')) {
       e.preventDefault();
-      if (!canUserPostProperty(state)) return;
       state.editingProperty = null;
       state.uploadedImages = [];
-      state.showPostWizard = true;
       state.wizardStep = 1;
+      setActiveTab('post-property');
       renderApp();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     if (e.target.closest('#mobile-nav-myads-btn')) {
@@ -1246,18 +1239,10 @@ function setupEventListeners() {
     // Post Property Trigger -> Navigates to Dedicated Page (/post-property)
     if (e.target.closest('#open-post-property-btn') || e.target.closest('#dealer-post-btn') || e.target.id === 'footer-link-post') {
       e.preventDefault();
-      if (state.user?.role !== 'DEALER' && state.user?.role !== 'ADMIN') {
-        showToast('⚠️ Only verified Dealers can post properties. Please sign in as a Dealer.');
-        state.activeTab = 'login';
-        if (window.location.hash !== '#login') history.replaceState(null, '', '#login');
-        renderApp();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        return;
-      }
       state.editingProperty = null;
       state.uploadedImages = [];
-      state.activeTab = 'post-property';
-      if (window.location.hash !== '#post-property') history.replaceState(null, '', '#post-property');
+      state.wizardStep = 1;
+      setActiveTab('post-property');
       renderApp();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -1909,16 +1894,35 @@ function setupEventListeners() {
             views: 1
           };
 
-          saveCustomProperty(newProp);
-          savePropertyToApi(newProp); // Save to Neon PostgreSQL API
-          state.properties = [newProp, ...state.properties];
-          state.showPostWizard = false;
-          state.uploadedImages = [];
-          state.activeTab = 'dashboard';
-          state.dashboardTab = 'listings';
-          showToast('🎉 Property published live successfully!');
-          renderApp();
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+          if (!state.user) {
+            // User is not signed in -> Save pending listing and prompt sign in / sign up
+            state.pendingListingData = newProp;
+            state.showPostWizard = false;
+            state.uploadedImages = [];
+            state.showAuthModal = true;
+            state.authMode = 'signup';
+            state.authIsRegister = true;
+            state.authIsSignup = true;
+            showToast('🔒 Property details saved! Please sign in or create an account to publish your property live.');
+            renderApp();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          } else {
+            // User is signed in -> Publish live immediately
+            newProp.ownerEmail = state.user.email;
+            newProp.postedByUserId = state.user.userId || state.user.id;
+            newProp.postedByEmail = state.user.email;
+            saveCustomProperty(newProp);
+            savePropertyToApi(newProp); // Save to Neon PostgreSQL API
+            state.properties = [newProp, ...state.properties];
+            state.showPostWizard = false;
+            state.uploadedImages = [];
+            state.selectedPropertyId = newProp.id;
+            state.selectedProperty = newProp;
+            setActiveTab('property-detail');
+            showToast('🎉 Property published live successfully!');
+            renderApp();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
         }
       })();
     }
@@ -2186,6 +2190,36 @@ function setupEventListeners() {
       localStorage.setItem('Sarmayadar_registered_users', JSON.stringify(users));
     }
 
+    function processPendingListing(userObj) {
+      if (state.pendingListingData && userObj) {
+        const pending = state.pendingListingData;
+        pending.ownerEmail = userObj.email;
+        pending.postedByUserId = userObj.userId || userObj.id || `user-${Date.now()}`;
+        pending.postedByEmail = userObj.email;
+        if (pending.agency) {
+          pending.agency.name = userObj.agencyName || userObj.name || pending.agency.name;
+          pending.agency.agentName = userObj.name || pending.agency.agentName;
+          if (userObj.phone) {
+            pending.agency.phone = userObj.phone;
+            pending.agency.whatsapp = userObj.phone.replace(/[^0-9]/g, '');
+          }
+        }
+        saveCustomProperty(pending);
+        savePropertyToApi(pending);
+        state.properties = [pending, ...(state.properties || [])];
+        state.pendingListingData = null;
+        state.showAuthModal = false;
+        state.selectedPropertyId = pending.id;
+        state.selectedProperty = pending;
+        setActiveTab('property-detail');
+        showToast(`🎉 Account verified! Your property listing "${pending.title}" has been published live!`);
+        renderApp();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return true;
+      }
+      return false;
+    }
+
     // Forgot Password Form Submit
     if (e.target.id === 'forgot-password-form' || e.target.closest('#forgot-password-form')) {
       if (e.type === 'submit' || e.target.closest('#auth-forgot-submit-btn')) {
@@ -2315,15 +2349,18 @@ function setupEventListeners() {
                 };
                 localStorage.setItem('Sarmayadar_jwt_token', JSON.stringify(userObj));
                 state.user = userObj;
-                state.showAuthModal = false;
-                state.authMode = 'login';
-                state.authIsRegister = false;
-                state.authIsSignup = false;
-                state.activeTab = 'dashboard';
-                state.dashboardTab = 'dashboard';
-                if (window.location.hash !== '#dashboard') history.replaceState(null, '', '#dashboard');
-                showToast(`🎉 Registration complete! Welcome to your Dashboard, ${userObj.name}.`);
-                renderApp();
+
+                if (!processPendingListing(userObj)) {
+                  state.showAuthModal = false;
+                  state.authMode = 'login';
+                  state.authIsRegister = false;
+                  state.authIsSignup = false;
+                  state.activeTab = 'dashboard';
+                  state.dashboardTab = 'dashboard';
+                  if (window.location.hash !== '#dashboard') history.replaceState(null, '', '#dashboard');
+                  showToast(`🎉 Registration complete! Welcome to your Dashboard, ${userObj.name}.`);
+                  renderApp();
+                }
               } else if (res.status === 400 && data && data.message) {
                 if (data.message.toLowerCase().includes('already exists')) {
                   showToast(`⚠️ Account already exists for ${emailInput}! Switching to Sign In...`);
@@ -2356,15 +2393,18 @@ function setupEventListeners() {
                 };
                 localStorage.setItem('Sarmayadar_jwt_token', JSON.stringify(userObj));
                 state.user = userObj;
-                state.showAuthModal = false;
-                state.authMode = 'login';
-                state.authIsRegister = false;
-                state.authIsSignup = false;
-                state.activeTab = 'dashboard';
-                state.dashboardTab = 'dashboard';
-                if (window.location.hash !== '#dashboard') history.replaceState(null, '', '#dashboard');
-                showToast(`🎉 Registration complete! Welcome to your Dashboard, ${nameInput}.`);
-                renderApp();
+
+                if (!processPendingListing(userObj)) {
+                  state.showAuthModal = false;
+                  state.authMode = 'login';
+                  state.authIsRegister = false;
+                  state.authIsSignup = false;
+                  state.activeTab = 'dashboard';
+                  state.dashboardTab = 'dashboard';
+                  if (window.location.hash !== '#dashboard') history.replaceState(null, '', '#dashboard');
+                  showToast(`🎉 Registration complete! Welcome to your Dashboard, ${nameInput}.`);
+                  renderApp();
+                }
               }
             } catch (err) {
               console.error('Register fetch error:', err);
@@ -2388,15 +2428,18 @@ function setupEventListeners() {
               };
               localStorage.setItem('Sarmayadar_jwt_token', JSON.stringify(userObj));
               state.user = userObj;
-              state.showAuthModal = false;
-              state.authMode = 'login';
-              state.authIsRegister = false;
-              state.authIsSignup = false;
-              state.activeTab = 'dashboard';
-              state.dashboardTab = 'dashboard';
-              if (window.location.hash !== '#dashboard') history.replaceState(null, '', '#dashboard');
-              showToast(`🎉 Registration complete! Welcome to your Dashboard, ${nameInput}.`);
-              renderApp();
+
+              if (!processPendingListing(userObj)) {
+                state.showAuthModal = false;
+                state.authMode = 'login';
+                state.authIsRegister = false;
+                state.authIsSignup = false;
+                state.activeTab = 'dashboard';
+                state.dashboardTab = 'dashboard';
+                if (window.location.hash !== '#dashboard') history.replaceState(null, '', '#dashboard');
+                showToast(`🎉 Registration complete! Welcome to your Dashboard, ${nameInput}.`);
+                renderApp();
+              }
             }
           })();
 
@@ -2427,11 +2470,14 @@ function setupEventListeners() {
                 };
                 localStorage.setItem('Sarmayadar_jwt_token', JSON.stringify(userObj));
                 state.user = userObj;
-                state.showAuthModal = false;
-                state.activeTab = 'dashboard';
-                state.dashboardTab = 'dashboard';
-                showToast(`🔒 Signed in successfully as ${userObj.role} (${userObj.name})!`);
-                renderApp();
+
+                if (!processPendingListing(userObj)) {
+                  state.showAuthModal = false;
+                  state.activeTab = 'dashboard';
+                  state.dashboardTab = 'dashboard';
+                  showToast(`🔒 Signed in successfully as ${userObj.role} (${userObj.name})!`);
+                  renderApp();
+                }
                 return;
               }
             } catch (err) {
@@ -2472,11 +2518,14 @@ function setupEventListeners() {
 
               localStorage.setItem('Sarmayadar_jwt_token', JSON.stringify(tokenPayload));
               state.user = tokenPayload;
-              state.showAuthModal = false;
-              state.activeTab = 'dashboard';
-              state.dashboardTab = 'dashboard';
-              showToast(`🔓 Signed in successfully as ${tokenPayload.role} (${tokenPayload.name})!`);
-              renderApp();
+
+              if (!processPendingListing(tokenPayload)) {
+                state.showAuthModal = false;
+                state.activeTab = 'dashboard';
+                state.dashboardTab = 'dashboard';
+                showToast(`🔓 Signed in successfully as ${tokenPayload.role} (${tokenPayload.name})!`);
+                renderApp();
+              }
               return;
             } else if (apiData && apiData.message) {
               showToast(`❌ ${apiData.message}`);
