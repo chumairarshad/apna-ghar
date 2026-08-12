@@ -77,10 +77,18 @@ export function renderSplashScreen() {
 }
 
 export function triggerSplashAnimation() {
-  const splashElements = document.querySelectorAll('#bismillah-preloader, #splash-screen, .bismillah-preloader-box');
-  splashElements.forEach(el => {
-    try { el.remove(); } catch (e) {}
-  });
+  const preloader = document.getElementById('bismillah-preloader');
+  if (preloader) {
+    const bar = preloader.querySelector('.bismillah-progress-fill');
+    if (bar) bar.style.width = '100%';
+    setTimeout(() => {
+      preloader.style.opacity = '0';
+      preloader.style.visibility = 'hidden';
+      setTimeout(() => {
+        try { preloader.remove(); } catch (e) {}
+      }, 500);
+    }, 450);
+  }
 }
 
 export function triggerQuickPagePreloader(callback) {
