@@ -24,6 +24,12 @@ export function renderPropertyDetailPage(state) {
   const avgMarlaPrice = prop.sizeMarla > 0 ? Math.round(prop.price / prop.sizeMarla) : 0;
   const isVirtualTourOpen = state.showVirtualTourSection || false;
 
+  const isOwnerOrAdmin = Boolean(state.user && (
+    state.user.role === 'ADMIN' ||
+    (state.user.id && (rawProp.postedByUserId === state.user.id || rawProp.postedByUserId === state.user.userId)) ||
+    (state.user.email && (rawProp.ownerEmail === state.user.email || rawProp.postedByEmail === state.user.email || rawProp.agency?.email === state.user.email))
+  ));
+
   return `
     <div class="property-detail-page-wrapper" style="background: var(--cream); min-height: 90vh; padding-bottom: 4rem;">
       <div class="container" style="padding-top: 1.5rem;">
@@ -46,9 +52,11 @@ export function renderPropertyDetailPage(state) {
             <a href="#buy" class="btn btn-outline btn-sm" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 700; background: var(--paper); border: 2px solid var(--forest-dk); border-radius: 8px; padding: 6px 14px; text-decoration: none; color: var(--forest-dk);">
               ${renderIcon('arrow-left', 14)} Back to Search
             </a>
-            <button type="button" class="btn btn-sm delete-property-btn" data-id="${prop.id}" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 800; background: #EF4444; color: #ffffff; border: 2px solid #DC2626; border-radius: 8px; padding: 6px 14px; cursor: pointer;">
-              ${renderIcon('trash-2', 14)} Delete Listing
-            </button>
+            ${isOwnerOrAdmin ? `
+              <button type="button" class="btn btn-sm delete-property-btn" data-id="${prop.id}" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 800; background: #EF4444; color: #ffffff; border: 2px solid #DC2626; border-radius: 8px; padding: 6px 14px; cursor: pointer;">
+                ${renderIcon('trash-2', 14)} Delete Listing
+              </button>
+            ` : ''}
           </div>
         </div>
 
