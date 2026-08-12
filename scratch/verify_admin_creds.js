@@ -20,19 +20,16 @@ async function verifyAdminCreds() {
     console.log(`  Status: ${user.status || 'active'}, Suspended: ${user.is_suspended || false}`);
     console.log(`  Password Hash: ${user.password_hash ? user.password_hash.substring(0, 20) + '...' : 'NULL'}`);
 
-    // Check with candidate passwords
+    // Check with candidate passwords from environment variables
     const candidatePasswords = [
       process.env.ADMIN_SEED_PASSWORD,
-      'AdminSecretPass2026!',
-      'AdminPassword123!',
-      'admin123',
-      'Admin123!'
+      process.env.ADMIN_PASSWORD
     ].filter(Boolean);
 
     for (const pwd of candidatePasswords) {
       const match = await bcrypt.compare(pwd, user.password_hash);
       if (match) {
-        console.log(`  ✅ PASSWORD MATCH FOUND: "${pwd}"`);
+        console.log(`  ✅ PASSWORD MATCH CONFIRMED AGAINST ENVIRONMENT VARIABLE`);
       }
     }
   }

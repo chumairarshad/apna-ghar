@@ -145,7 +145,10 @@ export async function initDb() {
     `);
 
     // Seed Initial Super Admin Account if not existing
-    const adminPassword = process.env.ADMIN_SEED_PASSWORD || process.env.ADMIN_PASSWORD || 'AdminSecretPass2026!';
+    const adminPassword = process.env.ADMIN_SEED_PASSWORD || process.env.ADMIN_PASSWORD;
+    if (!adminPassword) {
+      throw new Error('ADMIN_SEED_PASSWORD environment variable must be defined.');
+    }
     const adminHash = bcrypt.hashSync(adminPassword, 10);
     await pool.query(`
       INSERT INTO users (full_name, email, password_hash, phone, role, agency_name, city, badge, is_verified, status, is_suspended)

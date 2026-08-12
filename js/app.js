@@ -2505,18 +2505,6 @@ function setupEventListeners() {
       }
     }
 
-    // Auto-fill Admin Credentials Button Handler
-    const fillAdminBtn = e.target.closest('#btn-fill-admin-creds');
-    if (fillAdminBtn) {
-      e.preventDefault();
-      const emailField = document.getElementById('admin-page-email');
-      const passField = document.getElementById('admin-page-password');
-      if (emailField) emailField.value = 'admin@sarmayadar.com';
-      if (passField) passField.value = 'AdminSecretPass2026!';
-      showToast('🔑 Admin credentials auto-filled! Click "Authorize & Launch Admin Portal".');
-      return;
-    }
-
     // Admin Gateway Login Form Submit (/admin-login)
     if (e.target.id === 'admin-page-login-form' || e.target.closest('#admin-page-login-form')) {
       if (e.type === 'submit' || e.target.closest('#admin-page-submit-btn')) {

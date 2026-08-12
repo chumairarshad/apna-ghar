@@ -37,28 +37,27 @@ function makeLoginRequest(password) {
 
 async function runAdminLoginTest() {
   console.log('====================================================');
-  console.log('🔑 TESTING ADMIN LOGIN PASSWORDS');
+  console.log('🔑 TESTING ADMIN LOGIN WITH ENVIRONMENT CREDENTIALS');
   console.log('====================================================');
 
   const passwordsToTest = [
-    'AdminSecretPass2026!',
-    'AdminPassword123!',
-    'adminpassword'
-  ];
+    process.env.ADMIN_SEED_PASSWORD,
+    process.env.ADMIN_PASSWORD
+  ].filter(Boolean);
 
   let passed = 0;
 
   for (const pwd of passwordsToTest) {
     const res = await makeLoginRequest(pwd);
     if (res.status === 200 && res.data.success && res.data.user.role === 'ADMIN') {
-      console.log(`✅ PASS: Admin login SUCCESS with password: "${pwd}"`);
+      console.log(`✅ PASS: Admin login SUCCESS with environment credentials`);
       passed++;
     } else {
-      console.error(`❌ FAIL: Admin login failed for password "${pwd}": ${res.data.message || res.status}`);
+      console.error(`❌ FAIL: Admin login failed for environment credentials: ${res.data.message || res.status}`);
     }
   }
 
-  console.log(`\n📊 Result: ${passed}/${passwordsToTest.length} Passwords Authorized`);
+  console.log(`\n📊 Result: ${passed}/${passwordsToTest.length} Environment Passwords Authorized`);
   console.log('====================================================');
   if (passed === 0) process.exit(1);
 }

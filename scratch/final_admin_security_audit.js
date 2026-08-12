@@ -57,8 +57,8 @@ async function runMasterSecurityAudit() {
 
   try {
     const timestamp = Date.now();
-    const adminEmail = 'admin@sarmayadar.com';
-    const adminPassword = process.env.ADMIN_SEED_PASSWORD || 'AdminSecretPass2026!';
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@sarmayadar.com';
+    const adminPassword = process.env.ADMIN_SEED_PASSWORD || process.env.ADMIN_PASSWORD;
 
     // ------------------------------------------------------------------
     // SECTION 1: ADMIN REGISTRATION SECURITY & PRIVILEGE ESCALATION

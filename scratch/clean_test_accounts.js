@@ -1,71 +1,46 @@
 import dotenv from 'dotenv';
-import pg from 'pg';
+import { pool } from '../server/db.js';
 
 dotenv.config();
-const { Pool } = pg;
 
-async function cleanTestAccounts() {
-  const pool = new Pool({
-    connectionString: process.env.NEON_DATABASE_URL || process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
-  });
+async function cleanupQAData() {
+  console.log('====================================================');
+  console.log('🧹 CLEANING UP TEMPORARY QA ACCOUNTS & TEST PROPERTIES');
+  console.log('====================================================');
 
-  try {
-    console.log('--- INSPECTING AND CLEANING TEST ACCOUNTS IN POSTGRESQL ---');
-    
-    // Find all test/attacker accounts
-    const searchRes = await pool.query(`
-      SELECT id, full_name, email, role, created_at
-      FROM users
-      WHERE email LIKE '%attacker%'
-         OR email LIKE '%hack%'
-         OR email LIKE '%audit%'
-         OR full_name LIKE '%Attacker%'
-         OR full_name LIKE '%Hacked%'
-         OR full_name LIKE '%Malicious%'
-         OR email LIKE '%test_dealer%'
-         OR email LIKE '%test_user%'
-    `);
+  // 1. Delete temporary QA properties (prop-audit-*)
+  const delPropsRes = await pool.query(`
+    DELETE FROM properties 
+    WHERE id LIKE 'prop-audit-%' OR title LIKE 'Quota Test Property%'
+  `);
+  console.log(`- Deleted ${delPropsRes.rowCount} temporary QA test property/properties.`);
 
-    console.log(`Found ${searchRes.rows.length} automated test records in database:`);
-    searchRes.rows.forEach(r => {
-      console.log(`- ${r.full_name} (${r.email}) [Role: ${r.role}]`);
-    });
+  // 2. Delete subscriptions assigned to QA test dealers
+  const delSubsRes = await pool.query(`
+    DELETE FROM dealer_subscriptions
+    WHERE dealer_id IN (
+      SELECT id FROM users WHERE email LIKE 'qa_user_%' OR email LIKE 'qa_dealer_%' OR email LIKE 'attacker_%' OR agency_name = 'QA Premier Properties'
+    )
+  `);
+  console.log(`- Deleted ${delSubsRes.rowCount} temporary QA subscription record(s).`);
 
-    const deleteRes = await pool.query(`
-      DELETE FROM users
-      WHERE email LIKE '%@test.com%'
-         OR email LIKE '%@hack.com%'
-         OR email LIKE '%@agency.com%'
-         OR email LIKE '%@client.com%'
-         OR email LIKE '%subadmin_%'
-         OR email LIKE '%dealer_%'
-         OR email LIKE '%test_%'
-         OR full_name LIKE '%Attacker%'
-         OR full_name LIKE '%Hacked%'
-         OR full_name LIKE '%Malicious%'
-         OR full_name LIKE '%Normal User%'
-         OR full_name LIKE '%Secondary Admin%'
-    `);
-    console.log(`\n✅ Cleaned up ${deleteRes.rowCount} test records from PostgreSQL database!`);
+  // 3. Delete temporary QA users and dealers
+  const delUsersRes = await pool.query(`
+    DELETE FROM users
+    WHERE email LIKE 'qa_user_%' 
+       OR email LIKE 'qa_dealer_%' 
+       OR email LIKE 'attacker_%'
+       OR agency_name = 'QA Premier Properties'
+  `);
+  console.log(`- Deleted ${delUsersRes.rowCount} temporary QA user/dealer account(s).`);
 
-    // List remaining clean accounts
-    const remainingRes = await pool.query(`
-      SELECT id, full_name, email, role, created_at
-      FROM users
-      ORDER BY created_at ASC
-    `);
-
-    console.log(`\nRemaining Active Users in Database (${remainingRes.rows.length}):`);
-    remainingRes.rows.forEach(r => {
-      console.log(`- ${r.full_name} (${r.email}) [Role: ${r.role}]`);
-    });
-
-  } catch (err) {
-    console.error('Error during cleanup:', err);
-  } finally {
-    await pool.end();
-  }
+  console.log('====================================================');
+  console.log('✅ QA CLEANUP COMPLETE — PRODUCTION DATABASE SANITIZED');
+  console.log('====================================================');
+  process.exit(0);
 }
 
-cleanTestAccounts();
+cleanupQAData().catch(err => {
+  console.error('QA Cleanup Error:', err);
+  process.exit(1);
+});

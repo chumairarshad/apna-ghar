@@ -165,9 +165,6 @@ router.post(['/login', '/api/auth/login'], async (req, res) => {
     let isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch && user.role === 'ADMIN') {
       const allowedAdminPasswords = [
-        'AdminSecretPass2026!',
-        'AdminPassword123!',
-        'adminpassword',
         process.env.ADMIN_SEED_PASSWORD,
         process.env.ADMIN_PASSWORD
       ].filter(Boolean);
