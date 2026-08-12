@@ -2358,14 +2358,15 @@ function setupEventListeners() {
     function getStoredUsers() {
       try {
         const data = localStorage.getItem('Sarmayadar_registered_users');
-        if (data) return JSON.parse(data);
+        if (data) {
+          const parsed = JSON.parse(data);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
       } catch (e) { }
-      const defaultUsers = [
+      return [
         { email: 'dealer@agency.com', password: 'password123', name: 'Apex Real Estate Agency', phone: '+92 300 1234567', role: 'DEALER', agencyName: 'Apex Real Estate Agency' },
         { email: 'admin@sarmayadar.com', password: 'adminpassword', name: 'System Administrator', phone: '+92 332 7507866', role: 'ADMIN', agencyName: 'Sarmayadar Admin Panel' }
       ];
-      localStorage.setItem('Sarmayadar_registered_users', JSON.stringify(defaultUsers));
-      return defaultUsers;
     }
 
     function saveStoredUser(userObj) {

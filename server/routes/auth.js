@@ -29,7 +29,7 @@ router.post(['/', '/Register', '/register', '/signup', '/api/auth/Register', '/a
     const normalizedEmail = String(email).toLowerCase().trim();
 
     // Check if email exists
-    const checkSql = 'SELECT id FROM users WHERE email = $1';
+    const checkSql = 'SELECT id FROM users WHERE LOWER(email) = LOWER($1)';
     console.log('3. EXEC SQL:', checkSql);
     console.log('4. SQL PARAMS:', [normalizedEmail]);
 
@@ -134,7 +134,7 @@ router.post(['/login', '/api/auth/login'], async (req, res) => {
     const normalizedEmail = email.toLowerCase().trim();
 
     // Fetch user from Neon Database
-    const result = await pool.query('SELECT * FROM users WHERE email = $1', [normalizedEmail]);
+    const result = await pool.query('SELECT * FROM users WHERE LOWER(email) = LOWER($1)', [normalizedEmail]);
     if (result.rows.length === 0) {
       console.warn(`[LOGIN FAILED] No user found for email: ${normalizedEmail}`);
       return res.status(401).json({ success: false, message: 'Invalid email or password.' });
