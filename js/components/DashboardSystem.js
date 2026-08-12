@@ -817,48 +817,124 @@ function renderProFolioUsersManager(users = [], state = {}) {
 }
 
 function renderProFolioDealersManager(dealers = [], state = {}) {
-  const dealerList = Array.isArray(dealers) ? dealers : [];
+  const allDealers = Array.isArray(dealers) ? dealers : [];
+  const currentFilter = state.adminDealerFilter || 'all';
+  const searchQuery = (state.adminDealerSearchQuery || '').toLowerCase().trim();
+
+  // Counts for filter tabs
+  const allCount = allDealers.length;
+  const activeSubCount = allDealers.filter(d => d.subscription_status === 'ACTIVE').length;
+  const noSubCount = allDealers.filter(d => !d.subscription_status || d.subscription_status === 'NO_SUBSCRIPTION').length;
+  const expiredCount = allDealers.filter(d => d.subscription_status === 'EXPIRED').length;
+  const suspendedCount = allDealers.filter(d => d.is_suspended || d.status === 'suspended').length;
+
+  // Filter dealers list
+  let filteredDealers = allDealers.filter(d => {
+    // Tab Filter
+    if (currentFilter === 'active') {
+      if (d.subscription_status !== 'ACTIVE') return false;
+    } else if (currentFilter === 'no-subscription') {
+      if (d.subscription_status && d.subscription_status !== 'NO_SUBSCRIPTION') return false;
+    } else if (currentFilter === 'expired') {
+      if (d.subscription_status !== 'EXPIRED') return false;
+    } else if (currentFilter === 'suspended') {
+      if (!d.is_suspended && d.status !== 'suspended') return false;
+    }
+
+    // Search Filter
+    if (searchQuery) {
+      const matchName = (d.full_name || '').toLowerCase().includes(searchQuery);
+      const matchAgency = (d.agency_name || '').toLowerCase().includes(searchQuery);
+      const matchEmail = (d.email || '').toLowerCase().includes(searchQuery);
+      const matchPhone = (d.phone || '').toLowerCase().includes(searchQuery);
+      return matchName || matchAgency || matchEmail || matchPhone;
+    }
+
+    return true;
+  });
 
   return `
     <div class="profolio-card">
+      <!-- Card Header -->
       <div class="profolio-card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
         <div>
           <h3 class="profolio-card-title" style="display:flex; align-items:center; gap:8px;">
-            <span>🛡️</span> Verified Dealers & Agency Directory
+            <span>🛡️</span> Dealer Subscription Management & Directory
           </h3>
           <p style="font-size:0.85rem; color:#64748B; margin-top:2px;">
-            Manage agency accounts, verify dealer credentials, assign subscription tiers, and control listing quotas.
+            Activate packages, upgrade listing quotas, manage agency subscriptions, and verify dealer credentials.
           </p>
         </div>
       </div>
 
+      <!-- Filter & Search Controls Bar -->
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-top:1.25rem; padding-bottom:1rem; border-bottom:1px solid #E2E8F0;">
+        <!-- Filter Tabs -->
+        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+          <button type="button" class="admin-dealer-filter-btn ${currentFilter === 'all' ? 'active' : ''}" data-admin-dealer-filter="all" style="padding:6px 14px; border-radius:20px; font-weight:800; font-size:0.8rem; border:1px solid #CBD5E1; background:${currentFilter === 'all' ? '#064E3B' : '#F8FAFC'}; color:${currentFilter === 'all' ? '#FFFFFF' : '#475569'}; cursor:pointer;">
+            All (${allCount})
+          </button>
+          <button type="button" class="admin-dealer-filter-btn ${currentFilter === 'active' ? 'active' : ''}" data-admin-dealer-filter="active" style="padding:6px 14px; border-radius:20px; font-weight:800; font-size:0.8rem; border:1px solid #A7F3D0; background:${currentFilter === 'active' ? '#059669' : '#ECFDF5'}; color:${currentFilter === 'active' ? '#FFFFFF' : '#065F46'}; cursor:pointer;">
+            🟢 Active Subscriptions (${activeSubCount})
+          </button>
+          <button type="button" class="admin-dealer-filter-btn ${currentFilter === 'no-subscription' ? 'active' : ''}" data-admin-dealer-filter="no-subscription" style="padding:6px 14px; border-radius:20px; font-weight:800; font-size:0.8rem; border:1px solid #FDE68A; background:${currentFilter === 'no-subscription' ? '#D97706' : '#FFFBEB'}; color:${currentFilter === 'no-subscription' ? '#FFFFFF' : '#92400E'}; cursor:pointer;">
+            ⚠️ No Subscription (${noSubCount})
+          </button>
+          <button type="button" class="admin-dealer-filter-btn ${currentFilter === 'expired' ? 'active' : ''}" data-admin-dealer-filter="expired" style="padding:6px 14px; border-radius:20px; font-weight:800; font-size:0.8rem; border:1px solid #FECACA; background:${currentFilter === 'expired' ? '#DC2626' : '#FEF2F2'}; color:${currentFilter === 'expired' ? '#FFFFFF' : '#991B1B'}; cursor:pointer;">
+            ⏰ Expired (${expiredCount})
+          </button>
+          <button type="button" class="admin-dealer-filter-btn ${currentFilter === 'suspended' ? 'active' : ''}" data-admin-dealer-filter="suspended" style="padding:6px 14px; border-radius:20px; font-weight:800; font-size:0.8rem; border:1px solid #E2E8F0; background:${currentFilter === 'suspended' ? '#475569' : '#F1F5F9'}; color:${currentFilter === 'suspended' ? '#FFFFFF' : '#475569'}; cursor:pointer;">
+            🚫 Suspended (${suspendedCount})
+          </button>
+        </div>
+
+        <!-- Search Input -->
+        <div style="position:relative; width:260px;">
+          <input type="text" 
+                 id="admin-dealer-search-input" 
+                 placeholder="Search dealer, agency, email..." 
+                 value="${state.adminDealerSearchQuery || ''}" 
+                 style="width:100%; padding:7px 12px 7px 32px; border-radius:8px; border:1px solid #CBD5E1; font-size:0.83rem; font-weight:600;" />
+          <span style="position:absolute; left:10px; top:50%; transform:translateY(-50%); opacity:0.5; font-size:0.85rem;">🔍</span>
+        </div>
+      </div>
+
+      <!-- Table Section -->
       <div class="profolio-table-wrapper" style="overflow-x:auto; -webkit-overflow-scrolling:touch; width:100%; border-radius:10px; border:1px solid #E2E8F0; margin-top:1rem;">
-        <table class="profolio-table" style="width:100%; min-width:760px; border-collapse:collapse; text-align:left; font-size:0.85rem;">
+        <table class="profolio-table" style="width:100%; min-width:840px; border-collapse:collapse; text-align:left; font-size:0.85rem;">
           <thead>
             <tr style="background:#F8FAFC; border-bottom:2px solid #E2E8F0; color:#64748B;">
               <th style="padding:12px;">Dealer & Agency</th>
-              <th style="padding:12px;">Contact</th>
-              <th style="padding:12px;">Badge & Status</th>
-              <th style="padding:12px;">Active Listings</th>
-              <th style="padding:12px;">Subscription Plan</th>
-              <th style="padding:12px; text-align:right;">Admin Controls</th>
+              <th style="padding:12px;">Contact Info</th>
+              <th style="padding:12px;">Account Status</th>
+              <th style="padding:12px;">Current Package</th>
+              <th style="padding:12px;">Subscription Status</th>
+              <th style="padding:12px; text-align:center;">Listings Limit</th>
+              <th style="padding:12px; text-align:right;">Actions</th>
             </tr>
           </thead>
           <tbody>
-            ${dealerList.length === 0 ? `
+            ${filteredDealers.length === 0 ? `
               <tr>
-                <td colspan="6" style="padding:2rem; text-align:center; color:#64748B;">
-                  No dealer accounts found in database.
+                <td colspan="7" style="padding:2.5rem; text-align:center; color:#64748B;">
+                  No dealer accounts match the selected filter.
                 </td>
               </tr>
-            ` : dealerList.map(d => {
+            ` : filteredDealers.map(d => {
               const dName = d.full_name || d.name || 'Dealer Agency';
               const isSusp = d.is_suspended || d.status === 'suspended' || d.status === 'disabled';
-              const subPlan = d.subscription_plan_name || 'PRO DEALER';
-              const expiryStr = d.subscription_expiry ? new Date(d.subscription_expiry).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Active';
+              const subPlan = d.subscription_plan_name || 'BASIC';
+              const limit = d.listing_limit || 5;
+              const activeCount = d.active_listings_count || 0;
+              const subStatus = d.subscription_status || 'NO_SUBSCRIPTION';
+              const expiryStr = d.subscription_expiry ? new Date(d.subscription_expiry).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A';
+
+              const isNoSub = subStatus === 'NO_SUBSCRIPTION';
+              const isExpired = subStatus === 'EXPIRED';
+              const isActiveSub = subStatus === 'ACTIVE';
 
               return `
-                <tr style="border-bottom:1px solid #E2E8F0; background:${isSusp ? '#FEF2F2' : '#FFFFFF'};">
+                <tr style="border-bottom:1px solid #E2E8F0; background:${isSusp ? '#FEF2F2' : (isNoSub || isExpired ? '#FFFBEB' : '#FFFFFF')};">
                   <td style="padding:12px;">
                     <div style="font-weight:800; color:#0F172A;">${dName}</div>
                     <div style="font-size:0.75rem; color:#059669; font-weight:700;">🏢 ${d.agency_name || dName}</div>
@@ -868,26 +944,59 @@ function renderProFolioDealersManager(dealers = [], state = {}) {
                     <div style="font-size:0.75rem; color:#64748B;">${d.phone || 'N/A'}</div>
                   </td>
                   <td style="padding:12px;">
-                    <div style="display:flex; flex-direction:column; gap:4px;">
-                      <span class="badge" style="background:#F59E0B; color:#ffffff; font-size:0.7rem; font-weight:800; padding:3px 6px; border-radius:4px; width:fit-content;">
-                        ${d.badge || 'VERIFIED DEALER'}
-                      </span>
-                      <span class="badge" style="background:${isSusp ? '#FEE2E2' : '#D1FAE5'}; color:${isSusp ? '#991B1B' : '#065F46'}; font-size:0.7rem; font-weight:800; padding:3px 6px; border-radius:4px; width:fit-content;">
-                        ${isSusp ? '🚫 SUSPENDED' : '🟢 ACTIVE'}
-                      </span>
-                    </div>
-                  </td>
-                  <td style="padding:12px; text-align:center;">
-                    <span style="font-size:1.1rem; font-weight:900; color:#059669;">${d.active_listings_count || 0}</span>
+                    <span class="badge" style="background:${isSusp ? '#FEE2E2' : '#D1FAE5'}; color:${isSusp ? '#991B1B' : '#065F46'}; font-size:0.72rem; font-weight:800; padding:4px 8px; border-radius:6px;">
+                      ${isSusp ? '🚫 SUSPENDED' : '🟢 ACTIVE'}
+                    </span>
                   </td>
                   <td style="padding:12px;">
                     <div style="font-weight:800; color:#0F172A;">${subPlan}</div>
-                    <div style="font-size:0.72rem; color:#64748B;">Expires: ${expiryStr}</div>
+                    <div style="font-size:0.72rem; color:#64748B;">
+                      ${isActiveSub ? `Expires: ${expiryStr}` : (isExpired ? `<span style="color:#DC2626; font-weight:700;">Expired (${expiryStr})</span>` : '<span style="color:#D97706; font-weight:700;">No Plan Assigned</span>')}
+                    </div>
+                  </td>
+                  <td style="padding:12px;">
+                    ${isActiveSub ? `
+                      <span class="badge" style="background:#D1FAE5; color:#065F46; font-size:0.72rem; font-weight:800; padding:4px 8px; border-radius:6px;">
+                        🟢 ACTIVE
+                      </span>
+                    ` : isExpired ? `
+                      <span class="badge" style="background:#FEE2E2; color:#991B1B; font-size:0.72rem; font-weight:800; padding:4px 8px; border-radius:6px;">
+                        ⏰ EXPIRED
+                      </span>
+                    ` : `
+                      <span class="badge" style="background:#FEF3C7; color:#92400E; font-size:0.72rem; font-weight:800; padding:4px 8px; border-radius:6px;">
+                        ⚠️ NO PLAN
+                      </span>
+                    `}
+                  </td>
+                  <td style="padding:12px; text-align:center;">
+                    <div style="font-size:0.95rem; font-weight:900; color:#059669;">
+                      ${activeCount} <span style="font-size:0.75rem; color:#64748B; font-weight:600;">/ ${limit}</span>
+                    </div>
+                    <div style="font-size:0.7rem; color:#64748B;">Listings Used</div>
                   </td>
                   <td style="padding:12px; text-align:right; white-space:nowrap;">
-                    <button class="btn btn-sm btn-admin-change-sub" data-id="${d.id}" data-name="${dName}" style="background:#059669; color:#ffffff; border:none; padding:6px 10px; border-radius:6px; font-weight:800; cursor:pointer; margin-right:4px;">
-                      ⭐ Activate Sub
-                    </button>
+                    ${isActiveSub ? `
+                      <button class="btn btn-sm btn-admin-open-sub-modal" 
+                              data-dealer-id="${d.id}" 
+                              data-dealer-name="${dName}" 
+                              data-dealer-email="${d.email}" 
+                              data-dealer-agency="${d.agency_name || dName}"
+                              data-current-plan="${subPlan}"
+                              style="background:#059669; color:#ffffff; border:none; padding:6px 12px; border-radius:8px; font-weight:800; cursor:pointer; margin-right:4px; box-shadow:0 2px 6px rgba(5,150,105,0.3);">
+                        ⚙️ Manage / Change
+                      </button>
+                    ` : `
+                      <button class="btn btn-sm btn-admin-open-sub-modal" 
+                              data-dealer-id="${d.id}" 
+                              data-dealer-name="${dName}" 
+                              data-dealer-email="${d.email}" 
+                              data-dealer-agency="${d.agency_name || dName}"
+                              data-current-plan="${subPlan}"
+                              style="background:linear-gradient(135deg, #059669, #047857); color:#ffffff; border:none; padding:7px 14px; border-radius:8px; font-weight:800; cursor:pointer; margin-right:4px; box-shadow:0 4px 10px rgba(5,150,105,0.4);">
+                        ⭐ Activate Package
+                      </button>
+                    `}
                     <button class="btn btn-sm btn-admin-toggle-status" data-id="${d.id}" data-current="${isSusp ? 'suspended' : 'active'}" style="background:${isSusp ? '#059669' : '#D97706'}; color:#ffffff; border:none; padding:6px 10px; border-radius:6px; font-weight:800; cursor:pointer;">
                       ${isSusp ? '✅ Activate' : '🚫 Suspend'}
                     </button>
@@ -897,6 +1006,176 @@ function renderProFolioDealersManager(dealers = [], state = {}) {
             }).join('')}
           </tbody>
         </table>
+      </div>
+
+      ${state.showAdminSubModal ? renderAdminSubscriptionModal(state) : ''}
+    </div>
+  `;
+}
+
+function renderAdminSubscriptionModal(state) {
+  const dealer = state.selectedSubDealer || { name: 'Dealer Agency', email: 'dealer@agency.com', id: '', agency: 'Agency' };
+  const currentPlan = state.selectedSubPlanName || 'PRO DEALER';
+  const selectedDuration = state.selectedSubDurationDays || 30;
+
+  // Plans config matching database seed
+  const plans = [
+    {
+      name: 'BASIC',
+      price: 0,
+      listingLimit: 5,
+      megaProjects: 0,
+      featuredLimit: 0,
+      badge: 'FREE PLAN',
+      badgeBg: '#E2E8F0',
+      badgeColor: '#475569',
+      features: ['Up to 5 Active Listings', 'Standard Search Placement', 'Valid for 1 Year']
+    },
+    {
+      name: 'PRO DEALER',
+      price: 15000,
+      listingLimit: 25,
+      megaProjects: 2,
+      featuredLimit: 5,
+      badge: 'POPULAR CHOICE',
+      badgeBg: '#D1FAE5',
+      badgeColor: '#065F46',
+      features: ['Up to 25 Active Listings', '2 Housing Megaprojects', '5 Featured Badges', 'Direct Customer Leads Inbox']
+    },
+    {
+      name: 'AGENCY ELITE',
+      price: 45000,
+      listingLimit: 100,
+      megaProjects: 10,
+      featuredLimit: 25,
+      badge: 'MAXIMUM EXPOSURE',
+      badgeBg: '#FEF3C7',
+      badgeColor: '#92400E',
+      features: ['Up to 100 Active Listings', '10 Housing Megaprojects', '25 Featured Badges', 'Top Portal Placement', 'VIP Support Desk']
+    }
+  ];
+
+  const selectedPlanObj = plans.find(p => p.name.toUpperCase() === currentPlan.toUpperCase()) || plans[1];
+
+  // Calculate Expiry Date
+  const startDate = new Date();
+  const expiryDate = new Date(Date.now() + (selectedDuration * 24 * 60 * 60 * 1000));
+  const startDateStr = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const expiryDateStr = expiryDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+  return `
+    <div class="admin-modal-overlay" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15,23,42,0.75); backdrop-filter:blur(5px); z-index:9999; display:flex; align-items:center; justify-content:center; padding:1rem;">
+      <div class="admin-modal-card" style="background:#ffffff; width:100%; max-width:680px; border-radius:18px; box-shadow:0 25px 60px rgba(0,0,0,0.4); overflow:hidden; border:2px solid #059669;">
+        
+        <!-- Header -->
+        <div style="background:linear-gradient(135deg, #064E3B, #022C22); padding:1.25rem 1.5rem; color:#ffffff; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-family:var(--font-mono, monospace); font-size:0.7rem; font-weight:800; color:#F59E0B; text-transform:uppercase; letter-spacing:1px;">
+              ⭐ ADMIN SUBSCRIPTION CONTROL
+            </div>
+            <h3 style="font-size:1.2rem; font-weight:800; margin:2px 0 0 0; color:#ffffff;">
+              Activate / Change Package for Dealer
+            </h3>
+          </div>
+          <button type="button" id="btn-close-sub-modal" style="background:rgba(255,255,255,0.15); border:none; color:#ffffff; width:32px; height:32px; border-radius:50%; cursor:pointer; font-weight:800; font-size:1.1rem; display:flex; align-items:center; justify-content:center;">
+            ✕
+          </button>
+        </div>
+
+        <div style="padding:1.5rem; max-height:80vh; overflow-y:auto;">
+          
+          <!-- Dealer Info Banner -->
+          <div style="background:#ECFDF5; border-left:4px solid #059669; padding:0.85rem 1rem; border-radius:8px; margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+            <div>
+              <div style="font-size:0.75rem; color:#064E3B; font-weight:700; text-transform:uppercase;">Selected Dealer Account</div>
+              <div style="font-weight:800; color:#0F172A; font-size:1rem;">${dealer.name}</div>
+              <div style="font-size:0.82rem; color:#059669; font-weight:700;">🏢 ${dealer.agency || dealer.name} • ✉️ ${dealer.email}</div>
+            </div>
+            <span class="badge" style="background:#064E3B; color:#ffffff; font-size:0.72rem; font-weight:800; padding:4px 8px; border-radius:6px;">
+              Dealer ID: ${dealer.id ? dealer.id.substring(0, 8) + '...' : 'N/A'}
+            </span>
+          </div>
+
+          <!-- Step 1: Select Subscription Package -->
+          <label style="display:block; font-weight:800; font-size:0.85rem; color:#0F172A; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.75rem;">
+            1. Select Package Plan *
+          </label>
+
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(190px, 1fr)); gap:0.85rem; margin-bottom:1.5rem;">
+            ${plans.map(p => {
+              const isSelected = p.name.toUpperCase() === currentPlan.toUpperCase();
+              return `
+                <div class="admin-plan-card ${isSelected ? 'selected' : ''}" 
+                     data-plan-name="${p.name}"
+                     style="border:2px solid ${isSelected ? '#059669' : '#CBD5E1'}; background:${isSelected ? '#F0FDF4' : '#FFFFFF'}; border-radius:12px; padding:1rem; cursor:pointer; transition:all 0.2s ease; position:relative;">
+                  ${isSelected ? `
+                    <span style="position:absolute; top:8px; right:8px; width:20px; height:20px; background:#059669; color:#ffffff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:900;">✓</span>
+                  ` : ''}
+                  <span class="badge" style="background:${p.badgeBg}; color:${p.badgeColor}; font-size:0.65rem; font-weight:800; padding:2px 6px; border-radius:4px;">${p.badge}</span>
+                  <h4 style="font-size:1.05rem; font-weight:900; color:#0F172A; margin:6px 0 2px 0;">${p.name}</h4>
+                  <div style="font-size:1.1rem; font-weight:900; color:#059669;">
+                    ${p.price === 0 ? 'FREE' : `PKR ${p.price.toLocaleString()}`}
+                  </div>
+
+                  <div style="margin-top:0.75rem; pt-0.5rem; border-top:1px solid #E2E8F0; font-size:0.78rem; color:#475569; display:flex; flex-direction:column; gap:3px;">
+                    <div>📋 <strong>${p.listingLimit} Listings Limit</strong></div>
+                    ${p.megaProjects > 0 ? `<div>🏗️ ${p.megaProjects} Megaprojects</div>` : ''}
+                    ${p.featuredLimit > 0 ? `<div>⭐ ${p.featuredLimit} Featured Badges</div>` : ''}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+
+          <!-- Step 2: Duration Multiplier -->
+          <div style="margin-bottom:1.5rem;">
+            <label style="display:block; font-weight:800; font-size:0.85rem; color:#0F172A; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.5rem;">
+              2. Subscription Duration *
+            </label>
+            <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:0.5rem;">
+              <button type="button" class="admin-duration-btn ${selectedDuration === 30 ? 'active' : ''}" data-duration="30" style="padding:8px; border-radius:8px; border:1.5px solid ${selectedDuration === 30 ? '#059669' : '#CBD5E1'}; background:${selectedDuration === 30 ? '#ECFDF5' : '#FFFFFF'}; font-weight:800; font-size:0.8rem; color:${selectedDuration === 30 ? '#064E3B' : '#475569'}; cursor:pointer;">
+                1 Month (30 Days)
+              </button>
+              <button type="button" class="admin-duration-btn ${selectedDuration === 90 ? 'active' : ''}" data-duration="90" style="padding:8px; border-radius:8px; border:1.5px solid ${selectedDuration === 90 ? '#059669' : '#CBD5E1'}; background:${selectedDuration === 90 ? '#ECFDF5' : '#FFFFFF'}; font-weight:800; font-size:0.8rem; color:${selectedDuration === 90 ? '#064E3B' : '#475569'}; cursor:pointer;">
+                3 Months (90 Days)
+              </button>
+              <button type="button" class="admin-duration-btn ${selectedDuration === 180 ? 'active' : ''}" data-duration="180" style="padding:8px; border-radius:8px; border:1.5px solid ${selectedDuration === 180 ? '#059669' : '#CBD5E1'}; background:${selectedDuration === 180 ? '#ECFDF5' : '#FFFFFF'}; font-weight:800; font-size:0.8rem; color:${selectedDuration === 180 ? '#064E3B' : '#475569'}; cursor:pointer;">
+                6 Months (180 Days)
+              </button>
+              <button type="button" class="admin-duration-btn ${selectedDuration === 365 ? 'active' : ''}" data-duration="365" style="padding:8px; border-radius:8px; border:1.5px solid ${selectedDuration === 365 ? '#059669' : '#CBD5E1'}; background:${selectedDuration === 365 ? '#ECFDF5' : '#FFFFFF'}; font-weight:800; font-size:0.8rem; color:${selectedDuration === 365 ? '#064E3B' : '#475569'}; cursor:pointer;">
+                1 Year (365 Days)
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 3: Activation Summary Preview -->
+          <div style="background:#F8FAFC; border:1.5px solid #CBD5E1; border-radius:12px; padding:1.1rem; margin-bottom:1.5rem;">
+            <h5 style="font-size:0.85rem; font-weight:800; color:#0F172A; text-transform:uppercase; margin:0 0 8px 0;">
+              📋 Activation Summary Preview
+            </h5>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; font-size:0.83rem; color:#475569;">
+              <div>Package Name: <strong style="color:#0F172A;">${selectedPlanObj.name}</strong></div>
+              <div>Listing Limit: <strong style="color:#059669;">${selectedPlanObj.listingLimit} Active Listings</strong></div>
+              <div>Start Date: <strong style="color:#0F172A;">${startDateStr} (Today)</strong></div>
+              <div>Calculated Expiry Date: <strong style="color:#064E3B;">${expiryDateStr}</strong></div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div style="display:flex; justify-content:flex-end; gap:0.75rem;">
+            <button type="button" id="btn-cancel-sub-modal" style="padding:0.75rem 1.25rem; border-radius:10px; border:1px solid #CBD5E1; background:#ffffff; color:#475569; font-weight:800; font-size:0.9rem; cursor:pointer;">
+              Cancel
+            </button>
+            <button type="button" id="btn-confirm-activate-subscription" 
+                    data-dealer-id="${dealer.id}"
+                    data-plan-name="${selectedPlanObj.name}"
+                    data-duration-days="${selectedDuration}"
+                    style="padding:0.75rem 1.5rem; border-radius:10px; border:none; background:linear-gradient(135deg, #059669, #047857); color:#ffffff; font-weight:900; font-size:0.92rem; cursor:pointer; box-shadow:0 4px 14px rgba(5,150,105,0.4); display:flex; align-items:center; gap:6px;">
+              <span>⭐</span> Confirm & Activate Subscription
+            </button>
+          </div>
+
+        </div>
       </div>
     </div>
   `;

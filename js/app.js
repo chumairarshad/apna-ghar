@@ -3016,18 +3016,74 @@ function setupEventListeners() {
       }
     }
 
-    // Admin Change / Activate Subscription Handler
-    const adminChangeSubBtn = e.target.closest('.btn-admin-change-sub');
-    if (adminChangeSubBtn) {
-      const dealerId = adminChangeSubBtn.getAttribute('data-id');
-      const dealerName = adminChangeSubBtn.getAttribute('data-name');
-      const selectedPlan = prompt(`Activate Subscription for dealer "${dealerName}":\nType: BASIC, PRO DEALER, or AGENCY ELITE`, 'PRO DEALER');
-      if (selectedPlan && state.user && state.user.token) {
+    // Admin Dealer Filter Tab Click
+    const adminDealerFilterBtn = e.target.closest('.admin-dealer-filter-btn');
+    if (adminDealerFilterBtn) {
+      state.adminDealerFilter = adminDealerFilterBtn.getAttribute('data-admin-dealer-filter') || 'all';
+      renderApp();
+      return;
+    }
+
+    // Admin Open Subscription Modal Handler
+    const adminOpenSubBtn = e.target.closest('.btn-admin-open-sub-modal');
+    if (adminOpenSubBtn) {
+      const dealerId = adminOpenSubBtn.getAttribute('data-dealer-id');
+      const dealerName = adminOpenSubBtn.getAttribute('data-dealer-name');
+      const dealerEmail = adminOpenSubBtn.getAttribute('data-dealer-email');
+      const dealerAgency = adminOpenSubBtn.getAttribute('data-dealer-agency');
+      const currentPlan = adminOpenSubBtn.getAttribute('data-current-plan');
+
+      state.selectedSubDealer = { id: dealerId, name: dealerName, email: dealerEmail, agency: dealerAgency };
+      state.selectedSubPlanName = (currentPlan && currentPlan !== 'BASIC') ? currentPlan : 'PRO DEALER';
+      state.selectedSubDurationDays = 30;
+      state.showAdminSubModal = true;
+      renderApp();
+      return;
+    }
+
+    // Select Plan Card Inside Subscription Modal
+    const planCardBtn = e.target.closest('.admin-plan-card');
+    if (planCardBtn) {
+      const planName = planCardBtn.getAttribute('data-plan-name');
+      if (planName) {
+        state.selectedSubPlanName = planName;
+        renderApp();
+      }
+      return;
+    }
+
+    // Select Duration Button Inside Subscription Modal
+    const durationBtn = e.target.closest('.admin-duration-btn');
+    if (durationBtn) {
+      const durationDays = Number(durationBtn.getAttribute('data-duration'));
+      if (durationDays) {
+        state.selectedSubDurationDays = durationDays;
+        renderApp();
+      }
+      return;
+    }
+
+    // Close Subscription Modal
+    if (e.target.id === 'btn-close-sub-modal' || e.target.closest('#btn-close-sub-modal') || e.target.id === 'btn-cancel-sub-modal' || e.target.closest('#btn-cancel-sub-modal')) {
+      state.showAdminSubModal = false;
+      renderApp();
+      return;
+    }
+
+    // Confirm Subscription Activation Button Handler
+    const confirmSubBtn = e.target.closest('#btn-confirm-activate-subscription');
+    if (confirmSubBtn) {
+      const dealerId = confirmSubBtn.getAttribute('data-dealer-id');
+      const planName = confirmSubBtn.getAttribute('data-plan-name');
+      const durationDays = Number(confirmSubBtn.getAttribute('data-duration-days')) || 30;
+
+      if (dealerId && planName && state.user && state.user.token) {
         (async () => {
-          showToast(`⏳ Activating "${selectedPlan}" subscription for ${dealerName}...`);
-          const result = await activateDealerSubscriptionApi(dealerId, selectedPlan.trim().toUpperCase(), state.user.token);
+          showToast(`⏳ Activating "${planName}" subscription (${durationDays} days)...`);
+          const result = await activateDealerSubscriptionApi(dealerId, planName, state.user.token, durationDays);
           if (result.ok) {
-            showToast(`⭐ ${result.data.message || 'Subscription activated successfully!'}`);
+            showToast(`✓ Subscription activated successfully.`);
+            state.showAdminSubModal = false;
             state.adminDealersList = await fetchAdminDealersApi(state.user.token);
             renderApp();
           } else {
@@ -3035,6 +3091,7 @@ function setupEventListeners() {
           }
         })();
       }
+      return;
     }
 
     // Admin Add User Modal Trigger Handler

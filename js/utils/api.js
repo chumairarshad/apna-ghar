@@ -244,15 +244,18 @@ export async function toggleUserStatusApi(userId, currentStatus, token) {
   }
 }
 
-export async function activateDealerSubscriptionApi(dealerId, planName, token) {
+export async function activateDealerSubscriptionApi(dealerId, planName, token, customDurationDays = null) {
   try {
+    const bodyObj = { planName };
+    if (customDurationDays) bodyObj.customDurationDays = customDurationDays;
+
     const res = await fetch(`/api/admin/dealers/${dealerId}/activate-subscription`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({ planName })
+      body: JSON.stringify(bodyObj)
     });
     const data = await res.json().catch(() => null);
     return { ok: res.ok, data };
