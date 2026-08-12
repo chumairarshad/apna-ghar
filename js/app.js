@@ -2489,12 +2489,16 @@ function setupEventListeners() {
           return;
         }
 
+        if (state.isAuthSubmitting) return;
+        state.isAuthSubmitting = true;
+
         if (isRegister) {
           // --- Register FLOW ---
           const nameInput = (document.getElementById('auth-page-fullname')?.value || document.getElementById('auth-full-name')?.value)?.trim();
           const phoneInput = (document.getElementById('auth-page-phone')?.value || document.getElementById('auth-phone-num')?.value)?.trim();
 
           if (!nameInput || !phoneInput) {
+            state.isAuthSubmitting = false;
             showToast('⚠️ Please fill in Full Name and Phone Number.');
             return;
           }
@@ -2629,6 +2633,8 @@ function setupEventListeners() {
                 showToast(`🎉 Registration complete! Welcome to your Dashboard, ${nameInput}.`);
                 renderApp();
               }
+            } finally {
+              state.isAuthSubmitting = false;
             }
           })();
 
@@ -3656,12 +3662,8 @@ async function handleAdminPageLogin(emailInput, passwordInput) {
       }
     } else if (e.target.id === 'email-auth-form' || e.target.closest('#email-auth-form')) {
       e.preventDefault();
-      const submitBtn = document.getElementById('auth-submit-btn');
-      if (submitBtn) submitBtn.click();
     } else if (e.target.id === 'auth-page-native-form' || e.target.closest('#auth-page-native-form')) {
       e.preventDefault();
-      const submitBtn = document.getElementById('auth-page-submit-btn');
-      if (submitBtn) submitBtn.click();
     } else if (e.target.id === 'forgot-password-form' || e.target.closest('#forgot-password-form')) {
       e.preventDefault();
       const submitBtn = document.getElementById('auth-forgot-submit-btn');
