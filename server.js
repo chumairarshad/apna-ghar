@@ -18,15 +18,19 @@ import fs from 'fs';
 dotenv.config();
 
 // Initialize DB schema (users, properties, push_subscriptions tables)
-initDb();
+initDb().catch(err => console.warn('Neon DB init notice:', err.message));
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Ensure uploads folder exists
 const uploadsDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
+try {
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+} catch (e) {
+  // Read-only filesystem on Vercel Serverless environment
 }
 
 const app = express();
