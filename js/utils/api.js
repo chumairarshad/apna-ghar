@@ -62,6 +62,7 @@ export async function savePropertyToApi(property) {
       description: property.description,
       images: Array.isArray(property.images) && property.images.length > 0 ? property.images : ['https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80'],
       features: property.features,
+      status: property.status || 'active',
       agentName: property.agency?.agentName,
       agentPhone: property.agency?.phone,
       agencyName: property.agency?.name

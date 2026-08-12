@@ -142,12 +142,12 @@ router.post(['/login', '/api/auth/login'], async (req, res) => {
 
     const user = result.rows[0];
 
-    // Verify Role match if provided
-    if (req.body.role && user.role !== req.body.role.toUpperCase()) {
+    // Verify Role match if provided (only enforce for ADMIN)
+    if (req.body.role && user.role === 'ADMIN' && req.body.role.toUpperCase() !== 'ADMIN') {
       console.warn(`[LOGIN ROLE MISMATCH] Registered: ${user.role}, Attempted: ${req.body.role}`);
       return res.status(401).json({
         success: false,
-        message: `Access Denied: This account is registered as a ${user.role}. Please switch to the ${user.role} Login tab.`
+        message: `Access Denied: This account is registered as an Administrator. Please switch to Admin Login.`
       });
     }
 

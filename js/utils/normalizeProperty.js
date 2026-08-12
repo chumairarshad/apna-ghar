@@ -34,6 +34,7 @@ export function normalizeProperty(p = {}) {
   };
 
   return {
+    ...p,
     id: String(p.id || `prop-${Date.now()}`),
     title: String(p.title || 'Pakistani Property Listing'),
     purpose: String(p.purpose || 'sale').toLowerCase(),
@@ -50,7 +51,6 @@ export function normalizeProperty(p = {}) {
     views: Number(p.views || p.views_count || 1),
     facing: String(p.facing || 'Main Boulevard'),
     builtYear: Number(p.builtYear || p.built_year || 2024),
-    ...p,
     images,
     badges,
     features,

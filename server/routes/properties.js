@@ -21,7 +21,7 @@ router.get('/', async (req, res) => {
       SELECT p.*, u.full_name as agent_name, u.agency_name, u.phone as agent_phone, u.badge as agent_badge
       FROM properties p
       LEFT JOIN users u ON p.dealer_id = u.id
-      WHERE p.status = 'active' OR p.status = 'published' OR p.status = 'public'
+      WHERE LOWER(p.status) IN ('active', 'published', 'public')
     `;
     const params = [];
 
@@ -32,12 +32,12 @@ router.get('/', async (req, res) => {
 
     if (purpose && purpose !== 'all') {
       params.push(purpose);
-      query += ` AND p.purpose = $${params.length}`;
+      query += ` AND LOWER(p.purpose) = LOWER($${params.length})`;
     }
 
     if (category && category !== 'all') {
       params.push(category);
-      query += ` AND p.category = $${params.length}`;
+      query += ` AND LOWER(p.category) = LOWER($${params.length})`;
     }
 
     if (maxPrice && maxPrice !== 'any') {
@@ -80,12 +80,23 @@ router.post('/', async (req, res) => {
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
        ON CONFLICT (id) DO UPDATE SET
          title = EXCLUDED.title,
-         price = EXCLUDED.price,
+         purpose = EXCLUDED.purpose,
+         category = EXCLUDED.category,
+         city = EXCLUDED.city,
          location = EXCLUDED.location,
          address = EXCLUDED.address,
+         price = EXCLUDED.price,
+         size_marla = EXCLUDED.size_marla,
+         bedrooms = EXCLUDED.bedrooms,
+         bathrooms = EXCLUDED.bathrooms,
+         description = EXCLUDED.description,
          images = EXCLUDED.images,
          features = EXCLUDED.features,
-         status = EXCLUDED.status
+         agent_name = EXCLUDED.agent_name,
+         agent_phone = EXCLUDED.agent_phone,
+         agency_name = EXCLUDED.agency_name,
+         status = EXCLUDED.status,
+         updated_at = CURRENT_TIMESTAMP
        RETURNING *`,
       [
         propId, title, purpose, category, city, location, address || location,

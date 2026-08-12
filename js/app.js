@@ -658,14 +658,23 @@ function handleSearchQueryExecution(query) {
   }
 }
 
+function isPublicStatus(status) {
+  if (!status) return true;
+  const s = String(status).toLowerCase().trim();
+  return s === 'active' || s === 'published' || s === 'public';
+}
+
 function getFilteredProperties() {
   let list = [...state.properties];
 
+  // Status filter (only show public/published/active listings on main catalog)
+  list = list.filter(p => isPublicStatus(p.status));
+
   // Purpose filter
   if (state.activeTab === 'buy') {
-    list = list.filter(p => p.purpose === 'sale');
+    list = list.filter(p => String(p.purpose || '').toLowerCase() === 'sale');
   } else if (state.activeTab === 'rent') {
-    list = list.filter(p => p.purpose === 'rent');
+    list = list.filter(p => String(p.purpose || '').toLowerCase() === 'rent');
   }
 
   const f = state.searchFilters;
@@ -738,11 +747,12 @@ function showToast(message) {
 function canUserPostProperty(state) {
   if (!state.user) {
     showToast('🔒 Please sign in or register an account to post a property listing.');
-    state.activeTab = 'login';
-    state.authPreFillEmail = '';
-    if (window.location.hash !== '#login') history.replaceState(null, '', '#login');
+    state.authMode = 'signup';
+    state.authIsRegister = true;
+    state.authIsSignup = true;
     state.showAuthModal = false;
     state.showMobileNav = false;
+    setActiveTab('register');
     renderApp();
     window.scrollTo({ top: 0, behavior: 'smooth' });
     return false;
@@ -984,8 +994,11 @@ function setupEventListeners() {
         renderApp();
         showToast(`👤 Welcome ${state.user.name}! Opened Profile Settings.`);
       } else {
-        state.showAuthModal = true;
-        state.phoneStep = 1;
+        state.authMode = 'login';
+        state.authIsRegister = false;
+        state.authIsSignup = false;
+        state.showMobileNav = false;
+        setActiveTab('login');
         renderApp();
       }
     }
@@ -2153,8 +2166,7 @@ function setupEventListeners() {
       state.authMode = 'login';
       state.authIsRegister = false;
       state.authIsSignup = false;
-      if (state.activeTab === 'register') state.activeTab = 'login';
-      if (window.location.hash === '#register') history.replaceState(null, '', '#login');
+      setActiveTab('login');
       renderApp();
     }
 
@@ -2163,8 +2175,7 @@ function setupEventListeners() {
       state.authMode = 'signup';
       state.authIsRegister = true;
       state.authIsSignup = true;
-      if (state.activeTab === 'login') state.activeTab = 'register';
-      if (window.location.hash === '#login') history.replaceState(null, '', '#register');
+      setActiveTab('register');
       renderApp();
     }
 
@@ -2265,7 +2276,7 @@ function setupEventListeners() {
       if (e.type === 'submit' || e.target.closest('#auth-submit-btn') || e.target.closest('#auth-page-submit-btn')) {
         e.preventDefault();
         const role = state.authRole || 'DEALER';
-        const isRegister = (state.authMode === 'signup' || state.authMode === 'register' || state.authMode === 'Register' || (state.activeTab === 'register' && state.authMode !== 'login')) && state.authMode !== 'login' && state.authMode !== 'forgot';
+        const isRegister = state.authMode !== 'forgot' && (state.activeTab === 'register' || state.authMode === 'signup' || state.authMode === 'register' || state.authIsRegister || state.authIsSignup);
         const emailInput = (document.getElementById('auth-page-email')?.value || document.getElementById('auth-email-input')?.value)?.trim()?.toLowerCase();
         const passwordInput = document.getElementById('auth-page-password')?.value || document.getElementById('auth-password-input')?.value;
 
@@ -2461,8 +2472,8 @@ function setupEventListeners() {
               }
 
               const selectedRole = state.authRole || 'DEALER';
-              if (foundUser.role && foundUser.role !== selectedRole) {
-                showToast(`❌ Access Denied: This account is registered as a ${foundUser.role}. Please switch to the ${foundUser.role} Login tab.`);
+              if (foundUser.role === 'ADMIN' && selectedRole !== 'ADMIN') {
+                showToast(`❌ Access Denied: This account is registered as an Administrator. Please switch to Admin Login.`);
                 return;
               }
 
@@ -3389,6 +3400,10 @@ async function handleAdminPageLogin(emailInput, passwordInput) {
     } else if (e.target.id === 'email-auth-form' || e.target.closest('#email-auth-form')) {
       e.preventDefault();
       const submitBtn = document.getElementById('auth-submit-btn');
+      if (submitBtn) submitBtn.click();
+    } else if (e.target.id === 'auth-page-native-form' || e.target.closest('#auth-page-native-form')) {
+      e.preventDefault();
+      const submitBtn = document.getElementById('auth-page-submit-btn');
       if (submitBtn) submitBtn.click();
     } else if (e.target.id === 'forgot-password-form' || e.target.closest('#forgot-password-form')) {
       e.preventDefault();
