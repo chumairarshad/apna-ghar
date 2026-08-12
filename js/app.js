@@ -549,6 +549,9 @@ function renderApp() {
     // Initialize Push Banner Event Listeners
     initPushBannerEvents(state, renderApp, showToast);
 
+    // Ensure any preloader overlay is immediately purged
+    triggerSplashAnimation();
+
     // Re-initialize Lucide Icons
     if (window.lucide) {
       window.lucide.createIcons();

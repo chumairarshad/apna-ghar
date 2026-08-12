@@ -77,12 +77,10 @@ export function renderSplashScreen() {
 }
 
 export function triggerSplashAnimation() {
-  const splash = document.getElementById('bismillah-preloader') || document.getElementById('splash-screen');
-  if (splash) {
-    splash.style.opacity = '0';
-    splash.style.visibility = 'hidden';
-    if (splash.parentNode) splash.parentNode.removeChild(splash);
-  }
+  const splashElements = document.querySelectorAll('#bismillah-preloader, #splash-screen, .bismillah-preloader-box');
+  splashElements.forEach(el => {
+    try { el.remove(); } catch (e) {}
+  });
 }
 
 export function triggerQuickPagePreloader(callback) {
