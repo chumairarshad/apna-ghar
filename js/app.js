@@ -2520,24 +2520,24 @@ function setupEventListeners() {
               });
               const data = await res.json().catch(() => null);
 
-              if (res.ok && data && data.success) {
+              if (res.ok && data && data.success && data.user) {
                 saveStoredUser({
                   email: emailInput,
                   password: passwordInput,
-                  name: nameInput,
-                  phone: phoneInput,
-                  role: role,
-                  agencyName: nameInput
+                  name: data.user.name || nameInput,
+                  phone: data.user.phone || phoneInput,
+                  role: data.user.role || role,
+                  agencyName: data.user.agencyName || nameInput
                 });
 
                 const userObj = {
-                  userId: (data && data.user) ? data.user.id : `user-${Date.now()}`,
-                  name: (data && data.user) ? (data.user.name || nameInput) : nameInput,
-                  email: (data && data.user) ? (data.user.email || emailInput) : emailInput,
-                  role: (data && data.user) ? (data.user.role || role) : role,
-                  phone: (data && data.user) ? (data.user.phone || phoneInput) : phoneInput,
-                  agencyName: (data && data.user) ? (data.user.agencyName || nameInput) : nameInput,
-                  token: (data && data.token) ? data.token : null,
+                  userId: data.user.id,
+                  name: data.user.name || nameInput,
+                  email: data.user.email || emailInput,
+                  role: data.user.role || role,
+                  phone: data.user.phone || phoneInput,
+                  agencyName: data.user.agencyName || nameInput,
+                  token: data.token || null,
                   issuedAt: Date.now(),
                   expiresAt: Date.now() + (48 * 60 * 60 * 1000)
                 };
@@ -2552,10 +2552,10 @@ function setupEventListeners() {
                   state.activeTab = 'dashboard';
                   state.dashboardTab = 'dashboard';
                   if (window.location.hash !== '#dashboard') history.replaceState(null, '', '#dashboard');
-                  showToast(`🎉 Registration complete! Welcome to your Dashboard, ${userObj.name}.`);
+                  showToast(`🎉 Account created & saved to database! Welcome, ${userObj.name}.`);
                   renderApp();
                 }
-              } else if (res.status === 400 && data && data.message) {
+              } else if (data && data.message) {
                 if (data.message.toLowerCase().includes('already exists')) {
                   showToast(`⚠️ Account already exists for ${emailInput}! Switching to Sign In...`);
                   state.authMode = 'login';
@@ -2564,76 +2564,14 @@ function setupEventListeners() {
                   state.authPreFillEmail = emailInput;
                   renderApp();
                 } else {
-                  showToast(`❌ ${data.message}`);
+                  showToast(`❌ Registration Failed: ${data.message}`);
                 }
               } else {
-                saveStoredUser({
-                  email: emailInput,
-                  password: passwordInput,
-                  name: nameInput,
-                  phone: phoneInput,
-                  role: role,
-                  agencyName: nameInput
-                });
-                const userObj = {
-                  userId: `user-${Date.now()}`,
-                  name: nameInput,
-                  email: emailInput,
-                  role: role,
-                  phone: phoneInput,
-                  agencyName: nameInput,
-                  issuedAt: Date.now(),
-                  expiresAt: Date.now() + (48 * 60 * 60 * 1000)
-                };
-                localStorage.setItem('Sarmayadar_jwt_token', JSON.stringify(userObj));
-                state.user = userObj;
-
-                if (!processPendingListing(userObj)) {
-                  state.showAuthModal = false;
-                  state.authMode = 'login';
-                  state.authIsRegister = false;
-                  state.authIsSignup = false;
-                  state.activeTab = 'dashboard';
-                  state.dashboardTab = 'dashboard';
-                  if (window.location.hash !== '#dashboard') history.replaceState(null, '', '#dashboard');
-                  showToast(`🎉 Registration complete! Welcome to your Dashboard, ${nameInput}.`);
-                  renderApp();
-                }
+                showToast('❌ Database Error: Registration failed to persist account in database. Please check your network and try again.');
               }
             } catch (err) {
               console.error('Register fetch error:', err);
-              saveStoredUser({
-                email: emailInput,
-                password: passwordInput,
-                name: nameInput,
-                phone: phoneInput,
-                role: role,
-                agencyName: nameInput
-              });
-              const userObj = {
-                userId: `user-${Date.now()}`,
-                name: nameInput,
-                email: emailInput,
-                role: role,
-                phone: phoneInput,
-                agencyName: nameInput,
-                issuedAt: Date.now(),
-                expiresAt: Date.now() + (48 * 60 * 60 * 1000)
-              };
-              localStorage.setItem('Sarmayadar_jwt_token', JSON.stringify(userObj));
-              state.user = userObj;
-
-              if (!processPendingListing(userObj)) {
-                state.showAuthModal = false;
-                state.authMode = 'login';
-                state.authIsRegister = false;
-                state.authIsSignup = false;
-                state.activeTab = 'dashboard';
-                state.dashboardTab = 'dashboard';
-                if (window.location.hash !== '#dashboard') history.replaceState(null, '', '#dashboard');
-                showToast(`🎉 Registration complete! Welcome to your Dashboard, ${nameInput}.`);
-                renderApp();
-              }
+              showToast('❌ Server Connection Error: Failed to reach Sarmayadar database. Registration aborted.');
             } finally {
               state.isAuthSubmitting = false;
             }
@@ -2652,7 +2590,7 @@ function setupEventListeners() {
               });
               apiData = await res.json().catch(() => null);
 
-              if (res.ok && apiData && apiData.success && apiData.token) {
+              if (res.ok && apiData && apiData.success && apiData.user && apiData.token) {
                 const userObj = {
                   userId: apiData.user.id,
                   name: apiData.user.name,
@@ -2675,60 +2613,18 @@ function setupEventListeners() {
                   renderApp();
                 }
                 return;
+              } else if (apiData && apiData.message) {
+                showToast(`❌ ${apiData.message}`);
+                return;
+              } else {
+                showToast('❌ Login Failed: Could not authenticate with database.');
+                return;
               }
             } catch (err) {
-              // API connection error fallback to local validation
-            }
-
-            // Local Credential Validation Fallback
-            const users = getStoredUsers();
-            const foundUser = users.find(u => u.email.toLowerCase() === emailInput);
-
-            if (foundUser && foundUser.password === passwordInput) {
-              if (foundUser.isSuspended) {
-                showToast('🚫 Account Suspended: Your account has been suspended by system administrator.');
-                return;
-              }
-
-              const selectedRole = state.authRole || 'DEALER';
-              if (foundUser.role === 'ADMIN' && selectedRole !== 'ADMIN') {
-                showToast(`❌ Access Denied: This account is registered as an Administrator. Please switch to Admin Login.`);
-                return;
-              }
-
-              const tokenPayload = {
-                userId: foundUser.userId || `user-${Date.now()}`,
-                name: foundUser.name,
-                email: foundUser.email,
-                role: foundUser.role,
-                phone: foundUser.phone,
-                agencyName: foundUser.agencyName || foundUser.name,
-                city: foundUser.city || 'Lahore',
-                address: foundUser.address || '',
-                bio: foundUser.bio || '',
-                avatar: foundUser.avatar || foundUser.logo,
-                issuedAt: Date.now(),
-                lastActiveTime: Date.now(),
-                expiresAt: Date.now() + (48 * 60 * 60 * 1000)
-              };
-
-              localStorage.setItem('Sarmayadar_jwt_token', JSON.stringify(tokenPayload));
-              state.user = tokenPayload;
-
-              if (!processPendingListing(tokenPayload)) {
-                state.showAuthModal = false;
-                state.activeTab = 'dashboard';
-                state.dashboardTab = 'dashboard';
-                showToast(`🔓 Signed in successfully as ${tokenPayload.role} (${tokenPayload.name})!`);
-                renderApp();
-              }
-              return;
-            } else if (apiData && apiData.message) {
-              showToast(`❌ ${apiData.message}`);
-              return;
-            } else {
-              showToast('❌ Account not found or invalid password. Please check your credentials or create a new account.');
-              return;
+              console.error('Login fetch error:', err);
+              showToast('❌ Server Connection Error: Could not reach authentication database.');
+            } finally {
+              state.isAuthSubmitting = false;
             }
           })();
         }
