@@ -210,9 +210,9 @@ export function renderHeader(state, onStateChange) {
             </div>
             <span style="font-size:0.65rem; background:#F59E0B; color:#FFFFFF; padding:2px 6px; border-radius:4px; font-weight:800;">HOT 🔥</span>
           </a>
-          <a href="#" id="mobile-drawer-post-free-btn" style="color:#047857 !important; font-weight:800; background:#ECFDF5; padding:9px 14px; border-radius:10px; border:1px solid #A7F3D0; margin:4px 0; display:flex; align-items:center; gap:8px;">
+          <button type="button" id="mobile-drawer-post-free-btn" style="width:100%; border:none; text-align:left; cursor:pointer; font-family:inherit; color:#047857 !important; font-weight:800; background:#ECFDF5; padding:9px 14px; border-radius:10px; border:1px solid #A7F3D0; margin:4px 0; display:flex; align-items:center; gap:8px;">
             ${renderIcon('plus-circle', 16, '#059669')} <span>${t('btn_post_property', '+ Post Free Listing')}</span>
-          </a>
+          </button>
 
           <div class="mobile-nav-group-title" style="font-size:0.72rem; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; color:#64748B; padding:10px 0 2px;">
             Account & Portals

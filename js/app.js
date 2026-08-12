@@ -341,7 +341,7 @@ async function initApp() {
   // Hashchange listener for browser back/forward and URL navigation
   window.addEventListener('hashchange', () => {
     const hash = window.location.hash.replace('#', '').toLowerCase();
-    const validTabs = ['buy', 'rent', 'projects', 'tools', 'agents', 'blogs', 'advertise', 'dealer'];
+    const validTabs = ['buy', 'rent', 'projects', 'featured', 'tools', 'agents', 'blogs', 'advertise', 'advertise-checkout', 'advertise-invoice', 'dealer', 'admin', 'property-detail', 'post-property', 'blog-detail', 'privacy', 'terms', 'fbr-tax-guide', 'compare', 'login', 'register'];
     if (validTabs.includes(hash) && state.activeTab !== hash) {
       setActiveTab(hash);
       renderApp();
@@ -361,7 +361,10 @@ async function initApp() {
       const existingIds = new Set(dbProperties.map(p => p.id));
       const remainingLocal = state.properties.filter(p => !existingIds.has(p.id));
       state.properties = [...dbProperties, ...remainingLocal];
-      renderApp();
+      // Only re-render catalog views to prevent interrupting active forms like post-property
+      if (state.activeTab === 'buy' || state.activeTab === 'rent' || state.activeTab === 'featured') {
+        renderApp();
+      }
     }
   } catch (err) {
     console.warn('Neon DB sync notice:', err);
@@ -751,6 +754,10 @@ function setupEventListeners() {
   document.addEventListener('click', (e) => {
     // Top Bar + Mobile Drawer Post Free Listing Trigger
     if (e.target.closest('#top-bar-post-free-btn') || e.target.closest('#mobile-drawer-post-free-btn')) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
       state.showMobileNav = false;
       state.editingProperty = null;
       state.uploadedImages = [];
