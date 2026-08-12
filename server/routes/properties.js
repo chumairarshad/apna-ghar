@@ -18,7 +18,13 @@ router.get('/', async (req, res) => {
     const { city, purpose, category, minPrice, maxPrice } = req.query;
 
     let query = `
-      SELECT p.*, u.full_name as agent_name, u.agency_name, u.phone as agent_phone, u.badge as agent_badge
+      SELECT p.*, 
+             p.dealer_id,
+             u.full_name as agent_name, 
+             u.agency_name, 
+             u.phone as agent_phone, 
+             u.badge as agent_badge,
+             u.email as agent_email
       FROM properties p
       LEFT JOIN users u ON p.dealer_id = u.id
       WHERE LOWER(p.status) IN ('active', 'published', 'public')
@@ -61,11 +67,22 @@ router.post('/', async (req, res) => {
     const {
       id, title, purpose = 'sale', category = 'house', city, location, address,
       price, sizeMarla, bedrooms = 4, bathrooms = 5, description = '', images = [], features = [],
-      agentName, agentPhone, agencyName, status = 'active'
+      agentName, agentPhone, agencyName, status = 'active', dealerId, postedByUserId, ownerEmail, agentEmail
     } = req.body;
 
     if (!title || !price || !city || !location) {
       return res.status(400).json({ success: false, message: 'Title, price, city, and location are required.' });
+    }
+
+    let resolvedDealerId = dealerId || postedByUserId || null;
+
+    // Resolve dealer_id from email if not explicitly provided as UUID
+    if (!resolvedDealerId && (ownerEmail || agentEmail)) {
+      const targetEmail = (ownerEmail || agentEmail).toLowerCase().trim();
+      const userCheck = await pool.query('SELECT id FROM users WHERE LOWER(email) = LOWER($1)', [targetEmail]);
+      if (userCheck.rows.length > 0) {
+        resolvedDealerId = userCheck.rows[0].id;
+      }
     }
 
     const propId = id || `prop-${Date.now()}`;
@@ -76,9 +93,10 @@ router.post('/', async (req, res) => {
 
     const result = await pool.query(
       `INSERT INTO properties 
-       (id, title, purpose, category, city, location, address, price, size_marla, bedrooms, bathrooms, description, images, features, agent_name, agent_phone, agency_name, status)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
+       (id, dealer_id, title, purpose, category, city, location, address, price, size_marla, bedrooms, bathrooms, description, images, features, agent_name, agent_phone, agency_name, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
        ON CONFLICT (id) DO UPDATE SET
+         dealer_id = COALESCE(EXCLUDED.dealer_id, properties.dealer_id),
          title = EXCLUDED.title,
          purpose = EXCLUDED.purpose,
          category = EXCLUDED.category,
@@ -99,7 +117,7 @@ router.post('/', async (req, res) => {
          updated_at = CURRENT_TIMESTAMP
        RETURNING *`,
       [
-        propId, title, purpose, category, city, location, address || location,
+        propId, resolvedDealerId, title, purpose, category, city, location, address || location,
         price, sizeMarla || 10, bedrooms, bathrooms, description, images, features,
         agentName || 'Verified Agent', agentPhone || '+92 300 0000000', agencyName || 'Sarmayadar Real Estate',
         status
@@ -123,6 +141,31 @@ router.post('/', async (req, res) => {
   } catch (error) {
     console.error('Create property error in Neon DB:', error);
     return res.status(500).json({ success: false, message: 'Error saving property to Neon Database.' });
+  }
+});
+
+// Get user specific properties
+router.get('/user/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const query = `
+      SELECT p.*, 
+             p.dealer_id,
+             u.full_name as agent_name, 
+             u.agency_name, 
+             u.phone as agent_phone, 
+             u.badge as agent_badge,
+             u.email as agent_email
+      FROM properties p
+      LEFT JOIN users u ON p.dealer_id = u.id
+      WHERE (p.dealer_id::text = $1 OR LOWER(u.email) = LOWER($1))
+      ORDER BY p.created_at DESC
+    `;
+    const result = await pool.query(query, [userId]);
+    return res.json({ success: true, count: result.rows.length, properties: result.rows });
+  } catch (error) {
+    console.error('Fetch user properties error:', error);
+    return res.status(500).json({ success: false, message: 'Error fetching user properties.' });
   }
 });
 

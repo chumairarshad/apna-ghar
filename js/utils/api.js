@@ -2,6 +2,41 @@
  * API Client for Neon PostgreSQL Database & Free Unlimited Image Upload CDN
  */
 
+// Helper to map DB row to frontend property object
+function mapDbPropertyToFrontend(p) {
+  return {
+    id: p.id,
+    dealerId: p.dealer_id || p.dealerId || p.postedByUserId,
+    postedByUserId: p.dealer_id || p.postedByUserId,
+    ownerEmail: p.agent_email || p.ownerEmail || p.postedByEmail,
+    title: p.title,
+    purpose: p.purpose,
+    category: p.category,
+    city: p.city,
+    location: p.location,
+    address: p.address || p.location,
+    price: Number(p.price),
+    sizeMarla: Number(p.size_marla),
+    bedrooms: p.bedrooms || 4,
+    bathrooms: p.bathrooms || 5,
+    description: p.description || '',
+    images: Array.isArray(p.images) && p.images.length > 0 ? p.images : ['https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80'],
+    features: Array.isArray(p.features) ? p.features : ['Solar Power Backup', 'Gas Connection'],
+    status: p.status || 'active',
+    agency: {
+      name: p.agency_name || 'Verified Real Estate Agency',
+      agentName: p.agent_name || 'Verified Agent',
+      phone: p.agent_phone || '+92 300 0000000',
+      email: p.agent_email || p.ownerEmail || p.postedByEmail,
+      whatsapp: (p.agent_phone || '923000000000').replace(/[^0-9]/g, ''),
+      badge: 'VERIFIED DEALER',
+      avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80'
+    },
+    postedDate: p.created_at ? p.created_at.split('T')[0] : new Date().toISOString().split('T')[0],
+    views: p.views_count || 1
+  };
+}
+
 // Fetch properties from Neon PostgreSQL database
 export async function fetchPropertiesFromApi() {
   try {
@@ -9,33 +44,7 @@ export async function fetchPropertiesFromApi() {
     if (!res.ok) return null;
     const data = await res.json();
     if (data.success && Array.isArray(data.properties) && data.properties.length > 0) {
-      return data.properties.map(p => ({
-        id: p.id,
-        title: p.title,
-        purpose: p.purpose,
-        category: p.category,
-        city: p.city,
-        location: p.location,
-        address: p.address || p.location,
-        price: Number(p.price),
-        sizeMarla: Number(p.size_marla),
-        bedrooms: p.bedrooms || 4,
-        bathrooms: p.bathrooms || 5,
-        description: p.description || '',
-        images: Array.isArray(p.images) && p.images.length > 0 ? p.images : ['https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80'],
-        features: Array.isArray(p.features) ? p.features : ['Solar Power Backup', 'Gas Connection'],
-        status: p.status || 'active',
-        agency: {
-          name: p.agency_name || 'Verified Real Estate Agency',
-          agentName: p.agent_name || 'Verified Agent',
-          phone: p.agent_phone || '+92 300 0000000',
-          whatsapp: (p.agent_phone || '923000000000').replace(/[^0-9]/g, ''),
-          badge: 'VERIFIED DEALER',
-          avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80'
-        },
-        postedDate: p.created_at ? p.created_at.split('T')[0] : new Date().toISOString().split('T')[0],
-        views: p.views_count || 1
-      }));
+      return data.properties.map(mapDbPropertyToFrontend);
     }
     return null;
   } catch (e) {
@@ -44,11 +53,32 @@ export async function fetchPropertiesFromApi() {
   }
 }
 
+// Fetch specific user properties from Neon PostgreSQL database by User ID / Email
+export async function fetchUserPropertiesFromApi(userIdOrEmail) {
+  try {
+    if (!userIdOrEmail) return [];
+    const res = await fetch(`/api/properties/user/${encodeURIComponent(userIdOrEmail)}`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    if (data.success && Array.isArray(data.properties)) {
+      return data.properties.map(mapDbPropertyToFrontend);
+    }
+    return [];
+  } catch (e) {
+    console.warn('Fetch user properties notice:', e.message);
+    return [];
+  }
+}
+
 // Save property to Neon PostgreSQL Database
 export async function savePropertyToApi(property) {
   try {
     const payload = {
       id: property.id,
+      dealerId: property.dealerId || property.postedByUserId,
+      postedByUserId: property.postedByUserId || property.dealerId,
+      ownerEmail: property.ownerEmail || property.postedByEmail || property.agency?.email,
+      agentEmail: property.agency?.email || property.ownerEmail,
       title: property.title,
       purpose: property.purpose,
       category: property.category,

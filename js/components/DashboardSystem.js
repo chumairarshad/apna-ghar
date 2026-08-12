@@ -233,6 +233,35 @@ function renderRoleTabContent(activeTab, properties, state, user, data) {
   }
 }
 
+// Helper to match user listings using database User ID, Email, and Name
+function getUserProperties(properties, user) {
+  if (!user) return [];
+  if (user.role === 'ADMIN') return properties || [];
+
+  const targetUserId = user.userId || user.id;
+  const targetEmail = (user.email || '').toLowerCase().trim();
+  const targetName = (user.name || '').toLowerCase().trim();
+
+  return (properties || []).filter(p => {
+    const pDealerId = p.dealerId || p.postedByUserId || p.dealer_id;
+    if (targetUserId && pDealerId && String(pDealerId) === String(targetUserId)) {
+      return true;
+    }
+
+    const pEmail = (p.agency?.email || p.ownerEmail || p.postedByEmail || p.agent_email || '').toLowerCase().trim();
+    if (targetEmail && pEmail && pEmail === targetEmail) {
+      return true;
+    }
+
+    const pAgentName = (p.agency?.agentName || p.agentName || '').toLowerCase().trim();
+    if (targetName && pAgentName && pAgentName === targetName) {
+      return true;
+    }
+
+    return false;
+  });
+}
+
 /* ==========================================================================
    1. PROFOLIO DASHBOARD OVERVIEW (As Shown in Screenshot #1)
    ========================================================================== */
@@ -240,7 +269,7 @@ function renderProFolioDashboardOverview(properties, user, data, state = {}) {
   const isDealer = user.role === 'DEALER';
   const isAdmin = user.role === 'ADMIN';
 
-  const userProps = isDealer ? properties.filter(p => p.agency?.email === user.email || p.agency?.agentName === user.name) : properties;
+  const userProps = getUserProperties(properties, user);
   const activeCount = userProps.filter(p => p.status !== 'pending' && p.status !== 'sold').length;
   const forSaleCount = userProps.filter(p => p.purpose?.toLowerCase() === 'sale' || p.purpose?.toLowerCase() === 'for sale').length;
   const forRentCount = userProps.filter(p => p.purpose?.toLowerCase() === 'rent' || p.purpose?.toLowerCase() === 'for rent').length;
@@ -575,8 +604,7 @@ function renderProFolioAddPropertyForm(state) {
    3. PROFOLIO LISTINGS MANAGER (As Shown in Screenshot #3)
    ========================================================================== */
 function renderProFolioListingsManager(properties, user, state) {
-  const isDealer = user.role === 'DEALER';
-  const userProps = isDealer ? properties.filter(p => p.agency?.email === user.email || p.agency?.agentName === user.name) : properties;
+  const userProps = getUserProperties(properties, user);
 
   return `
     <div class="profolio-card">

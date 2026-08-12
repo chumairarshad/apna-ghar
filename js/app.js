@@ -1666,6 +1666,10 @@ function setupEventListeners() {
 
         const newProp = {
           id: `prop-${Date.now()}`,
+          dealerId: state.user?.userId || state.user?.id,
+          postedByUserId: state.user?.userId || state.user?.id,
+          ownerEmail: state.user?.email,
+          postedByEmail: state.user?.email,
           title,
           purpose,
           category,
@@ -1685,6 +1689,7 @@ function setupEventListeners() {
             name: agencyName,
             agentName: agentName,
             phone: phone,
+            email: state.user?.email,
             whatsapp: phone.replace(/[^0-9]/g, ''),
             badge: 'VERIFIED DEALER',
             avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80'
@@ -2384,11 +2389,13 @@ function setupEventListeners() {
       if (state.pendingListingData && userObj) {
         const pending = state.pendingListingData;
         pending.ownerEmail = userObj.email;
-        pending.postedByUserId = userObj.userId || userObj.id || `user-${Date.now()}`;
+        pending.dealerId = userObj.userId || userObj.id;
+        pending.postedByUserId = userObj.userId || userObj.id;
         pending.postedByEmail = userObj.email;
         if (pending.agency) {
           pending.agency.name = userObj.agencyName || userObj.name || pending.agency.name;
           pending.agency.agentName = userObj.name || pending.agency.agentName;
+          pending.agency.email = userObj.email;
           if (userObj.phone) {
             pending.agency.phone = userObj.phone;
             pending.agency.whatsapp = userObj.phone.replace(/[^0-9]/g, '');
