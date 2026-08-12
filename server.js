@@ -39,26 +39,14 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 // Serve uploaded media files
 app.use('/uploads', express.static(uploadsDir));
 
-// Mount API routes for both /api/* and /* for Vercel Serverless Function compatibility
+// Mount API routes strictly under /api/* to prevent collision with client-side SPA routing
 app.use('/api/auth', authRoutes);
-app.use('/auth', authRoutes);
-
 app.use('/api/properties', propertyRoutes);
-app.use('/properties', propertyRoutes);
-
 app.use('/api/mega-projects', megaProjectRoutes);
-app.use('/mega-projects', megaProjectRoutes);
-
 app.use('/api/subscriptions', subscriptionRoutes);
-app.use('/subscriptions', subscriptionRoutes);
-
 app.use('/api/admin', adminRoutes);
-
 app.use('/api/upload', uploadRoutes);
-app.use('/upload', uploadRoutes);
-
 app.use('/api/push', pushRoutes);
-app.use('/push', pushRoutes);
 
 // Serve static files (index.html, css, js)
 app.use(express.static(__dirname));

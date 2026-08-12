@@ -79,9 +79,9 @@ const TAB_SLUG_MAP = {
 
 function getSavedActiveTab() {
   if (typeof window !== 'undefined') {
-    const validTabs = ['buy', 'rent', 'projects', 'featured', 'tools', 'agents', 'blogs', 'advertise', 'advertise-checkout', 'advertise-invoice', 'dealer', 'admin', 'property-detail', 'post-property', 'blog-detail', 'privacy', 'terms', 'fbr-tax-guide', 'compare', 'login', 'register'];
+    const validTabs = ['buy', 'rent', 'projects', 'featured', 'tools', 'agents', 'blogs', 'advertise', 'advertise-checkout', 'advertise-invoice', 'dealer', 'dashboard', 'admin', 'property-detail', 'post-property', 'blog-detail', 'privacy', 'terms', 'fbr-tax-guide', 'compare', 'login', 'register'];
 
-    const pathname = window.location.pathname.toLowerCase();
+    let pathname = window.location.pathname.toLowerCase().replace(/\/$/, '');
     if (pathname === '/featured') return 'featured';
     if (pathname === '/advertise') return 'advertise';
     if (pathname === '/advertise/checkout') return 'advertise-checkout';
@@ -110,6 +110,7 @@ function getSavedActiveTab() {
     }
 
     const hash = window.location.hash.replace('#', '').toLowerCase();
+    if (hash === 'featured') return 'featured';
     if (hash === 'advertise') return 'advertise';
     if (hash === 'advertise-checkout') return 'advertise-checkout';
     if (hash === 'advertise-invoice') return 'advertise-invoice';
@@ -137,8 +138,8 @@ function getSavedActiveTab() {
 }
 
 function setActiveTab(tabName) {
-  const validTabs = ['buy', 'rent', 'projects', 'tools', 'agents', 'blogs', 'advertise', 'advertise-checkout', 'advertise-invoice', 'dealer', 'admin', 'property-detail', 'post-property', 'blog-detail', 'privacy', 'terms', 'fbr-tax-guide', 'compare', 'login', 'register'];
-  if (!validTabs.includes(tabName)) return;
+  const validTabs = ['buy', 'rent', 'projects', 'featured', 'tools', 'agents', 'blogs', 'advertise', 'advertise-checkout', 'advertise-invoice', 'dealer', 'dashboard', 'admin', 'property-detail', 'post-property', 'blog-detail', 'privacy', 'terms', 'fbr-tax-guide', 'compare', 'login', 'register'];
+  if (!validTabs.includes(tabName)) tabName = 'buy';
   state.activeTab = tabName;
   if (typeof window !== 'undefined') {
     localStorage.setItem('Sarmayadar_active_tab', tabName);
