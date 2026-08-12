@@ -173,3 +173,47 @@ export function saveDealersToStorage(dealers) {
   localStorage.setItem(DEALERS_LIST_KEY, JSON.stringify(dealers));
 }
 
+export function getStoredFavorites() {
+  return getFavorites();
+}
+
+export function getStoredRecentViews() {
+  try {
+    const data = localStorage.getItem('Sarmayadar_recent_views');
+    return data ? JSON.parse(data) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+export function getStoredUsers() {
+  try {
+    const data = localStorage.getItem('Sarmayadar_registered_users');
+    return data ? JSON.parse(data) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+export function saveStoredUsers(users) {
+  localStorage.setItem('Sarmayadar_registered_users', JSON.stringify(users));
+}
+
+export function getStoredAppointments() {
+  try {
+    const data = localStorage.getItem('Sarmayadar_appointments');
+    return data ? JSON.parse(data) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+export function getStoredNotifications() {
+  try {
+    const data = localStorage.getItem('Sarmayadar_notifications');
+    return data ? JSON.parse(data) : [];
+  } catch (e) {
+    return [];
+  }
+}
+

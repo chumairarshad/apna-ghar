@@ -1,4 +1,5 @@
 import { renderIcon } from '../utils/icons.js';
+import { t } from '../utils/i18n.js';
 
 export function renderBlogsPage(state) {
   const blogs = state.blogsList || [];
@@ -8,7 +9,7 @@ export function renderBlogsPage(state) {
 
   // Categories list
   const categories = [
-    { id: 'ALL', label: 'All Insights' },
+    { id: 'ALL', label: t('all_categories', 'All Articles') },
     { id: 'FBR TAXES', label: 'FBR Tax & Legal' },
     { id: 'INVESTMENT', label: 'High ROI Investment' },
     { id: 'MEGAPROJECTS', label: 'Society & Megaprojects' },
@@ -48,7 +49,7 @@ export function renderBlogsPage(state) {
               📰 SARMAYADAR REAL ESTATE JOURNAL
             </span>
             <h1 style="font-size: clamp(1.8rem, 3.5vw, 2.8rem); font-family: var(--font-display); font-weight: 800; color: var(--paper); line-height: 1.2; margin-bottom: 0.75rem;">
-              Pakistan Market Insights, FBR Tax & Investment Guides
+              ${t('blogs_header_title', 'Real Estate News, Taxes & Market Trends')}
             </h1>
             <p style="font-size: 1rem; color: rgba(255,255,255,0.9); line-height: 1.6; margin-bottom: 1.5rem;">
               Stay informed with expert analysis on property valuations, capital gains tax rules, housing society updates, and verified investment opportunities across Pakistan.

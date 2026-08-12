@@ -48,6 +48,12 @@ if (typeof window !== 'undefined') {
   };
 
   window.handleAdvBuy = function(planName, price) {
+    if (planName.includes('Registration') || price === 0) {
+      if (window.openAuthRegisterModal) {
+        window.openAuthRegisterModal('DEALER');
+        return;
+      }
+    }
     if (window.showToast) {
       window.showToast(`Selected Package: ${planName} (${formatPKR(price)}). Our team will contact you shortly!`);
     } else {

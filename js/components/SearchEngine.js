@@ -1,5 +1,6 @@
 import { CITIES_DATA, PROPERTY_TYPES } from '../data/cities.js';
 import { renderIcon } from '../utils/icons.js';
+import { t, tCity, tCategory } from '../utils/i18n.js';
 
 export function renderHeroSearch(state) {
   const activeTab = state.searchFilters.purpose || 'sale'; // sale | rent | commercial | projects
@@ -14,7 +15,7 @@ export function renderHeroSearch(state) {
         <!-- Hero Text Header -->
         <div class="hero-text-wrapper" style="margin-bottom:0.75rem;">
           <h1 class="hero-title" style="margin-bottom:0.25rem;">
-            Find Your Dream <span class="gradient-text">Property</span> in Pakistan
+            ${t('hero_title', 'Find Your Dream <span class="gradient-text">Property</span> in Pakistan')}
           </h1>
         </div>
 
@@ -23,13 +24,13 @@ export function renderHeroSearch(state) {
           <!-- Purpose Tabs -->
           <div class="search-tabs-container">
             <button class="search-tab ${activeTab === 'sale' ? 'active' : ''}" data-purpose="sale">
-              ${renderIcon('home', 16)} Buy
+              ${renderIcon('home', 16)} ${t('purpose_buy', 'Buy Property')}
             </button>
             <button class="search-tab ${activeTab === 'rent' ? 'active' : ''}" data-purpose="rent">
-              ${renderIcon('key', 16)} Rent
+              ${renderIcon('key', 16)} ${t('purpose_rent', 'Rent Property')}
             </button>
             <button class="search-tab ${activeTab === 'projects' ? 'active' : ''}" data-purpose="projects">
-              ${renderIcon('building-2', 16)} Megaprojects
+              ${renderIcon('building-2', 16)} ${t('purpose_projects', 'Megaprojects')}
             </button>
           </div>
 
@@ -40,7 +41,7 @@ export function renderHeroSearch(state) {
                 ${renderIcon('sparkles', 15, '#FFFFFF')}
               </div>
               <label class="ai-title">
-                AI Smart Search Engine <span class="ai-subtitle-tag">Type in Plain English or Urdu</span>
+                ${t('ai_search_title', 'AI Smart Search Engine')} <span class="ai-subtitle-tag">${t('ai_search_subtitle', 'Type in Plain English or Urdu')}</span>
               </label>
             </div>
 
@@ -49,17 +50,17 @@ export function renderHeroSearch(state) {
                 <span class="ai-search-input-icon">${renderIcon('search', 16, '#239C32')}</span>
                 <input type="text" 
                        id="ai-prompt-input" 
-                       placeholder="e.g. 10 Marla house in DHA Phase 6 Lahore under 4.5 Crore..." />
+                       placeholder="${t('ai_search_placeholder', 'e.g. 10 Marla house in DHA Phase 6 Lahore under 4.5 Crore...')}" />
               </div>
 
               <button type="button" class="btn btn-ai-search" id="execute-ai-search-btn">
-                ${renderIcon('sparkles', 18)} <span>AI Match</span>
+                ${renderIcon('sparkles', 18)} <span>${t('ai_search_btn', 'AI Search')}</span>
               </button>
             </div>
 
             <!-- Quick AI Prompt Chips -->
             <div class="ai-quick-prompts">
-              <span class="prompt-chip-label">Quick Prompts:</span>
+              <span class="prompt-chip-label">${t('quick_prompts', 'Quick Prompts:')}</span>
               <button type="button" class="ai-sample-prompt-btn" data-prompt="10 Marla house in DHA Phase 6 Lahore under 5 Crore">
                 📍 10 Marla DHA Phase 6
               </button>
@@ -76,20 +77,20 @@ export function renderHeroSearch(state) {
           <div class="search-filters-grid">
             <!-- City Selector -->
             <div class="filter-group">
-              <label>${renderIcon('map-pin', 14, '#239C32')} City</label>
+              <label>${renderIcon('map-pin', 14, '#239C32')} ${t('city_label', 'City')}</label>
               <select id="filter-city" class="filter-select">
-                <option value="all">All Cities in Pakistan</option>
+                <option value="all">${t('city_all', 'All Cities in Pakistan')}</option>
                 ${CITIES_DATA.map(c => `
-                  <option value="${c.id}" ${selectedCity === c.id ? 'selected' : ''}>${c.name}</option>
+                  <option value="${c.id}" ${selectedCity === c.id ? 'selected' : ''}>${tCity(c.name)}</option>
                 `).join('')}
               </select>
             </div>
 
             <!-- Society / Location Selector -->
             <div class="filter-group">
-              <label>${renderIcon('building-2', 14, '#239C32')} Society / Sector</label>
+              <label>${renderIcon('building-2', 14, '#239C32')} ${t('society_label', 'Society / Sector')}</label>
               <select id="filter-society" class="filter-select">
-                <option value="all">All Societies & Locations</option>
+                <option value="all">${t('society_all', 'All Societies & Locations')}</option>
                 ${societiesList.map(s => `
                   <option value="${s}" ${state.searchFilters.society === s ? 'selected' : ''}>${s}</option>
                 `).join('')}
@@ -98,20 +99,33 @@ export function renderHeroSearch(state) {
 
             <!-- Property Type Selector -->
             <div class="filter-group">
-              <label>${renderIcon('home', 14, '#239C32')} Property Type</label>
+              <label>${renderIcon('home', 14, '#239C32')} ${t('type_label', 'Property Type')}</label>
               <select id="filter-type" class="filter-select">
-                <option value="all">All Property Types</option>
-                ${PROPERTY_TYPES.map(t => `
-                  <option value="${t.id}" ${state.searchFilters.category === t.id ? 'selected' : ''}>${t.name}</option>
+                <option value="all">${t('type_all', 'All Property Types')}</option>
+                ${PROPERTY_TYPES.map(pt => `
+                  <option value="${pt.id}" ${state.searchFilters.category === pt.id ? 'selected' : ''}>${tCategory(pt.name)}</option>
                 `).join('')}
+              </select>
+            </div>
+
+            <!-- Property Size Selector -->
+            <div class="filter-group">
+              <label>${renderIcon('ruler', 14, '#239C32')} ${t('size_label', 'Property Size')}</label>
+              <select id="filter-size" class="filter-select">
+                <option value="all">${t('size_any', 'Any Size')}</option>
+                <option value="5" ${state.searchFilters.exactSizeMarla === 5 ? 'selected' : ''}>5 ${t('marla', 'Marla')}</option>
+                <option value="7" ${state.searchFilters.exactSizeMarla === 7 ? 'selected' : ''}>7 ${t('marla', 'Marla')}</option>
+                <option value="10" ${state.searchFilters.exactSizeMarla === 10 ? 'selected' : ''}>10 ${t('marla', 'Marla')}</option>
+                <option value="20" ${state.searchFilters.exactSizeMarla === 20 ? 'selected' : ''}>1 ${t('kanal', 'Kanal')}</option>
+                <option value="40" ${state.searchFilters.exactSizeMarla === 40 ? 'selected' : ''}>2 ${t('kanal', 'Kanal')}</option>
               </select>
             </div>
 
             <!-- Budget Range Selector -->
             <div class="filter-group">
-              <label>${renderIcon('dollar-sign', 14, '#239C32')} Max Price</label>
+              <label>${renderIcon('dollar-sign', 14, '#239C32')} ${t('price_label', 'Max Price')}</label>
               <select id="filter-price" class="filter-select">
-                <option value="all">Any Price</option>
+                <option value="all">${t('price_any', 'Any Price')}</option>
                 <option value="5000000" ${state.searchFilters.maxPrice === '5000000' ? 'selected' : ''}>Under 50 Lakhs (PKR 5M)</option>
                 <option value="15000000" ${state.searchFilters.maxPrice === '15000000' ? 'selected' : ''}>Under 1.5 Crore (PKR 15M)</option>
                 <option value="35000000" ${state.searchFilters.maxPrice === '35000000' ? 'selected' : ''}>Under 3.5 Crore (PKR 35M)</option>
@@ -125,12 +139,12 @@ export function renderHeroSearch(state) {
         <!-- Secondary CTA Actions below Search Engine -->
         <div class="hero-actions" style="margin-top:1.25rem;">
           <button type="button" class="btn btn-hero-primary" id="open-post-property-btn">
-            ${renderIcon('plus-circle', 18)} <span>List Free Property</span>
+            ${renderIcon('plus-circle', 18)} <span>${t('btn_post_free', 'Post Property FREE')}</span>
             <small class="cta-badge">3x Leads</small>
           </button>
 
           <button type="button" class="btn btn-hero-secondary" id="open-featured-modal-btn">
-            ${renderIcon('sparkles', 16)} <span>Get Featured Spot</span>
+            ${renderIcon('sparkles', 16)} <span>${t('badge_featured', 'FEATURED')} Spot</span>
           </button>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { formatPKR, formatArea } from '../utils/formatters.js';
 import { normalizeProperty } from '../utils/normalizeProperty.js';
 import { renderIcon } from '../utils/icons.js';
+import { t, tText, tCity } from '../utils/i18n.js';
 
 
 export function renderPropertyDetailModal(state) {
@@ -13,19 +14,16 @@ export function renderPropertyDetailModal(state) {
     <div class="modal-overlay active" id="prop-detail-modal-overlay">
       <div class="modal-container" style="max-width:920px;">
         <div class="modal-header">
-          <h3 class="modal-title">${prop.title}</h3>
+          <h3 class="modal-title">${tText(prop.title)}</h3>
           <button class="close-modal-btn" id="close-prop-detail-btn">&times;</button>
         </div>
 
         <div class="modal-body" style="padding-top:1rem;">
-          <!-- Image Gallery Grid with 360° Overlay & Sarmayadar Watermark -->
-          <div class="watermarked-image-container" style="position:relative; margin-bottom:1.5rem; border-radius:12px; overflow:hidden; border:2px solid var(--forest-dk);">
-            <div style="display:grid; grid-template-columns: 2fr 1fr; gap:0.5rem;">
-              <img src="${prop.images[0]}" style="width:100%; height:320px; object-fit:cover;" />
-              <div style="display:flex; flex-direction:column; gap:0.5rem;">
-                <img src="${prop.images[1] || prop.images[0]}" style="width:100%; height:156px; object-fit:cover;" />
-                <img src="${prop.images[2] || prop.images[0]}" style="width:100%; height:156px; object-fit:cover;" />
-              </div>
+          <!-- Property Hero Image Carousel -->
+          <div style="position:relative; border-radius:16px; overflow:hidden; margin-bottom:1.5rem; max-height:420px; box-shadow:var(--shadow-md);">
+            <img src="${prop.images[0]}" style="width:100%; height:420px; object-fit:cover;" />
+            <div style="position:absolute; top:15px; left:15px; background:rgba(19, 29, 12, 0.85); backdrop-filter:blur(6px); color:white; font-size:0.8rem; font-weight:700; padding:6px 14px; border-radius:20px; border:1px solid rgba(255,255,255,0.2);">
+              📍 ${prop.location}, ${tCity(prop.city)}
             </div>
 
             <!-- Launch 360 Virtual Tour Button Overlay -->
@@ -38,13 +36,13 @@ export function renderPropertyDetailModal(state) {
           <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
             <div>
               <div class="card-badges" style="position:static; margin-bottom:0.5rem;">
-                ${prop.badges.map(b => `<span class="badge badge-verified" style="margin-right:4px;">${b}</span>`).join('')}
+                ${prop.badges.map(b => `<span class="badge badge-verified" style="margin-right:4px;">${tText(b)}</span>`).join('')}
                 <span class="badge" style="background:rgba(242,167,27,0.15); border:1px solid var(--marigold); color:var(--forest-dk); font-size:0.75rem; font-weight:700; margin-right:4px;">
                   👁️ ${prop.views} Total Views
                 </span>
               </div>
 
-              <h2 style="font-size:1.6rem; color:var(--forest-dk); line-height:1.2; margin-bottom:0.35rem;">${prop.title}</h2>
+              <h2 style="font-size:1.6rem; color:var(--forest-dk); line-height:1.2; margin-bottom:0.35rem;">${tText(prop.title)}</h2>
               <div style="color:var(--forest); font-size:0.95rem; opacity:0.85; display:flex; align-items:center; gap:4px;">
                 ${renderIcon('map-pin', 16, 'var(--rani)')}
                 ${prop.address}
@@ -64,35 +62,35 @@ export function renderPropertyDetailModal(state) {
           <!-- Overview Key Metrics Grid -->
           <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:1rem; background:var(--cream); padding:1.25rem; border-radius:12px; margin-bottom:1.5rem; text-align:center; border:2px solid var(--border-dk);">
             <div>
-              <div style="font-size:0.75rem; color:var(--forest); font-weight:700;">BEDROOMS</div>
+              <div style="font-size:0.75rem; color:var(--forest); font-weight:700;">${t('beds', 'BEDROOMS')}</div>
               <div style="font-size:1.15rem; font-weight:800; color:var(--forest-dk);">${prop.bedrooms || 'N/A'}</div>
             </div>
             <div>
-              <div style="font-size:0.75rem; color:var(--forest); font-weight:700;">BATHROOMS</div>
+              <div style="font-size:0.75rem; color:var(--forest); font-weight:700;">${t('baths', 'BATHROOMS')}</div>
               <div style="font-size:1.15rem; font-weight:800; color:var(--forest-dk);">${prop.bathrooms || 'N/A'}</div>
             </div>
             <div>
-              <div style="font-size:0.75rem; color:var(--forest); font-weight:700;">AREA SIZE</div>
+              <div style="font-size:0.75rem; color:var(--forest); font-weight:700;">${t('area', 'AREA SIZE')}</div>
               <div style="font-size:1.15rem; font-weight:800; color:var(--forest-dk);">${formatArea(prop.sizeMarla, state.unit)}</div>
             </div>
             <div>
               <div style="font-size:0.75rem; color:var(--forest); font-weight:700;">FACING</div>
-              <div style="font-size:1.05rem; font-weight:700; color:var(--forest-dk);">${prop.facing}</div>
+              <div style="font-size:1.05rem; font-weight:700; color:var(--forest-dk);">${tText(prop.facing)}</div>
             </div>
           </div>
 
           <!-- Description & Features -->
           <div style="margin-bottom:1.75rem;">
-            <h3 style="margin-bottom:0.75rem; color:var(--forest-dk);">Property Overview & Description</h3>
-            <p style="color:var(--ink); font-size:0.95rem; line-height:1.7;">${prop.description}</p>
+            <h3 style="margin-bottom:0.75rem; color:var(--forest-dk);">${t('property_overview', 'Property Overview & Description')}</h3>
+            <p style="color:var(--ink); font-size:0.95rem; line-height:1.7;">${tText(prop.description)}</p>
           </div>
 
           <div style="margin-bottom:1.75rem;">
-            <h3 style="margin-bottom:0.75rem; color:var(--forest-dk);">Features & Amenities</h3>
+            <h3 style="margin-bottom:0.75rem; color:var(--forest-dk);">${t('amenities_features', 'Features & Amenities')}</h3>
             <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:0.75rem;">
               ${prop.features.map(f => `
                 <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.9rem; font-weight:600; color:var(--forest-dk);">
-                  ${renderIcon('check-circle', 16, 'var(--rani)')} ${f}
+                  ${renderIcon('check-circle', 16, 'var(--rani)')} ${tText(f)}
                 </div>
               `).join('')}
             </div>

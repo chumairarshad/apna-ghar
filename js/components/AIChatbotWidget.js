@@ -1,5 +1,6 @@
 import { renderIcon } from '../utils/icons.js';
 import { formatPKR } from '../utils/formatters.js';
+import { t, tText, tCity } from '../utils/i18n.js';
 
 /**
  * Format markdown bolding syntax (**text** or *text*) into clean <strong> HTML tags.
@@ -67,7 +68,7 @@ export function renderAIChatbotWidget(state) {
         <!-- Language Selector Bar (English vs Roman Urdu) -->
         <div style="display:flex; background:#F8FAFC; border-bottom:2px solid #E2E8F0; padding:6px 1rem; align-items:center; justify-content:space-between;">
           <span style="font-size:0.72rem; font-family:var(--font-mono); font-weight:800; color:#475569; text-transform:uppercase;">
-            🗣️ Language / زبان:
+            🗣️ ${t('language', 'Language')} / زبان:
           </span>
           <div style="display:flex; gap:4px; background:#E2E8F0; padding:3px; border-radius:20px;">
             <button type="button" class="chat-lang-btn ${chatLang === 'en' ? 'active' : ''}" data-lang="en" style="border:none; padding:4px 11px; border-radius:16px; font-size:0.75rem; font-weight:800; cursor:pointer; transition:all 0.2s; ${chatLang === 'en' ? 'background:var(--forest-dk); color:white; box-shadow:0 2px 6px rgba(0,0,0,0.15);' : 'background:transparent; color:#334155;'}">
@@ -94,19 +95,19 @@ export function renderAIChatbotWidget(state) {
       ? 'background:var(--rani); color:#ffffff; border-bottom-right-radius:2px; font-weight:600; box-shadow:0 3px 10px rgba(209,38,110,0.25);'
       : 'background:#ffffff; color:#0F172A; border:2px solid #E2E8F0; border-bottom-left-radius:2px; box-shadow:0 3px 10px rgba(0,0,0,0.06);'}
               ">
-                ${formatChatMessageHtml(msg.text)}
+                ${formatChatMessageHtml(tText(msg.text))}
               </div>
 
               <!-- Render Matched Property Card Boxes -->
               ${msg.matchedProperties && msg.matchedProperties.length > 0 ? `
                 <div style="width:100%; margin-top:0.65rem; display:flex; flex-direction:column; gap:0.65rem;">
                   <div style="font-family:var(--font-mono); font-size:0.72rem; font-weight:800; color:var(--forest-dk); text-transform:uppercase; letter-spacing:0.5px;">
-                    🎯 AI Matched & Recommended Listings:
+                    🎯 AI Searched & Recommended Listings:
                   </div>
                   ${msg.matchedProperties.map(p => `
                     <div class="chat-property-card" style="background:#ffffff; border:2px solid #1E293B; border-radius:12px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.08);">
                       <div style="display:flex; gap:0.75rem; padding:0.65rem;">
-                        <img src="${p.images[0] || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=300&q=80'}" style="width:80px; height:80px; border-radius:8px; object-fit:cover; flex-shrink:0; border:1px solid #CBD5E1;" alt="${p.title}" />
+                        <img src="${p.images[0] || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=300&q=80'}" style="width:80px; height:80px; border-radius:8px; object-fit:cover; flex-shrink:0; border:1px solid #CBD5E1;" alt="${tText(p.title)}" />
                         
                         <div style="flex:1; min-width:0; display:flex; flex-direction:column; justify-content:space-between;">
                           <div>
@@ -114,10 +115,10 @@ export function renderAIChatbotWidget(state) {
                               <span style="background:var(--rani); color:white; font-family:var(--font-mono); font-size:0.62rem; font-weight:800; padding:2px 7px; border-radius:10px;">
                                 ${p.matchScore}% MATCH
                               </span>
-                              <span style="font-size:0.68rem; color:#64748B; font-weight:700;">${p.city}</span>
+                              <span style="font-size:0.68rem; color:#64748B; font-weight:700;">${tCity(p.city)}</span>
                             </div>
                             <h5 style="font-size:0.82rem; font-weight:800; color:#0F172A; margin:0 0 3px 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                              ${p.title}
+                              ${tText(p.title)}
                             </h5>
                             <div style="font-family:var(--font-mono); font-size:0.85rem; font-weight:800; color:var(--forest-dk);">
                               ${formatPKR(p.price)}
@@ -125,7 +126,7 @@ export function renderAIChatbotWidget(state) {
                           </div>
 
                           <button type="button" class="btn btn-primary btn-sm chat-view-prop-btn" data-id="${p.id}" style="padding:4px 10px; font-size:0.72rem; font-weight:800; border-radius:6px; margin-top:4px; align-self:flex-start;">
-                            👁️ View Details
+                            👁️ ${t('btn_view_details', 'View Details')}
                           </button>
                         </div>
                       </div>
@@ -135,13 +136,14 @@ export function renderAIChatbotWidget(state) {
               ` : ''}
 
               <!-- Direct Agent WhatsApp Consultation Button -->
-              ${msg.sender === 'bot' && msg.userQuery ? `
-                <a href="https://wa.me/923327507866?text=${encodeURIComponent(`Assalam-o-Alaikum Sarmayadar Team! I searched for: "${msg.userQuery}". Please help me find or source a property matching my requirements.`)}" 
+              ${msg.sender === 'bot' && (msg.userQuery || msg.customWaMessage) ? `
+                <a href="https://wa.me/923327507866?text=${encodeURIComponent(msg.customWaMessage || `Hi, I am looking for: "${msg.userQuery}". Please help me find or source a property matching my requirements.`)}" 
                    target="_blank" 
+                   rel="noopener noreferrer"
                    class="btn-whatsapp-premium" 
-                   style="margin-top: 0.65rem;">
-                  ${renderIcon('message-circle', 18, '#ffffff')}
-                  <span>${chatLang === 'en' ? '💬 WhatsApp Agent Consultation' : '💬 WhatsApp Chat (Agent Se Baat Karein)'}</span>
+                   style="margin-top: 0.65rem; display:inline-flex; align-items:center; gap:8px; background:#25D366; color:#ffffff; font-weight:700; font-size:0.82rem; padding:8px 14px; border-radius:10px; text-decoration:none; box-shadow:0 3px 10px rgba(37,211,102,0.35);">
+                  ${renderIcon('message-circle', 16, '#ffffff')}
+                  <span>${t('inquire_whatsapp', '💬 WhatsApp Inquiry')}</span>
                 </a>
               ` : ''}
             </div>
@@ -163,9 +165,9 @@ export function renderAIChatbotWidget(state) {
 
         <!-- Chat Input Form -->
         <form id="ai-chat-form" style="padding:0.85rem 1rem; background:#ffffff; border-top:2px solid var(--forest-dk); display:flex; gap:0.5rem;">
-          <input type="text" id="ai-chat-input" placeholder="${chatLang === 'en' ? 'Ask Sarmayadar Assistant location or budget...' : 'Location, budget, ya size likhein...'}" style="flex:1; padding:0.7rem 0.95rem; border:2px solid #1E293B; border-radius:8px; font-size:0.88rem; background:#ffffff; color:#0F172A; font-weight:700;" required />
+          <input type="text" id="ai-chat-input" placeholder="${t('type_message', 'Ask Sarmayadar Assistant location or budget...')}" style="flex:1; padding:0.7rem 0.95rem; border:2px solid #1E293B; border-radius:8px; font-size:0.88rem; background:#ffffff; color:#0F172A; font-weight:700;" required />
           <button type="submit" class="btn btn-primary btn-sm" style="padding:0 1rem; font-weight:800;">
-            ${renderIcon('sparkles', 16, 'white')} Search
+            ${renderIcon('sparkles', 16, 'white')} ${t('ai_search_btn', 'Search')}
           </button>
         </form>
       </div>

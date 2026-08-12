@@ -10,7 +10,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'Sarmayadar_super_secret_jwt_key_20
 
 // 1. Register API
 // Body: { name, email, password, phone, role: 'DEALER' | 'ADMIN', agencyName, city }
-router.post(['/', '/Register', '/api/auth/Register'], async (req, res) => {
+router.post(['/', '/Register', '/register', '/signup', '/api/auth/Register', '/api/auth/register', '/api/auth/signup'], async (req, res) => {
 
   console.log('----------------------------------------------------');
   console.log('📌 [POST /api/auth/Register] STARTING REQUEST TRACE');
@@ -25,7 +25,7 @@ router.post(['/', '/Register', '/api/auth/Register'], async (req, res) => {
       return res.status(400).json(errRes);
     }
 
-    const targetRole = ['DEALER', 'ADMIN'].includes(String(role).toUpperCase()) ? String(role).toUpperCase() : 'DEALER';
+    const targetRole = ['USER', 'DEALER', 'ADMIN'].includes(String(role).toUpperCase()) ? String(role).toUpperCase() : 'USER';
     const normalizedEmail = String(email).toLowerCase().trim();
 
     // Check if email exists

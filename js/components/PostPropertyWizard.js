@@ -205,6 +205,11 @@ function renderWizardStep4(prop, uploadedImages = []) {
         <input type="file" id="wiz_file_input" accept="image/*" multiple style="display:none;" />
       </div>
 
+      <div style="margin-top:0.75rem; display:flex; gap:8px;">
+        <input type="text" id="wiz_image_url_input" placeholder="Or paste Photo URL (e.g. https://images.unsplash.com/photo...)" class="form-control" style="flex:1; font-size:0.85rem;" />
+        <button type="button" id="add-wiz-image-url-btn" class="btn btn-secondary" style="padding:6px 14px; font-size:0.82rem; font-weight:700;">+ Add Photo URL</button>
+      </div>
+
       <div id="wiz-image-previews" style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-top:1rem;">
         ${renderImagePreviewsList(uploadedImages)}
       </div>

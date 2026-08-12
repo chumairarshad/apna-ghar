@@ -1,4 +1,5 @@
 import { renderIcon } from '../utils/icons.js';
+import { t } from '../utils/i18n.js';
 
 export function renderFooter() {
   return `
@@ -16,7 +17,7 @@ export function renderFooter() {
               </svg>
               <h2 style="font-family:var(--font-display); font-size:1.4rem; color:var(--paper); margin:0;">SARMAYA<span style="color:var(--rani);">DAR</span></h2>
             </div>
-            <p>Pakistan's most trusted real estate portal connecting home buyers, tenants, and verified real estate agencies across DHA, Bahria Town, and major cities.</p>
+            <p>${t('footer_tagline', "Pakistan's most trusted digital real estate portal & dealer network.")}</p>
             
             <div class="footer-social-links" style="display:flex; gap:0.65rem; margin-top:1.25rem;">
               <a href="#" class="social-icon-btn" title="Facebook">${renderIcon('facebook', 16, 'var(--cream)')}</a>
@@ -29,24 +30,24 @@ export function renderFooter() {
 
           <!-- Quick Navigation Links -->
           <div class="footer-col">
-            <h4>${renderIcon('compass', 16, 'var(--marigold)')} Quick Explore</h4>
+            <h4>${renderIcon('compass', 16, 'var(--marigold)')} ${t('footer_quick_links', 'Quick Links')}</h4>
             <ul>
-              <li><a href="#" data-nav="buy">${renderIcon('chevron-right', 12)} Properties for Sale</a></li>
-              <li><a href="#" data-nav="rent">${renderIcon('chevron-right', 12)} Rental Properties</a></li>
-              <li><a href="#" data-nav="projects">${renderIcon('chevron-right', 12)} Housing Megaprojects</a></li>
-              <li><a href="#" data-nav="advertise">${renderIcon('chevron-right', 12)} Advertise on Sarmayadar</a></li>
-              <li><a href="#" data-nav="dealer">${renderIcon('chevron-right', 12)} Dealer Portal CRM</a></li>
+              <li><a href="#" data-nav="buy">${renderIcon('chevron-right', 12)} ${t('nav_sale', 'Properties for Sale')}</a></li>
+              <li><a href="#" data-nav="rent">${renderIcon('chevron-right', 12)} ${t('nav_rent', 'Rental Properties')}</a></li>
+              <li><a href="#" data-nav="projects">${renderIcon('chevron-right', 12)} ${t('nav_projects', 'Housing Megaprojects')}</a></li>
+              <li><a href="#" data-nav="advertise">${renderIcon('chevron-right', 12)} ${t('nav_advertise', '📢 Advertise')}</a></li>
+              <li><a href="#" data-nav="dealer">${renderIcon('chevron-right', 12)} ${t('nav_dealer', 'Dealer Portal')}</a></li>
             </ul>
           </div>
 
           <!-- Real Estate Tools Column -->
           <div class="footer-col">
-            <h4>${renderIcon('calculator', 16, 'var(--marigold)')} Land & Finance Tools</h4>
+            <h4>${renderIcon('calculator', 16, 'var(--marigold)')} ${t('nav_tools', 'Calculators & Tools')}</h4>
             <ul>
-              <li><a href="#" id="footer-link-converter">${renderIcon('ruler', 12)} Pakistani Land Unit Converter</a></li>
-              <li><a href="#" id="footer-link-mortgage">${renderIcon('building-2', 12)} Bank Home Loan Calculator</a></li>
-              <li><a href="#" id="footer-link-valuation">${renderIcon('trending-up', 12)} Property Price Valuation Engine</a></li>
-              <li><a href="#" id="footer-link-post">${renderIcon('plus-circle', 12)} Post Free Property Listing</a></li>
+              <li><a href="#" id="footer-link-converter">${renderIcon('ruler', 12)} ${t('tab_converter', 'Area Unit Converter')}</a></li>
+              <li><a href="#" id="footer-link-mortgage">${renderIcon('building-2', 12)} ${t('tab_mortgage', 'Mortgage Loan Calculator')}</a></li>
+              <li><a href="#" id="footer-link-valuation">${renderIcon('trending-up', 12)} ${t('tab_valuation', 'Property Valuation')}</a></li>
+              <li><a href="#" id="footer-link-post">${renderIcon('plus-circle', 12)} ${t('btn_post_free', 'Post Property FREE')}</a></li>
             </ul>
           </div>
 
@@ -77,7 +78,7 @@ export function renderFooter() {
         <!-- Footer Bottom Bar -->
         <div class="footer-bottom" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; padding-top:2rem; margin-top:2.5rem; border-top:1px solid rgba(255,255,255,0.12); font-size:0.8rem;">
           <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
-            <span>&copy; 2026 <strong>Sarmayadar</strong>. All Rights Reserved.</span>
+            <span>&copy; 2026 <strong>Sarmayadar</strong>. ${t('footer_rights', 'All Rights Reserved.')}</span>
             <span style="opacity:0.5;">•</span>
             <span style="font-weight:700; color:#FFFFFF; display:inline-flex; align-items:center; gap:4px;">
               Made with <span style="color:#EF4444; font-size:0.9rem;">❤️</span> by <strong>Vujood</strong>
@@ -87,6 +88,7 @@ export function renderFooter() {
             <a href="#" id="footer-privacy-btn" style="color:var(--cream); opacity:0.9; font-weight:700;">Privacy Policy</a>
             <a href="#" id="footer-terms-btn" style="color:var(--cream); opacity:0.9; font-weight:700;">Terms of Service</a>
             <a href="#" id="footer-tax-guide-btn" style="color:var(--cream); opacity:0.9;">FBR Tax Guide</a>
+            <a href="#admin" id="footer-admin-btn" style="color:var(--marigold); opacity:0.95; font-weight:800;">🛡️ ${t('nav_admin', 'Admin Portal')}</a>
           </div>
         </div>
       </div>

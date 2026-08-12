@@ -1,5 +1,6 @@
 import { HOUSING_PROJECTS } from '../data/projects.js';
 import { formatPKR } from '../utils/formatters.js';
+import { t, tText } from '../utils/i18n.js';
 
 export function renderHousingProjects() {
   return `
@@ -7,9 +8,9 @@ export function renderHousingProjects() {
       <div class="container">
         <div class="section-head" style="margin-bottom:2rem;">
           <div>
-            <span class="eyebrow">INSTALLMENT SCHEMES & PRE-LAUNCH</span>
+            <span class="eyebrow">${t('badge_exclusive', 'EXCLUSIVE')}</span>
             <h2 style="font-family:var(--font-display); font-size:clamp(1.5rem, 3.5vw, 2.4rem); color:var(--forest-dk); margin-top:0.4rem;">
-              Pakistani Megaprojects & Payment Plans
+              ${t('featured_projects_title', "Pakistan's Premier Housing Megaprojects")}
             </h2>
           </div>
           <p style="color:var(--forest); opacity:0.85; max-width:650px;">
@@ -21,22 +22,22 @@ export function renderHousingProjects() {
           ${HOUSING_PROJECTS.map(proj => `
             <div class="megaproject-card" style="box-shadow:var(--shadow-md); border:2px solid var(--forest-dk); border-radius:16px; overflow:hidden; background:#ffffff;">
               <div style="position:relative; min-height:220px; background:#131d0c;">
-                <img src="${proj.image}" style="width:100%; height:100%; object-fit:cover; min-height:220px;" alt="${proj.name}" />
+                <img src="${proj.image}" style="width:100%; height:100%; object-fit:cover; min-height:220px;" alt="${tText(proj.name)}" />
                 <span class="badge badge-featured" style="position:absolute; top:1rem; left:1rem; background:var(--rani); color:white; font-weight:800; padding:6px 14px; border-radius:20px; box-shadow:0 4px 10px rgba(0,0,0,0.25);">
-                  ${proj.status}
+                  ${tText(proj.status)}
                 </span>
               </div>
               
               <div class="megaproject-card-body" style="display:flex; flex-direction:column; justify-content:space-between; background:#ffffff;">
                 <div>
                   <div style="color:var(--rani-dk); font-weight:800; font-size:0.8rem; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:0.5px;">${proj.developer}</div>
-                  <h3 style="font-family:var(--font-display); font-size:clamp(1.25rem, 2.5vw, 1.65rem); margin-bottom:0.4rem; color:var(--forest-dk); font-weight:800; line-height:1.25;">${proj.name}</h3>
-                  <p style="color:#334155; font-size:0.88rem; margin-bottom:1.15rem; line-height:1.45; font-weight:500;">${proj.tagline}</p>
+                  <h3 style="font-family:var(--font-display); font-size:clamp(1.25rem, 2.5vw, 1.65rem); margin-bottom:0.4rem; color:var(--forest-dk); font-weight:800; line-height:1.25;">${tText(proj.name)}</h3>
+                  <p style="color:#334155; font-size:0.88rem; margin-bottom:1.15rem; line-height:1.45; font-weight:500;">${tText(proj.tagline)}</p>
                   
                   <!-- Responsive Key Highlights Bar -->
                   <div class="project-stats-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(100px, 1fr)); gap:0.6rem; margin-bottom:1.25rem; background:#F8FAFC; padding:0.85rem 1rem; border-radius:12px; border:2px solid #E2E8F0;">
                     <div>
-                      <div style="font-size:0.65rem; color:#64748B; font-weight:800; font-family:var(--font-mono); text-transform:uppercase;">STARTING PRICE</div>
+                      <div style="font-size:0.65rem; color:#64748B; font-weight:800; font-family:var(--font-mono); text-transform:uppercase;">${t('starting_from', 'STARTING PRICE')}</div>
                       <div style="font-weight:800; color:var(--rani); font-size:1.05rem; font-family:var(--font-mono);">${formatPKR(proj.minPrice)}</div>
                     </div>
                     <div>
@@ -48,11 +49,13 @@ export function renderHousingProjects() {
                       <div style="font-weight:800; color:#0F172A; font-size:1rem; font-family:var(--font-mono);">${proj.installmentsPeriod}</div>
                     </div>
                   </div>
+                </div>
 
-                  <!-- Payment Breakdown Section Header -->
-                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-                    <h4 style="font-size:0.88rem; color:var(--forest-dk); font-family:var(--font-mono); font-weight:800; letter-spacing:0.5px;">OFFICIAL PAYMENT BREAKDOWN</h4>
-                  </div>
+                <!-- Action Buttons -->
+                <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap; margin-top:0.75rem;">
+                  <button class="btn btn-primary open-project-modal-btn" data-id="${proj.id}" style="padding:10px 22px; font-size:0.9rem; font-weight:800;">
+                    ${t('explore_project', 'Explore Project')}
+                  </button>
 
                   <!-- 1. MOBILE CARDS VIEW (Full Width Stacked Rows - Displays on <= 640px) -->
                   <div class="mobile-payment-cards-list" style="margin-bottom:1.25rem;">
@@ -61,7 +64,7 @@ export function renderHousingProjects() {
                         
                         <!-- Header Row: Plot Size & Total Price -->
                         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #E2E8F0; padding-bottom:0.45rem; margin-bottom:0.6rem; flex-wrap:wrap; gap:0.35rem;">
-                          <span style="font-weight:800; color:#0F172A; font-size:1rem;">${row.size}</span>
+                          <span style="font-weight:800; color:#0F172A; font-size:1rem;">${tText(row.size)}</span>
                           <span style="font-weight:800; color:var(--forest-dk); font-family:var(--font-mono); font-size:0.92rem; background:#E2E8F0; padding:2px 8px; border-radius:6px;">Total: ${row.total}</span>
                         </div>
 

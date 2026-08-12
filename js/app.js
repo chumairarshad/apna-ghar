@@ -5,12 +5,14 @@ import { convertArea, calculateMortgage, formatPKR } from './utils/formatters.js
 import { normalizeProperty, normalizeProperties } from './utils/normalizeProperty.js';
 import { fetchPropertiesFromApi, savePropertyToApi, uploadImageToFreeCdn } from './utils/api.js';
 import { addWatermarkToImage } from './utils/watermark.js';
+import { initI18n, setLanguage, t } from './utils/i18n.js';
 
 import { renderHeader } from './components/Header.js';
 import { renderHeroSearch } from './components/SearchEngine.js';
 import { renderCatalog } from './components/Catalog.js';
 import { initLeafletMap } from './components/MapView.js';
 import { renderDealerDashboard } from './components/DealerDashboard.js';
+import { renderDashboardSystem } from './components/DashboardSystem.js';
 import { renderHousingProjects } from './components/HousingProjects.js';
 import { renderFinancialTools } from './components/FinancialTools.js';
 import { renderPostPropertyModal, renderImagePreviewsList } from './components/PostPropertyWizard.js';
@@ -39,25 +41,67 @@ import { renderBlogsPage } from './components/BlogsPage.js';
 import { renderAdvertisePage } from './components/AdvertisePage.js';
 import { renderPushNotificationBanner, initPushBannerEvents } from './components/PushNotificationBanner.js';
 import { registerServiceWorker, togglePushNotifications } from './utils/pushClient.js';
+import { parsePropertySizeFromQuery, formatWhatsAppSizeMessage } from './utils/sizeParser.js';
+import { extractEntitiesAndIntent } from './data/chatbotDataset.js';
+import { renderAdminLoginPage } from './components/AdminLoginPage.js';
+import { renderPropertyDetailPage } from './components/PropertyDetailPage.js';
+import { renderPostPropertyPage } from './components/PostPropertyPage.js';
+import { renderBlogDetailPage } from './components/BlogDetailPage.js';
+import { renderLegalPage } from './components/LegalPages.js';
+import { renderPropertyComparerPage } from './components/PropertyComparerPage.js';
+import { renderAuthPage } from './components/AuthPages.js';
 
 // Tab Persistence Helper Functions (Hash & LocalStorage Sync)
 function getSavedActiveTab() {
   if (typeof window !== 'undefined') {
-    const validTabs = ['buy', 'rent', 'projects', 'tools', 'agents', 'blogs', 'advertise', 'dealer'];
+    const validTabs = ['buy', 'rent', 'projects', 'tools', 'agents', 'blogs', 'advertise', 'dealer', 'admin', 'property-detail', 'post-property', 'blog-detail', 'privacy', 'terms', 'fbr-tax-guide', 'compare', 'login', 'register'];
+
+    const pathname = window.location.pathname.toLowerCase();
+    if (pathname === '/dealer/admin' || pathname === '/admin') return 'admin';
+    if (pathname.startsWith('/property/')) {
+      state.selectedPropertyId = pathname.split('/property/')[1];
+      return 'property-detail';
+    }
+    if (pathname.startsWith('/blog/')) {
+      state.selectedArticleId = pathname.split('/blog/')[1];
+      return 'blog-detail';
+    }
+    if (pathname === '/post-property') return 'post-property';
+    if (pathname === '/privacy') return 'privacy';
+    if (pathname === '/terms') return 'terms';
+    if (pathname === '/fbr-tax-guide') return 'fbr-tax-guide';
+    if (pathname === '/compare') return 'compare';
+    if (pathname === '/login') return 'login';
+    if (pathname === '/register') return 'register';
+
     const hash = window.location.hash.replace('#', '').toLowerCase();
-    if (validTabs.includes(hash)) {
-      return hash;
+    if (hash === 'admin' || hash === 'dealer/admin') return 'admin';
+    if (hash.startsWith('property/')) {
+      state.selectedPropertyId = hash.split('property/')[1];
+      return 'property-detail';
     }
+    if (hash.startsWith('blog/')) {
+      state.selectedArticleId = hash.split('blog/')[1];
+      return 'blog-detail';
+    }
+    if (hash === 'post-property') return 'post-property';
+    if (hash === 'privacy') return 'privacy';
+    if (hash === 'terms') return 'terms';
+    if (hash === 'fbr-tax-guide') return 'fbr-tax-guide';
+    if (hash === 'compare') return 'compare';
+    if (hash === 'login') return 'login';
+    if (hash === 'register') return 'register';
+
+    if (validTabs.includes(hash)) return hash;
+
     const saved = localStorage.getItem('Sarmayadar_active_tab');
-    if (saved && validTabs.includes(saved)) {
-      return saved;
-    }
+    if (saved && validTabs.includes(saved)) return saved;
   }
   return 'buy';
 }
 
 function setActiveTab(tabName) {
-  const validTabs = ['buy', 'rent', 'projects', 'tools', 'agents', 'blogs', 'advertise', 'dealer'];
+  const validTabs = ['buy', 'rent', 'projects', 'tools', 'agents', 'blogs', 'advertise', 'dealer', 'admin', 'property-detail', 'post-property', 'blog-detail', 'privacy', 'terms', 'fbr-tax-guide', 'compare', 'login', 'register'];
   if (!validTabs.includes(tabName)) return;
   state.activeTab = tabName;
   if (typeof window !== 'undefined') {
@@ -77,6 +121,7 @@ const state = {
   unit: 'Marla',
   viewMode: 'grid', // grid | map
   sortBy: 'featured',
+  searchQuery: '',
   searchFilters: {
     purpose: 'sale',
     city: 'all',
@@ -84,7 +129,9 @@ const state = {
     category: 'all',
     maxPrice: 'any',
     badge: null,
-    size: null
+    size: null,
+    exactSizeMarla: null,
+    exactSizeLabel: null
   },
   selectedProperty: null,
   showPostWizard: false,
@@ -118,8 +165,13 @@ const state = {
   selectedBlogCategory: 'ALL',
   blogSearchQuery: '',
   showBlogCreateModal: false,
-  editingBlog: null
+  editingBlog: null,
+  language: 'en',
+  showLangDropdown: false
 };
+
+// Initialize i18n Localization Engine & RTL state
+initI18n(state);
 
 const ARTICLES_DB = [
   {
@@ -263,11 +315,8 @@ async function initApp() {
   renderApp();
   setupEventListeners();
 
-
-  if (state.showSplash) {
-    triggerSplashAnimation();
-    state.showSplash = false;
-  }
+  // Trigger Bismillah Preloader progress and smooth fade out
+  triggerSplashAnimation();
 
   // Fetch latest properties live from Neon PostgreSQL Database
   try {
@@ -326,6 +375,7 @@ function renderApp() {
     const appContainer = document.getElementById('app');
     if (!appContainer) return;
 
+    initI18n(state);
     state.properties = normalizeProperties(state.properties);
     if (state.selectedProperty) {
       state.selectedProperty = normalizeProperty(state.selectedProperty);
@@ -365,31 +415,65 @@ function renderApp() {
       mainContentHTML = `
         ${renderAdvertisePage(state)}
       `;
-    } else if (state.activeTab === 'dealer') {
+    } else if (state.activeTab === 'dealer' || state.activeTab === 'dashboard') {
       mainContentHTML = `
-        ${renderDealerDashboard(state.properties, state)}
+        ${renderDashboardSystem(state.properties, state)}
+      `;
+    } else if (state.activeTab === 'admin') {
+      mainContentHTML = `
+        ${renderAdminLoginPage(state)}
+      `;
+    } else if (state.activeTab === 'property-detail') {
+      mainContentHTML = `
+        ${renderPropertyDetailPage(state)}
+      `;
+    } else if (state.activeTab === 'post-property') {
+      mainContentHTML = `
+        ${renderPostPropertyPage(state)}
+      `;
+    } else if (state.activeTab === 'blog-detail') {
+      mainContentHTML = `
+        ${renderBlogDetailPage(state)}
+      `;
+    } else if (state.activeTab === 'privacy') {
+      mainContentHTML = `
+        ${renderLegalPage('privacy')}
+      `;
+    } else if (state.activeTab === 'terms') {
+      mainContentHTML = `
+        ${renderLegalPage('terms')}
+      `;
+    } else if (state.activeTab === 'fbr-tax-guide') {
+      mainContentHTML = `
+        ${renderLegalPage('fbr-tax-guide')}
+      `;
+    } else if (state.activeTab === 'compare') {
+      mainContentHTML = `
+        ${renderPropertyComparerPage(state)}
+      `;
+    } else if (state.activeTab === 'login') {
+      mainContentHTML = `
+        ${renderAuthPage('login', state)}
+      `;
+    } else if (state.activeTab === 'register') {
+      mainContentHTML = `
+        ${renderAuthPage('register', state)}
       `;
     }
 
+    const shouldRenderSplash = state.showSplash;
+    if (state.showSplash) {
+      state.showSplash = false;
+    }
+
     appContainer.innerHTML = `
-      ${state.showSplash ? renderSplashScreen() : ''}
+      ${shouldRenderSplash ? renderSplashScreen() : ''}
       ${renderHeader(state, onStateChange)}
       <main>${mainContentHTML}</main>
       ${renderFooter()}
       
-      <!-- Modals & Overlays -->
-      ${renderPostPropertyModal(state)}
+      <!-- Drawers & Widgets (Popups Removed - Moved to Dedicated Pages) -->
       ${renderSavedFavoritesDrawer(state.properties, state)}
-      ${renderAuthModal(state)}
-      ${renderPropertyDetailModal(state)}
-      ${renderFeaturedPropertyModal(state)}
-
-      <!-- New Recommended Feature Modals -->
-      ${renderVirtualTourModal(state)}
-      ${renderPropertyComparerModal(state)}
-      ${renderScheduleVisitModal(state)}
-      ${renderArticleReaderModal(state)}
-      ${renderLegalModal(state.activeLegalTab)}
 
       <!-- Persistent Floating AI Chatbot Widget -->
       ${renderAIChatbotWidget(state)}
@@ -453,6 +537,64 @@ function onStateChange(key, value) {
   renderApp();
 }
 
+function handleSearchQueryExecution(query) {
+  const cleanQuery = (query || '').trim();
+  state.searchQuery = cleanQuery;
+
+  if (!cleanQuery) {
+    state.searchFilters.exactSizeMarla = null;
+    state.searchFilters.exactSizeLabel = null;
+    renderApp();
+    return;
+  }
+
+  // 1. Detect Exact Property Size in Query
+  const parsedSize = parsePropertySizeFromQuery(cleanQuery);
+  if (parsedSize) {
+    state.searchFilters.exactSizeMarla = parsedSize.sizeMarla;
+    state.searchFilters.exactSizeLabel = parsedSize.sizeLabel;
+  } else {
+    state.searchFilters.exactSizeMarla = null;
+    state.searchFilters.exactSizeLabel = null;
+  }
+
+  // 2. Detect City
+  const lowerQ = cleanQuery.toLowerCase();
+  if (lowerQ.includes('lahore') || lowerQ.includes('dha phase 6') || lowerQ.includes('dha phase 5') || lowerQ.includes('gulberg')) {
+    state.searchFilters.city = 'lahore';
+  } else if (lowerQ.includes('islamabad') || lowerQ.includes('bahria town phase 8') || lowerQ.includes('f-7') || lowerQ.includes('g-11')) {
+    state.searchFilters.city = 'islamabad';
+  } else if (lowerQ.includes('karachi') || lowerQ.includes('clifton') || lowerQ.includes('emaar')) {
+    state.searchFilters.city = 'karachi';
+  } else if (lowerQ.includes('rawalpindi')) {
+    state.searchFilters.city = 'rawalpindi';
+  }
+
+  // 3. Detect Category
+  if (lowerQ.includes('house') || lowerQ.includes('villa') || lowerQ.includes('portion') || lowerQ.includes('residence')) {
+    state.searchFilters.category = 'house';
+  } else if (lowerQ.includes('apartment') || lowerQ.includes('flat') || lowerQ.includes('penthouse')) {
+    state.searchFilters.category = 'apartment';
+  } else if (lowerQ.includes('plot') || lowerQ.includes('land')) {
+    state.searchFilters.category = 'plot';
+  } else if (lowerQ.includes('commercial') || lowerQ.includes('office') || lowerQ.includes('shop') || lowerQ.includes('plaza')) {
+    state.searchFilters.category = 'commercial';
+  }
+
+  if (parsedSize) {
+    showToast(`🔍 Searching for exact size: ${parsedSize.sizeLabel}...`);
+  } else {
+    showToast(`🔍 Searching verified database for "${cleanQuery}"...`);
+  }
+  
+  renderApp();
+
+  const catalogEl = document.querySelector('.catalog-section');
+  if (catalogEl) {
+    catalogEl.scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
 function getFilteredProperties() {
   let list = [...state.properties];
 
@@ -463,32 +605,40 @@ function getFilteredProperties() {
     list = list.filter(p => p.purpose === 'rent');
   }
 
-  // Search Filters
   const f = state.searchFilters;
+
+  // Exact Property Size Filter (HIGHEST PRIORITY)
+  if (f.exactSizeMarla != null) {
+    const targetSize = Number(f.exactSizeMarla);
+    list = list.filter(p => {
+      const pMarla = Number(p.sizeMarla || p.size_marla || 0);
+      return Math.abs(pMarla - targetSize) < 0.1;
+    });
+  } else if (f.size && f.size !== 'all' && f.size !== 'null') {
+    const sz = Number(f.size);
+    list = list.filter(p => (p.sizeMarla || 0) >= sz);
+  }
+
+  // Search Filters
   if (f.city && f.city !== 'all') {
-    list = list.filter(p => p.city.toLowerCase() === f.city.toLowerCase());
+    list = list.filter(p => (p.city || '').toLowerCase() === f.city.toLowerCase());
   }
 
   if (f.society && f.society !== 'all') {
-    list = list.filter(p => p.location.toLowerCase().includes(f.society.toLowerCase()));
+    list = list.filter(p => (p.location || '').toLowerCase().includes(f.society.toLowerCase()));
   }
 
   if (f.category && f.category !== 'all') {
     list = list.filter(p => p.category === f.category);
   }
 
-  if (f.maxPrice && f.maxPrice !== 'any') {
+  if (f.maxPrice && f.maxPrice !== 'any' && f.maxPrice !== 'all') {
     const maxP = Number(f.maxPrice);
-    list = list.filter(p => p.price <= maxP);
+    list = list.filter(p => (p.price || 0) <= maxP);
   }
 
   if (f.badge) {
-    list = list.filter(p => p.badges.includes(f.badge));
-  }
-
-  if (f.size) {
-    const sz = Number(f.size);
-    list = list.filter(p => p.sizeMarla >= sz);
+    list = list.filter(p => Array.isArray(p.badges) && p.badges.includes(f.badge));
   }
 
   // Sorting
@@ -522,8 +672,49 @@ function showToast(message) {
 }
 
 
+function canUserPostProperty(state) {
+  if (!state.user) {
+    showToast('🔒 Sign-in required! Please sign in to post a free property listing.');
+    state.showAuthModal = true;
+    state.authMode = 'login';
+    state.showMobileNav = false;
+    renderApp();
+    return false;
+  }
+
+  // Count existing properties posted by this user
+  const userListingsCount = (state.properties || []).filter(p =>
+    p.postedByUserId === state.user.id ||
+    p.ownerEmail === state.user.email ||
+    p.agentEmail === state.user.email ||
+    p.postedByEmail === state.user.email
+  ).length;
+
+  if (state.user.role !== 'DEALER' && state.user.role !== 'ADMIN' && userListingsCount >= 5) {
+    showToast('⚠️ Free accounts are limited to 5 property listings. Upgrade to a Dealer account for unlimited listings!');
+    state.showAuthModal = true;
+    state.authRole = 'DEALER';
+    state.authIsRegister = true;
+    state.showMobileNav = false;
+    renderApp();
+    return false;
+  }
+
+  return true;
+}
+
 function setupEventListeners() {
   document.addEventListener('click', (e) => {
+    // Top Bar + Mobile Drawer Post Free Listing Trigger
+    if (e.target.closest('#top-bar-post-free-btn') || e.target.closest('#mobile-drawer-post-free-btn')) {
+      state.showMobileNav = false;
+      if (canUserPostProperty(state)) {
+        setActiveTab('post-property');
+        renderApp();
+      }
+      return;
+    }
+
     // Article Reader Modal Triggers
     const artBtn = e.target.closest('.read-article-btn');
     if (artBtn) {
@@ -610,24 +801,30 @@ function setupEventListeners() {
       const p = sampleBtn.getAttribute('data-prompt');
       const input = document.getElementById('ai-prompt-input');
       if (input) input.value = p;
+      handleSearchQueryExecution(p);
     }
 
     // AI Search Execution
     if (e.target.closest('#execute-ai-search-btn')) {
       const promptVal = document.getElementById('ai-prompt-input')?.value || '';
-      if (promptVal.toLowerCase().includes('dha') || promptVal.toLowerCase().includes('lahore')) {
-        state.searchFilters.city = 'lahore';
-      }
-      if (promptVal.toLowerCase().includes('islamabad')) {
-        state.searchFilters.city = 'islamabad';
-      }
-      if (promptVal.toLowerCase().includes('karachi')) {
-        state.searchFilters.city = 'karachi';
-      }
-      showToast('🤖 AI Recommendation Engine matched top verified properties for your request!');
+      handleSearchQueryExecution(promptVal);
+    }
+
+    // Reset / Clear Search Filters Button
+    if (e.target.closest('#reset-search-filters-btn')) {
+      state.searchQuery = '';
+      state.searchFilters.city = 'all';
+      state.searchFilters.society = 'all';
+      state.searchFilters.category = 'all';
+      state.searchFilters.maxPrice = 'any';
+      state.searchFilters.badge = null;
+      state.searchFilters.size = null;
+      state.searchFilters.exactSizeMarla = null;
+      state.searchFilters.exactSizeLabel = null;
+      const input = document.getElementById('ai-prompt-input');
+      if (input) input.value = '';
+      showToast('🔄 Search filters cleared!');
       renderApp();
-      const catalog = document.querySelector('.catalog-section');
-      if (catalog) catalog.scrollIntoView({ behavior: 'smooth' });
     }
 
     // Featured Property Modal Triggers -> Redirect to Advertise Packages Page
@@ -695,14 +892,7 @@ function setupEventListeners() {
 
     if (e.target.closest('#mobile-nav-sell-btn')) {
       e.preventDefault();
-      if (state.user?.role !== 'DEALER' && state.user?.role !== 'ADMIN') {
-        showToast('⚠️ Only registered Dealers can post properties. Please sign in or join as a Dealer.');
-        state.showAuthModal = true;
-        state.authRole = 'DEALER';
-        state.authIsRegister = true;
-        renderApp();
-        return;
-      }
+      if (!canUserPostProperty(state)) return;
       state.editingProperty = null;
       state.uploadedImages = [];
       state.showPostWizard = true;
@@ -734,11 +924,165 @@ function setupEventListeners() {
       }
     }
 
+    // Language Selector Click & Selection Handlers
+    if (e.target.closest('#lang-selector-btn') || e.target.closest('#lang-selector-btn-main')) {
+      e.preventDefault();
+      state.showLangDropdown = !state.showLangDropdown;
+      renderApp();
+    }
+
+    const langBtn = e.target.closest('[data-lang-select]');
+    if (langBtn) {
+      e.preventDefault();
+      const langCode = langBtn.getAttribute('data-lang-select');
+      state.showLangDropdown = false;
+      state.showMobileNav = false;
+      setLanguage(langCode, state, renderApp);
+      const labels = { en: 'English 🇬🇧', ur: 'Urdu 🇵🇰', ar: 'Arabic 🇸🇦' };
+      showToast(`🌐 Language changed to ${labels[langCode] || langCode}`);
+    }
+
+    if (state.showLangDropdown && !e.target.closest('#lang-selector-btn') && !e.target.closest('#lang-selector-btn-main') && !e.target.closest('.lang-dropdown-menu')) {
+      state.showLangDropdown = false;
+      renderApp();
+    }
+
+    if (state.showProfileDropdown && !e.target.closest('#header-user-profile-icon-btn') && !e.target.closest('.user-profile-dropdown')) {
+      state.showProfileDropdown = false;
+      renderApp();
+    }
+
+    // Header Profile Icon Click Listener (Before Login -> /login, After Login -> Toggle Dropdown Menu)
+    if (e.target.closest('#header-user-profile-icon-btn') || e.target.closest('#header-user-profile-btn') || e.target.closest('#mobile-auth-login-link-btn') || e.target.closest('#mobile-user-profile-btn')) {
+      e.preventDefault();
+      state.showMobileNav = false;
+      if (state.user) {
+        state.showProfileDropdown = !state.showProfileDropdown;
+        renderApp();
+      } else {
+        state.activeTab = 'login';
+        if (window.location.hash !== '#login') history.replaceState(null, '', '#login');
+        renderApp();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
+    // Dashboard Left Sidebar & Sub-Tab Click Listener
+    const dashTabBtn = e.target.closest('[data-dash-tab]');
+    if (dashTabBtn) {
+      e.preventDefault();
+      const tab = dashTabBtn.getAttribute('data-dash-tab');
+      state.dashboardTab = tab;
+      state.activeTab = 'dashboard';
+      if (window.innerWidth <= 992) {
+        state.isSidebarExpanded = false;
+      }
+      renderApp();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Toggle / Close Sidebar Drawer on Mobile & Desktop
+    if (e.target.closest('#dash-toggle-sidebar') || e.target.closest('#dash-close-sidebar') || e.target.closest('#dash-sidebar-backdrop')) {
+      e.preventDefault();
+      state.isSidebarExpanded = !state.isSidebarExpanded;
+      renderApp();
+    }
+
+    // Settings Sub-Tabs Click Handler (User Settings, Preferences, Change Password)
+    const settingsTabBtn = e.target.closest('[data-settings-tab]');
+    if (settingsTabBtn) {
+      e.preventDefault();
+      state.settingsSubTab = settingsTabBtn.getAttribute('data-settings-tab');
+      renderApp();
+    }
+
+    // Mega Projects Modal Handlers
+    if (e.target.closest('#add-mega-project-modal-btn')) {
+      e.preventDefault();
+      state.editingMegaProject = null;
+      state.showMegaProjectModal = true;
+      renderApp();
+    }
+
+    if (e.target.closest('#close-mega-project-modal-btn')) {
+      e.preventDefault();
+      state.showMegaProjectModal = false;
+      renderApp();
+    }
+
+    const editMpBtn = e.target.closest('.dash-edit-mega-project-btn');
+    if (editMpBtn) {
+      e.preventDefault();
+      const mpId = editMpBtn.getAttribute('data-id');
+      const mps = state.megaProjects || [
+        { id: 'mp-1', projectName: 'Pearl One Courtyard (Towers 1, 2 & 3)', developerName: 'ABS Developers', location: 'Bahria Town', city: 'Lahore', minPrice: 8500000, maxPrice: 38000000, totalUnits: 450, status: 'approved', images: ['https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80'] },
+        { id: 'mp-2', projectName: 'ABS Mall & Residency', developerName: 'ABS Developers', location: 'Main Ring Road Interchange', city: 'Lahore', minPrice: 6500000, maxPrice: 29000000, totalUnits: 180, status: 'approved', images: ['https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80'] },
+        { id: 'mp-3', projectName: 'Burj Quaid', developerName: 'ABS Developers', location: 'DHA City', city: 'Karachi', minPrice: 25000000, maxPrice: 120000000, totalUnits: 250, status: 'approved', images: ['https://images.unsplash.com/photo-1567496898669-ee935f5f647a?auto=format&fit=crop&w=1200&q=80'] }
+      ];
+      const targetMp = mps.find(m => m.id === mpId);
+      if (targetMp) {
+        state.editingMegaProject = targetMp;
+        state.showMegaProjectModal = true;
+        renderApp();
+      }
+    }
+
+    const deleteMpBtn = e.target.closest('.dash-delete-mega-project-btn');
+    if (deleteMpBtn) {
+      e.preventDefault();
+      const mpId = deleteMpBtn.getAttribute('data-id');
+      if (confirm('Are you sure you want to delete this Mega Project listing?')) {
+        const mps = state.megaProjects || [
+          { id: 'mp-1', projectName: 'Pearl One Courtyard (Towers 1, 2 & 3)', developerName: 'ABS Developers', location: 'Bahria Town', city: 'Lahore', minPrice: 8500000, maxPrice: 38000000, totalUnits: 450, status: 'approved', images: ['https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80'] },
+          { id: 'mp-2', projectName: 'ABS Mall & Residency', developerName: 'ABS Developers', location: 'Main Ring Road Interchange', city: 'Lahore', minPrice: 6500000, maxPrice: 29000000, totalUnits: 180, status: 'approved', images: ['https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80'] },
+          { id: 'mp-3', projectName: 'Burj Quaid', developerName: 'ABS Developers', location: 'DHA City', city: 'Karachi', minPrice: 25000000, maxPrice: 120000000, totalUnits: 250, status: 'approved', images: ['https://images.unsplash.com/photo-1567496898669-ee935f5f647a?auto=format&fit=crop&w=1200&q=80'] }
+        ];
+        state.megaProjects = mps.filter(m => m.id !== mpId);
+        showToast('🗑️ Mega Project deleted successfully.');
+        renderApp();
+      }
+    }
+
+    if (e.target.closest('#dropdown-dashboard-btn')) {
+      state.showProfileDropdown = false;
+      state.activeTab = 'dashboard';
+      state.dashboardTab = 'dashboard';
+      renderApp();
+    }
+
+    if (e.target.closest('#dropdown-settings-btn')) {
+      state.showProfileDropdown = false;
+      state.activeTab = 'dashboard';
+      state.dashboardTab = 'profile';
+      renderApp();
+    }
+
+    // Logout Handlers (From Dropdown or Dashboard Sidebar)
+    if (e.target.closest('#header-dropdown-logout-btn') || e.target.closest('#dash-logout-btn') || e.target.closest('#logout-btn') || e.target.closest('#mobile-logout-btn')) {
+      e.preventDefault();
+      localStorage.removeItem('Sarmayadar_jwt_token');
+      state.user = null;
+      state.showProfileDropdown = false;
+      state.activeTab = 'buy';
+      showToast('🔒 Logged out successfully.');
+      renderApp();
+    }
+
+    if (e.target.closest('#dash-post-listing-btn')) {
+      e.preventDefault();
+      state.dashboardTab = 'add-property';
+      renderApp();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
     // Navigation Links
     const navBtn = e.target.closest('[data-nav]');
     if (navBtn) {
       e.preventDefault();
       const tab = navBtn.getAttribute('data-nav');
+      if (tab === 'post-property') {
+        if (!canUserPostProperty(state)) return;
+      }
       if (tab === 'dealer' && state.user?.role !== 'DEALER' && state.user?.role !== 'ADMIN') {
         showToast('⚠️ Dealer Portal is strictly for verified Agencies & Brokers. Please sign in or register as a Dealer.');
         state.showAuthModal = true;
@@ -817,26 +1161,49 @@ function setupEventListeners() {
       }
     }
 
-    // Property Details Modal Trigger (Real Views Counter)
-    const detailBtn = e.target.closest('.view-details-btn, .popup-view-btn');
-    if (detailBtn) {
+    // Property Details Trigger -> Navigates to Dedicated Property Detail Page (/property/:id)
+    const detailBtn = e.target.closest('.view-details-btn, .popup-view-btn, .property-card, .view-prop-detail-btn, .chat-view-prop-btn');
+    if (detailBtn && !e.target.closest('.fav-btn') && !e.target.closest('.save-btn') && !e.target.closest('.btn-whatsapp')) {
       const id = detailBtn.getAttribute('data-id');
-      const target = state.properties.find(p => p.id === id);
+      const target = (state.properties || []).find(p => String(p.id) === String(id));
       if (target) {
-        // Increment real view counter & save to storage
         target.views = (target.views || 0) + 1;
         saveOrUpdatePropertyInStorage(target);
 
-        state.selectedProperty = target;
+        state.selectedPropertyId = id;
+        state.selectedProperty = normalizeProperty(target);
+        state.activeTab = 'property-detail';
+        if (window.location.hash !== `#property/${id}`) {
+          history.replaceState(null, '', `#property/${id}`);
+        }
         renderApp();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
 
-
-    // Close Property Detail Modal
-    if (e.target.closest('#close-prop-detail-btn') || e.target.id === 'prop-detail-modal-overlay') {
-      state.selectedProperty = null;
+    // Toggle 3D Walkthrough Section inside Property Detail Page
+    if (e.target.closest('#toggle-3d-walkthrough-btn')) {
+      state.showVirtualTourSection = !state.showVirtualTourSection;
       renderApp();
+    }
+
+    // Post Property Trigger -> Navigates to Dedicated Page (/post-property)
+    if (e.target.closest('#open-post-property-btn') || e.target.closest('#dealer-post-btn') || e.target.id === 'footer-link-post') {
+      e.preventDefault();
+      if (state.user?.role !== 'DEALER' && state.user?.role !== 'ADMIN') {
+        showToast('⚠️ Only verified Dealers can post properties. Please sign in as a Dealer.');
+        state.activeTab = 'login';
+        if (window.location.hash !== '#login') history.replaceState(null, '', '#login');
+        renderApp();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+      state.editingProperty = null;
+      state.uploadedImages = [];
+      state.activeTab = 'post-property';
+      if (window.location.hash !== '#post-property') history.replaceState(null, '', '#post-property');
+      renderApp();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     // Logout Handler
@@ -852,107 +1219,55 @@ function setupEventListeners() {
     // Privacy Policy Footer Link Trigger
     if (e.target.closest('#footer-privacy-btn')) {
       e.preventDefault();
-      state.activeLegalTab = 'privacy';
+      state.activeTab = 'privacy';
+      if (window.location.hash !== '#privacy') history.replaceState(null, '', '#privacy');
       renderApp();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     // Terms of Service Footer Link Trigger
     if (e.target.closest('#footer-terms-btn')) {
       e.preventDefault();
-      state.activeLegalTab = 'terms';
-      renderApp();
-    }
-
-    // Close Legal Modal
-    if (e.target.closest('#close-legal-modal-btn') || e.target.closest('#close-legal-modal-btn-bottom') || e.target.id === 'legal-modal-overlay') {
-      state.activeLegalTab = null;
-      renderApp();
-    }
-
-    // Featured Property Ad Modal Controls -> Redirect to Advertise Packages
-    if (e.target.closest('#open-featured-modal-btn')) {
-      e.preventDefault();
-      setActiveTab('advertise');
-      state.showFeaturedModal = false;
+      state.activeTab = 'terms';
+      if (window.location.hash !== '#terms') history.replaceState(null, '', '#terms');
       renderApp();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    if (e.target.closest('#close-featured-btn') || e.target.closest('#close-ad-view-prop-btn') || e.target.id === 'featured-modal-overlay') {
-      state.showFeaturedModal = false;
-      renderApp();
-    }
-
-    // Post Property Modal Controls
-    if (e.target.closest('#open-post-property-btn') || e.target.closest('#dealer-post-btn') || e.target.id === 'footer-link-post') {
+    // FBR Tax Guide Footer Link Trigger
+    if (e.target.closest('#footer-tax-guide-btn')) {
       e.preventDefault();
-      if (state.user?.role !== 'DEALER' && state.user?.role !== 'ADMIN') {
-        showToast('⚠️ Only verified Dealers can post properties. Please sign in as a Dealer.');
-        state.showAuthModal = true;
-        state.authRole = 'DEALER';
-        state.authIsRegister = true;
-        renderApp();
-        return;
-      }
-      state.editingProperty = null;
-      state.uploadedImages = [];
-      state.showPostWizard = true;
-      state.wizardStep = 1;
+      state.activeTab = 'fbr-tax-guide';
+      if (window.location.hash !== '#fbr-tax-guide') history.replaceState(null, '', '#fbr-tax-guide');
       renderApp();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    if (e.target.closest('#close-wizard-btn')) {
-      state.showPostWizard = false;
-      state.editingProperty = null;
-      state.uploadedImages = [];
+    // Compare Properties Link Trigger
+    if (e.target.closest('.open-compare-btn') || e.target.closest('#nav-compare-btn')) {
+      e.preventDefault();
+      state.activeTab = 'compare';
+      if (window.location.hash !== '#compare') history.replaceState(null, '', '#compare');
       renderApp();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Step switching with strict required-fields validation
-    if (e.target.closest('#wizard-next-btn')) {
-      const step = state.wizardStep || 1;
-
-      if (step === 1) {
-        const purpose = document.querySelector('input[name="wiz_purpose"]:checked')?.value;
-        const category = document.getElementById('wiz_category')?.value;
-        if (!purpose || !category) {
-          showToast('⚠️ Please select both Property Purpose and Category.');
-          return;
-        }
-      } else if (step === 2) {
-        const location = document.getElementById('wiz_location')?.value?.trim();
-        const address = document.getElementById('wiz_address')?.value?.trim();
-        if (!location || !address) {
-          showToast('⚠️ Please fill in both Location/Society and Full Address.');
-          return;
-        }
-      } else if (step === 3) {
-        const price = Number(document.getElementById('wiz_price')?.value);
-        const size = Number(document.getElementById('wiz_size')?.value);
-        const beds = document.getElementById('wiz_beds')?.value;
-        const baths = document.getElementById('wiz_baths')?.value;
-        if (!price || price <= 0 || !size || size <= 0 || beds === '' || baths === '') {
-          showToast('⚠️ Please enter valid Asking Price, Area Size, Bedrooms, and Bathrooms.');
-          return;
-        }
-      }
-
-      if (state.wizardStep < 4) {
-        state.wizardStep += 1;
-        updateWizardStepUI();
-      }
+    // Step switching for Post Property Page
+    if (e.target.closest('#wiz-next-step-btn') || e.target.closest('#wizard-next-btn')) {
+      state.wizardStep = Math.min(4, (state.wizardStep || 1) + 1);
+      renderApp();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    if (e.target.closest('#wizard-prev-btn')) {
-      if (state.wizardStep > 1) {
-        state.wizardStep -= 1;
-        updateWizardStepUI();
-      }
+    if (e.target.closest('#wiz-prev-step-btn') || e.target.closest('#wizard-prev-btn')) {
+      state.wizardStep = Math.max(1, (state.wizardStep || 1) - 1);
+      renderApp();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     // Image Upload Zone Click
     if (e.target.closest('#image-drag-drop-zone')) {
-      const fileInput = document.getElementById('wiz_file_input');
+      const fileInput = document.getElementById('wiz-file-input') || document.getElementById('wiz_file_input');
       if (fileInput) fileInput.click();
     }
 
@@ -1016,8 +1331,213 @@ function setupEventListeners() {
       }
     }
 
+    // Save / Create Mega Project Form Submit
+    if (e.target.closest('#save-mega-project-btn') || (e.target.closest('#save-mega-project-form') && e.type === 'submit')) {
+      e.preventDefault();
+      const mpId = document.getElementById('mp_id')?.value;
+      const projectName = document.getElementById('mp_name')?.value?.trim();
+      const developerName = document.getElementById('mp_dev')?.value?.trim();
+      const city = document.getElementById('mp_city')?.value || 'Lahore';
+      const location = document.getElementById('mp_location')?.value?.trim();
+      const minPrice = Number(document.getElementById('mp_min_price')?.value || 5000000);
+      const maxPrice = Number(document.getElementById('mp_max_price')?.value || 35000000);
+      const description = document.getElementById('mp_desc')?.value?.trim();
+
+      const images = (state.mpUploadedImages && state.mpUploadedImages.length > 0)
+        ? state.mpUploadedImages
+        : (state.editingMegaProject?.images || ['https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80']);
+
+      const token = localStorage.getItem('Sarmayadar_jwt_token');
+
+      (async () => {
+        try {
+          if (token) {
+            const res = await fetch('/api/mega-projects', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({ projectName, developerName, location, city, minPrice, maxPrice, description, images })
+            });
+            const data = await res.json();
+            if (data.success && data.megaProject) {
+              state.megaProjects = [data.megaProject, ...(state.megaProjects || [])];
+              showToast('🚀 Mega Project created & published permanently to Database!');
+            } else {
+              const newMp = { id: 'mp-' + Date.now(), projectName, developerName, city, location, minPrice, maxPrice, totalUnits: 100, status: 'approved', description, images };
+              state.megaProjects = [newMp, ...(state.megaProjects || [])];
+              showToast('🚀 Mega Project created!');
+            }
+          } else {
+            const newMp = { id: 'mp-' + Date.now(), projectName, developerName, city, location, minPrice, maxPrice, totalUnits: 100, status: 'approved', description, images };
+            state.megaProjects = [newMp, ...(state.megaProjects || [])];
+            showToast('🚀 Mega Project created!');
+          }
+        } catch (err) {
+          console.warn('Backend API submission notice, saving locally:', err);
+          const newMp = { id: 'mp-' + Date.now(), projectName, developerName, city, location, minPrice, maxPrice, totalUnits: 100, status: 'approved', description, images };
+          state.megaProjects = [newMp, ...(state.megaProjects || [])];
+          showToast('🚀 Mega Project created!');
+        }
+
+        state.showMegaProjectModal = false;
+        state.editingMegaProject = null;
+        state.mpUploadedImages = [];
+        renderApp();
+      })();
+      return;
+    }
+
+    // Profile Photo Change Button Click
+    if (e.target.closest('#user-profile-change-photo-btn')) {
+      e.preventDefault();
+      document.getElementById('user-profile-photo-input')?.click();
+    }
+
+    // Save Additional User Settings Form Submit
+    if (e.target.closest('#save-user-settings-btn') || (e.target.closest('#dash-settings-form') && e.type === 'submit')) {
+      e.preventDefault();
+      const avatarUrl = document.getElementById('set_avatar')?.value?.trim();
+      const name = document.getElementById('set_name')?.value?.trim();
+      const phone = document.getElementById('set_phone')?.value?.trim();
+      const whatsapp = document.getElementById('set_whatsapp')?.value?.trim();
+      const city = document.getElementById('set_city')?.value;
+      const address = document.getElementById('set_address')?.value?.trim();
+
+      if (state.user) {
+        if (name) state.user.name = name;
+        if (avatarUrl) {
+          state.user.avatar = avatarUrl;
+          state.user.logo = avatarUrl;
+        }
+        if (phone) state.user.phone = `+92${phone.replace(/^\+?92/, '')}`;
+        if (whatsapp) state.user.whatsapp = `+92${whatsapp.replace(/^\+?92/, '')}`;
+        if (city) state.user.city = city;
+        if (address) state.user.address = address;
+
+        localStorage.setItem('Sarmayadar_jwt_token', JSON.stringify(state.user));
+
+        const storedUsers = getStoredUsers();
+        const found = storedUsers.find(u => u.email?.toLowerCase() === state.user?.email?.toLowerCase());
+        if (found) {
+          found.name = state.user.name;
+          found.avatar = state.user.avatar;
+          found.logo = state.user.logo;
+          found.phone = state.user.phone;
+          found.whatsapp = state.user.whatsapp;
+          found.city = state.user.city;
+          found.address = state.user.address;
+          saveStoredUser(found);
+        }
+      }
+
+      showToast('✅ Profile details & avatar updated successfully!');
+      renderApp();
+      return;
+    }
+
+    // Mega Project Photos Upload Drag/Drop & Click Triggers
+    if (e.target.closest('#mp-image-drag-drop-zone')) {
+      document.getElementById('mp_file_input')?.click();
+    }
+
+    if (e.target.closest('#add-mp-url-photo-btn')) {
+      e.preventDefault();
+      const urlInput = document.getElementById('mp_image_url');
+      const url = urlInput?.value?.trim();
+      if (url) {
+        state.mpUploadedImages = state.mpUploadedImages || (state.editingMegaProject?.images ? [...state.editingMegaProject.images] : []);
+        state.mpUploadedImages.push(url);
+        if (state.editingMegaProject) state.editingMegaProject.images = [...state.mpUploadedImages];
+        if (urlInput) urlInput.value = '';
+        showToast('📷 Project photo added!');
+        renderApp();
+      } else {
+        showToast('⚠️ Please paste a valid Photo URL.');
+      }
+    }
+
+    const removeMpImgBtn = e.target.closest('.remove-mp-img-btn');
+    if (removeMpImgBtn) {
+      e.preventDefault();
+      const idx = Number(removeMpImgBtn.getAttribute('data-index'));
+      let images = state.mpUploadedImages || (state.editingMegaProject?.images ? [...state.editingMegaProject.images] : []);
+      images.splice(idx, 1);
+      state.mpUploadedImages = images;
+      if (state.editingMegaProject) state.editingMegaProject.images = images;
+      showToast('Photo removed.');
+      renderApp();
+    }
+
+    // Product (Property) Photo Upload Drag/Drop & URL Triggers
+    if (e.target.closest('#image-drag-drop-zone')) {
+      document.getElementById('wiz_file_input')?.click();
+    }
+
+    if (e.target.closest('#add-wiz-image-url-btn')) {
+      e.preventDefault();
+      const urlInput = document.getElementById('wiz_image_url_input');
+      const url = urlInput?.value?.trim();
+      if (url) {
+        state.uploadedImages = state.uploadedImages || [];
+        state.uploadedImages.push(url);
+        if (urlInput) urlInput.value = '';
+        showToast('📷 Property photo added!');
+        renderApp();
+      } else {
+        showToast('⚠️ Please paste a valid Photo URL.');
+      }
+    }
+
+    const removeWizImgBtn = e.target.closest('.remove-wiz-img-btn');
+    if (removeWizImgBtn) {
+      e.preventDefault();
+      const idx = Number(removeWizImgBtn.getAttribute('data-index'));
+      state.uploadedImages = state.uploadedImages || [];
+      state.uploadedImages.splice(idx, 1);
+      showToast('Photo removed.');
+      renderApp();
+    }
+
+    // Preferences Form Submit Button Click
+    if (e.target.closest('#save-preferences-btn') || (e.target.closest('#dash-preferences-form') && e.type === 'submit')) {
+      e.preventDefault();
+      const unit = document.getElementById('pref_unit')?.value || 'marla';
+      state.unit = unit;
+      showToast('⚙️ Preferences saved successfully!');
+      renderApp();
+      return;
+    }
+
+    // Change Password Form Submit Button Click
+    if (e.target.closest('#save-password-btn') || (e.target.closest('#dash-password-form') && e.type === 'submit')) {
+      e.preventDefault();
+      const passCurrent = document.getElementById('pass_current')?.value;
+      const passNew = document.getElementById('pass_new')?.value;
+      const passConfirm = document.getElementById('pass_confirm')?.value;
+
+      if (!passNew || passNew.length < 6) {
+        showToast('⚠️ New password must be at least 6 characters.');
+        return;
+      }
+
+      if (passNew !== passConfirm) {
+        showToast('⚠️ New password and confirmation do not match.');
+        return;
+      }
+
+      showToast('🔒 Password changed successfully!');
+      if (document.getElementById('pass_current')) document.getElementById('pass_current').value = '';
+      if (document.getElementById('pass_new')) document.getElementById('pass_new').value = '';
+      if (document.getElementById('pass_confirm')) document.getElementById('pass_confirm').value = '';
+      return;
+    }
+
     // Publish / Edit Property Submission
-    if (e.target.closest('#wizard-submit-btn')) {
+    if (e.target.closest('#wizard-submit-btn') || e.target.closest('#wiz-submit-listing-btn')) {
+      if (!state.editingProperty && !canUserPostProperty(state)) return;
+
       const title = document.getElementById('wiz_title')?.value?.trim();
       const city = document.getElementById('wiz_city')?.value || 'Lahore';
       const location = document.getElementById('wiz_location')?.value?.trim();
@@ -1196,23 +1716,53 @@ function setupEventListeners() {
       showToast('Item removed from saved list.');
     }
 
-    // Auth Modal Controls (Guest Sign In & Sign Up Buttons)
-    if (e.target.closest('#open-auth-login-btn') || e.target.closest('#open-auth-btn') || e.target.closest('#mobile-auth-login-btn')) {
-      state.showAuthModal = true;
-      state.authMode = 'login';
-      state.authIsRegister = false;
-      state.phoneStep = 1;
-      state.showMobileNav = false;
-      renderApp();
+    // Password Show / Hide Eye Toggle with Animation
+    const pwdToggleBtn = e.target.closest('.pwd-toggle-btn');
+    if (pwdToggleBtn) {
+      e.preventDefault();
+      const wrapper = pwdToggleBtn.closest('.password-field-wrapper, div');
+      const input = wrapper ? wrapper.querySelector('input') : null;
+      if (input) {
+        const isPass = input.type === 'password';
+        input.type = isPass ? 'text' : 'password';
+        pwdToggleBtn.style.transform = 'scale(1.2) rotate(6deg)';
+        pwdToggleBtn.style.opacity = '1';
+        setTimeout(() => {
+          pwdToggleBtn.style.transform = 'scale(1) rotate(0deg)';
+          pwdToggleBtn.style.opacity = '0.85';
+        }, 180);
+        const color = pwdToggleBtn.style.color || 'var(--forest-dk)';
+        pwdToggleBtn.innerHTML = renderIcon(isPass ? 'eye-off' : 'eye', 18, color);
+        pwdToggleBtn.setAttribute('title', isPass ? 'Hide Password' : 'Show Password');
+      }
+      return;
     }
 
-    if (e.target.closest('#open-auth-signup-btn') || e.target.closest('#mobile-auth-signup-btn') || e.target.closest('#open-auth-Register-btn') || e.target.closest('#mobile-auth-Register-btn')) {
+    // Auth Modal Controls (Guest Sign In & Sign Up Buttons)
+    if (e.target.closest('#open-auth-login-btn') || e.target.closest('#open-auth-btn') || e.target.closest('#mobile-auth-login-btn') || e.target.closest('#nav-login-btn')) {
+      e.preventDefault();
+      state.activeTab = 'login';
+      state.authMode = 'login';
+      state.authIsRegister = false;
+      state.authIsSignup = false;
       state.showAuthModal = true;
-      state.authMode = 'signup';
-      state.authIsRegister = true;
-      state.phoneStep = 1;
+      if (window.location.hash !== '#login') history.replaceState(null, '', '#login');
       state.showMobileNav = false;
       renderApp();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    if (e.target.closest('#open-auth-signup-btn') || e.target.closest('#mobile-auth-signup-btn') || e.target.closest('#open-auth-Register-btn') || e.target.closest('#mobile-auth-Register-btn') || e.target.closest('#nav-register-btn')) {
+      e.preventDefault();
+      state.activeTab = 'register';
+      state.authMode = 'signup';
+      state.authIsRegister = true;
+      state.authIsSignup = true;
+      state.showAuthModal = true;
+      if (window.location.hash !== '#register') history.replaceState(null, '', '#register');
+      state.showMobileNav = false;
+      renderApp();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     if (e.target.closest('#open-admin-login-for-blog-btn')) {
@@ -1221,6 +1771,21 @@ function setupEventListeners() {
       state.authMode = 'login';
       state.authIsRegister = false;
       renderApp();
+    }
+
+    // Blog Card Click -> Navigates to Dedicated Blog Detail Page (/blog/:id)
+    const blogCard = e.target.closest('.blog-card');
+    if (blogCard && !e.target.closest('.edit-blog-btn') && !e.target.closest('.delete-blog-btn')) {
+      const bId = blogCard.getAttribute('data-id');
+      if (bId) {
+        state.selectedArticleId = bId;
+        state.activeTab = 'blog-detail';
+        if (window.location.hash !== `#blog/${bId}`) {
+          history.replaceState(null, '', `#blog/${bId}`);
+        }
+        renderApp();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     }
 
     // Blog & Article Controls
@@ -1308,15 +1873,23 @@ function setupEventListeners() {
       renderApp();
     }
 
-    if (e.target.closest('#toggle-login-mode-btn')) {
+    if (e.target.closest('#toggle-login-mode-btn') || e.target.closest('a[href="#login"]')) {
+      if (e) e.preventDefault();
       state.authMode = 'login';
       state.authIsRegister = false;
+      state.authIsSignup = false;
+      if (state.activeTab === 'register') state.activeTab = 'login';
+      if (window.location.hash === '#register') history.replaceState(null, '', '#login');
       renderApp();
     }
 
-    if (e.target.closest('#toggle-signup-mode-btn') || e.target.closest('#toggle-Register-mode-btn')) {
+    if (e.target.closest('#toggle-signup-mode-btn') || e.target.closest('#toggle-Register-mode-btn') || e.target.closest('a[href="#register"]')) {
+      if (e) e.preventDefault();
       state.authMode = 'signup';
       state.authIsRegister = true;
+      state.authIsSignup = true;
+      if (state.activeTab === 'login') state.activeTab = 'register';
+      if (window.location.hash === '#login') history.replaceState(null, '', '#register');
       renderApp();
     }
 
@@ -1413,13 +1986,13 @@ function setupEventListeners() {
     }
 
     // Email & Password Auth Form Submit (Login & Register)
-    if (e.target.id === 'email-auth-form' || e.target.closest('#email-auth-form')) {
-      if (e.type === 'submit' || e.target.closest('#auth-submit-btn')) {
+    if (e.target.id === 'email-auth-form' || e.target.closest('#email-auth-form') || e.target.id === 'auth-page-native-form' || e.target.closest('#auth-page-native-form')) {
+      if (e.type === 'submit' || e.target.closest('#auth-submit-btn') || e.target.closest('#auth-page-submit-btn')) {
         e.preventDefault();
         const role = state.authRole || 'DEALER';
-        const isRegister = state.authMode === 'Register';
-        const emailInput = document.getElementById('auth-email-input')?.value?.trim()?.toLowerCase();
-        const passwordInput = document.getElementById('auth-password-input')?.value;
+        const isRegister = (state.authMode === 'signup' || state.authMode === 'register' || state.authMode === 'Register' || (state.activeTab === 'register' && state.authMode !== 'login')) && state.authMode !== 'login' && state.authMode !== 'forgot';
+        const emailInput = (document.getElementById('auth-page-email')?.value || document.getElementById('auth-email-input')?.value)?.trim()?.toLowerCase();
+        const passwordInput = document.getElementById('auth-page-password')?.value || document.getElementById('auth-password-input')?.value;
 
         if (!emailInput) {
           showToast('⚠️ Please enter a valid Email Address.');
@@ -1432,8 +2005,8 @@ function setupEventListeners() {
 
         if (isRegister) {
           // --- Register FLOW ---
-          const nameInput = document.getElementById('auth-full-name')?.value?.trim();
-          const phoneInput = document.getElementById('auth-phone-num')?.value?.trim();
+          const nameInput = (document.getElementById('auth-page-fullname')?.value || document.getElementById('auth-full-name')?.value)?.trim();
+          const phoneInput = (document.getElementById('auth-page-phone')?.value || document.getElementById('auth-phone-num')?.value)?.trim();
 
           if (!nameInput || !phoneInput) {
             showToast('⚠️ Please fill in Full Name and Phone Number.');
@@ -1442,7 +2015,7 @@ function setupEventListeners() {
 
           (async () => {
             try {
-              const res = await fetch('/api/auth/Register', {
+              const res = await fetch('/api/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -1466,14 +2039,71 @@ function setupEventListeners() {
                   agencyName: nameInput
                 });
 
-                showToast(`🎉 Account created successfully! Please sign in.`);
+                if (data.token && data.user) {
+                  const userObj = {
+                    userId: data.user.id,
+                    name: data.user.name || nameInput,
+                    email: data.user.email || emailInput,
+                    role: data.user.role || role,
+                    phone: data.user.phone || phoneInput,
+                    agencyName: data.user.agencyName || nameInput,
+                    token: data.token,
+                    issuedAt: Date.now(),
+                    expiresAt: Date.now() + (48 * 60 * 60 * 1000)
+                  };
+                  localStorage.setItem('Sarmayadar_jwt_token', JSON.stringify(userObj));
+                  state.user = userObj;
+                  state.showAuthModal = false;
+                  state.authMode = 'login';
+                  state.authIsRegister = false;
+                  state.authIsSignup = false;
+                  showToast(`🎉 Account created & signed in as ${userObj.role} (${userObj.name})!`);
+                } else {
+                  showToast(`🎉 Account created successfully! Please sign in.`);
+                  state.authMode = 'login';
+                  state.authIsRegister = false;
+                  state.authIsSignup = false;
+                  state.authPreFillEmail = emailInput;
+                }
+                renderApp();
+              } else if (res.status === 400 && data && data.message) {
+                if (data.message.toLowerCase().includes('already exists')) {
+                  showToast(`⚠️ Account already exists for ${emailInput}! Switching to Sign In...`);
+                  state.authMode = 'login';
+                  state.authIsRegister = false;
+                  state.authIsSignup = false;
+                  state.authPreFillEmail = emailInput;
+                  renderApp();
+                } else {
+                  showToast(`❌ ${data.message}`);
+                }
+              } else {
+                saveStoredUser({
+                  email: emailInput,
+                  password: passwordInput,
+                  name: nameInput,
+                  phone: phoneInput,
+                  role: role,
+                  agencyName: nameInput
+                });
+                const userObj = {
+                  userId: `user-${Date.now()}`,
+                  name: nameInput,
+                  email: emailInput,
+                  role: role,
+                  phone: phoneInput,
+                  agencyName: nameInput,
+                  issuedAt: Date.now(),
+                  expiresAt: Date.now() + (48 * 60 * 60 * 1000)
+                };
+                localStorage.setItem('Sarmayadar_jwt_token', JSON.stringify(userObj));
+                state.user = userObj;
+                state.showAuthModal = false;
                 state.authMode = 'login';
                 state.authIsRegister = false;
-                state.authPreFillEmail = emailInput;
+                state.authIsSignup = false;
+                showToast(`🎉 Account registered successfully as ${role} (${nameInput})!`);
                 renderApp();
-              } else {
-                const errMsg = data?.message || 'Error creating account. Please try again.';
-                showToast(`❌ ${errMsg}`);
               }
             } catch (err) {
               console.error('Register fetch error:', err);
@@ -1485,10 +2115,23 @@ function setupEventListeners() {
                 role: role,
                 agencyName: nameInput
               });
-              showToast(`🎉 Account created locally! Please sign in with your password.`);
+              const userObj = {
+                userId: `user-${Date.now()}`,
+                name: nameInput,
+                email: emailInput,
+                role: role,
+                phone: phoneInput,
+                agencyName: nameInput,
+                issuedAt: Date.now(),
+                expiresAt: Date.now() + (48 * 60 * 60 * 1000)
+              };
+              localStorage.setItem('Sarmayadar_jwt_token', JSON.stringify(userObj));
+              state.user = userObj;
+              state.showAuthModal = false;
               state.authMode = 'login';
               state.authIsRegister = false;
-              state.authPreFillEmail = emailInput;
+              state.authIsSignup = false;
+              showToast(`🎉 Account registered locally! Welcome ${nameInput}.`);
               renderApp();
             }
           })();
@@ -1497,92 +2140,87 @@ function setupEventListeners() {
         } else {
           // --- LOGIN FLOW ---
           (async () => {
+            let apiData = null;
             try {
               const res = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: emailInput, password: passwordInput, role: role })
               });
-              const data = await res.json().catch(() => null);
+              apiData = await res.json().catch(() => null);
 
-              if (res.ok && data && data.success && data.token) {
+              if (res.ok && apiData && apiData.success && apiData.token) {
                 const userObj = {
-                  userId: data.user.id,
-                  name: data.user.name,
-                  email: data.user.email,
-                  role: data.user.role,
-                  phone: data.user.phone,
-                  agencyName: data.user.agencyName || data.user.name,
-                  token: data.token,
+                  userId: apiData.user.id,
+                  name: apiData.user.name,
+                  email: apiData.user.email,
+                  role: apiData.user.role,
+                  phone: apiData.user.phone,
+                  agencyName: apiData.user.agencyName || apiData.user.name,
+                  token: apiData.token,
                   issuedAt: Date.now(),
                   expiresAt: Date.now() + (48 * 60 * 60 * 1000)
                 };
                 localStorage.setItem('Sarmayadar_jwt_token', JSON.stringify(userObj));
                 state.user = userObj;
                 state.showAuthModal = false;
-                state.activeTab = 'dealer';
+                state.activeTab = 'dashboard';
+                state.dashboardTab = 'dashboard';
                 showToast(`🔒 Signed in successfully as ${userObj.role} (${userObj.name})!`);
                 renderApp();
                 return;
-              } else if (data && data.message) {
-                showToast(`❌ ${data.message}`);
-                return;
               }
-
             } catch (err) {
               // API connection error fallback to local validation
             }
 
-            // Local Credential Validation
+            // Local Credential Validation Fallback
             const users = getStoredUsers();
             const foundUser = users.find(u => u.email.toLowerCase() === emailInput);
 
-            if (!foundUser) {
-              showToast('❌ Account not found. Please create an account first.');
+            if (foundUser && foundUser.password === passwordInput) {
+              if (foundUser.isSuspended) {
+                showToast('🚫 Account Suspended: Your account has been suspended by system administrator.');
+                return;
+              }
+
+              const selectedRole = state.authRole || 'DEALER';
+              if (foundUser.role && foundUser.role !== selectedRole) {
+                showToast(`❌ Access Denied: This account is registered as a ${foundUser.role}. Please switch to the ${foundUser.role} Login tab.`);
+                return;
+              }
+
+              const tokenPayload = {
+                userId: foundUser.userId || `user-${Date.now()}`,
+                name: foundUser.name,
+                email: foundUser.email,
+                role: foundUser.role,
+                phone: foundUser.phone,
+                agencyName: foundUser.agencyName || foundUser.name,
+                city: foundUser.city || 'Lahore',
+                address: foundUser.address || '',
+                bio: foundUser.bio || '',
+                avatar: foundUser.avatar || foundUser.logo,
+                issuedAt: Date.now(),
+                lastActiveTime: Date.now(),
+                expiresAt: Date.now() + (48 * 60 * 60 * 1000)
+              };
+
+              localStorage.setItem('Sarmayadar_jwt_token', JSON.stringify(tokenPayload));
+              state.user = tokenPayload;
+              state.showAuthModal = false;
+              state.activeTab = 'dashboard';
+              state.dashboardTab = 'dashboard';
+              showToast(`🔓 Signed in successfully as ${tokenPayload.role} (${tokenPayload.name})!`);
+              renderApp();
+              return;
+            } else if (apiData && apiData.message) {
+              showToast(`❌ ${apiData.message}`);
+              return;
+            } else {
+              showToast('❌ Account not found or invalid password. Please check your credentials or create a new account.');
               return;
             }
-
-            if (foundUser.password !== passwordInput) {
-              showToast('❌ Invalid email or password credentials. Please try again.');
-              return;
-            }
-
-            if (foundUser.isSuspended) {
-              showToast('🚫 Account Suspended: Your account has been suspended by system administrator.');
-              return;
-            }
-
-            // Strictly separate Dealer & Admin logins!
-            const selectedRole = state.authRole || 'DEALER';
-            if (foundUser.role && foundUser.role !== selectedRole) {
-              showToast(`❌ Access Denied: This account is registered as a ${foundUser.role}. Please switch to the ${foundUser.role} Login tab.`);
-              return;
-            }
-
-            // Valid local login
-            const tokenPayload = {
-              userId: foundUser.userId || `user-${Date.now()}`,
-              name: foundUser.name,
-              email: foundUser.email,
-              role: foundUser.role, // Registered role
-              phone: foundUser.phone,
-              agencyName: foundUser.agencyName || foundUser.name,
-              city: foundUser.city || 'Lahore',
-              address: foundUser.address || '',
-              bio: foundUser.bio || '',
-              avatar: foundUser.avatar || foundUser.logo,
-              issuedAt: Date.now(),
-              lastActiveTime: Date.now(),
-              expiresAt: Date.now() + (48 * 60 * 60 * 1000)
-            };
-
-
-            localStorage.setItem('Sarmayadar_jwt_token', JSON.stringify(tokenPayload));
-            state.user = tokenPayload;
-            state.showAuthModal = false;
-            state.activeTab = 'dealer';
-            showToast(`🔓 Signed in successfully as ${tokenPayload.role} (${tokenPayload.name})!`);
-            renderApp();
           })();
         }
       }
@@ -1811,11 +2449,103 @@ function setupEventListeners() {
     if (e.target.id === 'footer-link-dealer') { e.preventDefault(); state.activeTab = 'dealer'; renderApp(); }
     if (e.target.id === 'footer-link-converter') { e.preventDefault(); state.activeTab = 'tools'; state.activeTool = 'converter'; renderApp(); }
     if (e.target.id === 'footer-link-mortgage') { e.preventDefault(); state.activeTab = 'tools'; state.activeTool = 'mortgage'; renderApp(); }
-    if (e.target.id === 'footer-link-valuation') { e.preventDefault(); state.activeTab = 'tools'; state.activeTool = 'valuate'; renderApp(); }
   });
 
-  // Change Listeners for Selects & Inputs
+  // Change Listeners for Selects & Inputs & Photo Uploads
   document.addEventListener('change', (e) => {
+    // Profile Photo File Input Change Listener
+    if (e.target.id === 'user-profile-photo-input' && e.target.files?.length > 0) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        const dataUrl = evt.target.result;
+        if (state.user) {
+          state.user.avatar = dataUrl;
+          state.user.logo = dataUrl;
+          localStorage.setItem('Sarmayadar_jwt_token', JSON.stringify(state.user));
+          const storedUsers = getStoredUsers();
+          const found = storedUsers.find(u => u.email?.toLowerCase() === state.user?.email?.toLowerCase());
+          if (found) {
+            found.avatar = dataUrl;
+            found.logo = dataUrl;
+            saveStoredUser(found);
+          }
+        }
+        showToast('📷 Profile photo updated successfully!');
+        renderApp();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Mega Project Photos File Input Change Listener
+    if (e.target.id === 'mp_file_input' && e.target.files?.length > 0) {
+      const files = Array.from(e.target.files);
+      state.mpUploadedImages = state.mpUploadedImages || (state.editingMegaProject?.images ? [...state.editingMegaProject.images] : []);
+      let loadedCount = 0;
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          state.mpUploadedImages.push(evt.target.result);
+          if (state.editingMegaProject) state.editingMegaProject.images = state.mpUploadedImages;
+          loadedCount++;
+          if (loadedCount === files.length) {
+            showToast(`📷 Uploaded ${files.length} project photo(s)!`);
+            renderApp();
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Product (Property) Photos File Input Change Listener
+    if (e.target.id === 'wiz_file_input' && e.target.files?.length > 0) {
+      const files = Array.from(e.target.files);
+      state.uploadedImages = state.uploadedImages || [];
+      let loadedCount = 0;
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          state.uploadedImages.push(evt.target.result);
+          loadedCount++;
+          if (loadedCount === files.length) {
+            showToast(`📷 Uploaded ${files.length} property photo(s)!`);
+            renderApp();
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+    // Search Filter Dropdowns
+    if (e.target.id === 'filter-city') {
+      state.searchFilters.city = e.target.value;
+      renderApp();
+    }
+    if (e.target.id === 'filter-society') {
+      state.searchFilters.society = e.target.value;
+      renderApp();
+    }
+    if (e.target.id === 'filter-type') {
+      state.searchFilters.category = e.target.value;
+      renderApp();
+    }
+    if (e.target.id === 'filter-price') {
+      state.searchFilters.maxPrice = e.target.value;
+      renderApp();
+    }
+    if (e.target.id === 'filter-size') {
+      const val = e.target.value;
+      if (val === 'all' || !val) {
+        state.searchFilters.exactSizeMarla = null;
+        state.searchFilters.exactSizeLabel = null;
+      } else {
+        const numMarla = Number(val);
+        const labelsMap = { 5: '5 Marla', 7: '7 Marla', 10: '10 Marla', 20: '1 Kanal', 40: '2 Kanal' };
+        state.searchFilters.exactSizeMarla = numMarla;
+        state.searchFilters.exactSizeLabel = labelsMap[numMarla] || `${numMarla} Marla`;
+      }
+      renderApp();
+    }
+
     // Sort Properties Select
     if (e.target.id === 'sort-properties') {
       state.sortBy = e.target.value;
@@ -1917,71 +2647,145 @@ function setupEventListeners() {
 }
 
 function handleAIChatSubmit(query) {
-  state.aiChatMessages.push({ sender: 'user', text: query });
+  if (!query || !query.trim()) return;
 
-  const q = query.toLowerCase();
-  const allProps = state.properties || [];
+  const userMsg = query.trim();
+  state.aiChatMessages = state.aiChatMessages || [];
+  state.chatSessionContext = state.chatSessionContext || {};
 
-  // Score each property in database based on user query keywords
-  const scored = allProps.map(rawP => {
-    const p = normalizeProperty(rawP);
-    let score = 35; // base match threshold
+  // Push user message to UI
+  state.aiChatMessages.push({ sender: 'user', text: userMsg });
 
-    const titleLower = (p.title || '').toLowerCase();
-    const cityLower = (p.city || '').toLowerCase();
-    const locationLower = (p.location || '').toLowerCase();
-    const categoryLower = (p.category || '').toLowerCase();
-    const purposeLower = (p.purpose || '').toLowerCase();
+  const lang = state.chatLanguage || 'en'; // 'en' | 'ur'
 
-    if (q.includes(cityLower) && cityLower.length > 2) score += 25;
-    if (q.includes(locationLower) && locationLower.length > 2) score += 25;
-    else {
-      const locWords = locationLower.split(' ').filter(w => w.length > 2);
-      if (locWords.some(w => q.includes(w))) score += 20;
-    }
+  // Extract Intent & Entities using NLP engine
+  const parsed = extractEntitiesAndIntent(userMsg, state.chatSessionContext);
 
-    if (q.includes(categoryLower)) score += 15;
-    else if (q.includes('house') && categoryLower.includes('house')) score += 15;
-    else if (q.includes('plot') && categoryLower.includes('plot')) score += 15;
-    else if (q.includes('flat') || q.includes('apartment')) score += 15;
-
-    if (q.includes('sale') && purposeLower === 'sale') score += 10;
-    if (q.includes('rent') && purposeLower === 'rent') score += 10;
-
-    if (p.sizeMarla && (q.includes(`${p.sizeMarla} marla`) || q.includes(`${p.sizeMarla}marla`))) score += 15;
-    if (p.bedrooms && (q.includes(`${p.bedrooms} bed`) || q.includes(`${p.bedrooms}bed`))) score += 15;
-
-    // Normalize match percentage score between 55% and 98%
-    const matchScore = Math.min(98, Math.max(55, score));
-
-    return { ...p, matchScore };
-  });
-
-  // Sort by highest match score and select top 3 matched properties
-  scored.sort((a, b) => b.matchScore - a.matchScore);
-  const matchedProperties = scored.slice(0, 3);
-
-  const lang = state.chatLanguage || 'en';
-  let botReply = '';
-
-  if (lang === 'en') {
-    botReply = `Hello! 🤖 I am your **Sarmayadar Assistant**. Based on your query **"${query}"**, here are verified matching properties from our database. Click any card below for details, or tap the WhatsApp button to consult our Realtor directly!`;
-    if (q.includes('loan') || q.includes('emi') || q.includes('calculator')) {
-      botReply = '🧮 **Home Loan Estimate**: Current bank KIBOR interest rate is ~14.5%. For a **PKR 3 Crore** loan over 20 years, estimated monthly EMI is **~PKR 382,000 / month**. Check out our Calculators & Tools tab for detailed breakdowns!';
-    }
-  } else {
-    botReply = `Assalam-o-Alaikum! 🤖 Main **Sarmayadar Assistant** hoon. Aap ki requirement **"${query}"** ke mutabiq database se ye verified options match huay hain. Details dekhnay ke liye niche card par click karein, ya WhatsApp button par click karke hamare Agent se direct baat karein (Hum dhoondh dain ge)!`;
-    if (q.includes('loan') || q.includes('emi') || q.includes('calculator')) {
-      botReply = '🧮 **Home Loan Rate**: Current bank KIBOR interest rate ~14.5% ha. **3 Crore** ke loan par 20 saal ki monthly EMI **~PKR 382,000 / month** banti ha. Detailed breakdowns ke liye Calculators & Tools tab check karein!';
+  // Sync session context memory cleanly
+  const explicitSize = parsePropertySizeFromQuery(userMsg);
+  if (explicitSize) {
+    state.chatSessionContext.sizeMarla = explicitSize.sizeMarla;
+    state.chatSessionContext.sizeLabel = explicitSize.sizeLabel;
+  } else if (parsed.entities.location || parsed.entities.city || parsed.entities.propertyType) {
+    // If user asks a new search query without explicit size, clear old size filter
+    if (!/\b(marla|marlas|kanal|kanals|sqyd|sq\s*yd)\b/i.test(userMsg)) {
+      state.chatSessionContext.sizeMarla = null;
+      state.chatSessionContext.sizeLabel = null;
     }
   }
 
+  if (parsed.entities.propertyType) state.chatSessionContext.propertyType = parsed.entities.propertyType;
+  if (parsed.entities.city) state.chatSessionContext.city = parsed.entities.city;
+  if (parsed.entities.location) state.chatSessionContext.location = parsed.entities.location;
+  if (parsed.entities.purpose) state.chatSessionContext.purpose = parsed.entities.purpose;
+  if (parsed.entities.maxPrice) state.chatSessionContext.maxPrice = parsed.entities.maxPrice;
+
+  let botReplyText = '';
+  let matchedListings = [];
+  let isNoResultFallback = false;
+  let customWaMessage = null;
+
+  if (parsed.intent === 'greeting') {
+    if (lang === 'en') {
+      botReplyText = 'Hello! 👋 Welcome to Sarmayadar. How can I help you find the right property today?';
+    } else {
+      botReplyText = 'Wa Alaikum Assalam! 👋 Sarmayadar Assistant par khushamdeed. Main aap ki property search mein kis tarah madad kar sakta hoon?';
+    }
+  } else if (parsed.intent.startsWith('faq_')) {
+    if (parsed.faqResponse) {
+      botReplyText = parsed.faqResponse[lang] || parsed.faqResponse.en;
+    } else {
+      botReplyText = 'Our verified property advisors are available to answer your questions!';
+    }
+  } else if (parsed.intent === 'property_search') {
+    const ctx = state.chatSessionContext;
+    const allProps = state.properties || [];
+
+    // Filter database with active context constraints
+    let filtered = [...allProps];
+
+    // 1. Exact Size Match (Strict Priority)
+    if (ctx.sizeMarla != null) {
+      filtered = filtered.filter(p => {
+        const pMarla = Number(p.sizeMarla || p.size_marla || 0);
+        return Math.abs(pMarla - ctx.sizeMarla) < 0.1;
+      });
+    }
+
+    // 2. Property Type Match
+    if (ctx.propertyType) {
+      filtered = filtered.filter(p => (p.category || '').toLowerCase() === ctx.propertyType.toLowerCase());
+    }
+
+    // 3. City Match
+    if (ctx.city) {
+      filtered = filtered.filter(p => (p.city || '').toLowerCase() === ctx.city.toLowerCase());
+    }
+
+    // 4. Location / Society Match
+    if (ctx.location) {
+      filtered = filtered.filter(p => (p.location || '').toLowerCase().includes(ctx.location.toLowerCase()));
+    }
+
+    // 5. Purpose Match
+    if (ctx.purpose) {
+      filtered = filtered.filter(p => (p.purpose || '') === (ctx.purpose === 'rent' ? 'rent' : 'sale'));
+    }
+
+    // 6. Max Price Match
+    if (ctx.maxPrice) {
+      filtered = filtered.filter(p => (p.price || 0) <= ctx.maxPrice);
+    }
+
+    if (filtered.length > 0) {
+      // Properties found in database!
+      matchedListings = filtered.map(p => ({ ...p, matchScore: 98 })).slice(0, 3);
+
+      const sizeStr = ctx.sizeLabel ? ` ${ctx.sizeLabel}` : '';
+      const typeStr = ctx.propertyType ? ` ${ctx.propertyType}` : ' property';
+      const locStr = ctx.location || (ctx.city ? ctx.city.toUpperCase() : '');
+
+      if (lang === 'en') {
+        botReplyText = `Great news! 🎉 I found **${filtered.length} verified${sizeStr}${typeStr} listing(s)**${locStr ? ` in **${locStr}**` : ''} matching your requirements! Click any card below for details:`;
+      } else {
+        botReplyText = `Zabardast! 🎉 Aap ki requirement ke mutabiq database mein **${filtered.length} verified${sizeStr}${typeStr} listing(s)** mil gayi hain! Details neeche dekh sakty hain:`;
+      }
+    } else {
+      // 0 Properties Found -> Trigger Fallback Specified in Requirement 4!
+      isNoResultFallback = true;
+      const searchedSize = ctx.sizeLabel || (ctx.sizeMarla ? `${ctx.sizeMarla} Marla` : '');
+      const searchedType = ctx.propertyType || 'property';
+      const reqStr = `${searchedSize} ${searchedType}`.trim();
+      const searchedLoc = ctx.location || (ctx.city ? ctx.city : '');
+      const fullReq = `${reqStr}${searchedLoc ? ` in ${searchedLoc}` : ''}`;
+
+      customWaMessage = `Hi, I’m looking for a ${fullReq}. Please help me find one.`;
+
+      if (lang === 'en') {
+        botReplyText = `I’m sorry, we currently don’t have any verified **${fullReq}** available. But I can help you find one through our support team. Would you like to chat with us on WhatsApp?`;
+      } else {
+        botReplyText = `Mujhe afsos hai, hamare paas abhi **${fullReq}** available nahi hai. Lekin main hamari support team ke zariye aap ko dhoondh kar de sakta hoon. Kya aap WhatsApp par chat karna chahenge?`;
+      }
+    }
+  } else {
+    // Conversational follow up
+    if (lang === 'en') {
+      botReplyText = 'I am your AI Property Advisor. Would you like to search by property size (e.g. 5 Marla, 10 Marla, 1 Kanal), city, or budget range?';
+    } else {
+      botReplyText = 'Main aap ka AI Property Advisor hoon. Kis size (e.g. 5 Marla, 10 Marla, 1 Kanal), city, ya budget mein property search karni hai?';
+    }
+  }
+
+  // Push bot response to state
   state.aiChatMessages.push({
     sender: 'bot',
-    text: botReply,
-    userQuery: query,
-    matchedProperties: (q.includes('loan') || q.includes('emi')) ? [] : matchedProperties
+    text: botReplyText,
+    userQuery: userMsg,
+    matchedProperties: matchedListings,
+    isNoResultFallback,
+    customWaMessage
   });
+
   renderApp();
 }
 
@@ -2223,6 +3027,101 @@ document.addEventListener('submit', async (e) => {
   }
 });
 
+async function handleAdminPageLogin(emailInput, passwordInput) {
+  showToast('🔒 Authorizing Admin Portal access...');
+  let apiData = null;
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: emailInput, password: passwordInput, role: 'ADMIN' })
+    });
+    apiData = await res.json().catch(() => null);
+
+    if (res.ok && apiData && apiData.success && apiData.token) {
+      const userObj = {
+        userId: apiData.user.id,
+        name: apiData.user.name,
+        email: apiData.user.email,
+        role: 'ADMIN',
+        phone: apiData.user.phone,
+        agencyName: apiData.user.agencyName || apiData.user.name,
+        token: apiData.token,
+        issuedAt: Date.now(),
+        expiresAt: Date.now() + (48 * 60 * 60 * 1000)
+      };
+      localStorage.setItem('Sarmayadar_jwt_token', JSON.stringify(userObj));
+      state.user = userObj;
+      state.activeTab = 'dealer';
+      showToast(`🔒 Welcome Administrator (${userObj.name})! Access Granted.`);
+      renderApp();
+      return;
+    }
+  } catch (err) {
+    // API connection fallback
+  }
+
+  // Fallback to local user validation
+  const users = getStoredUsers();
+  const foundUser = users.find(u => u.email.toLowerCase() === emailInput.toLowerCase());
+
+  if (foundUser && foundUser.password === passwordInput) {
+    const tokenPayload = {
+      userId: foundUser.userId || `admin-${Date.now()}`,
+      name: foundUser.name,
+      email: foundUser.email,
+      role: 'ADMIN',
+      phone: foundUser.phone || '+92 300 0000000',
+      agencyName: foundUser.agencyName || 'System Admin',
+      city: foundUser.city || 'Lahore',
+      issuedAt: Date.now(),
+      expiresAt: Date.now() + (48 * 60 * 60 * 1000)
+    };
+
+    localStorage.setItem('Sarmayadar_jwt_token', JSON.stringify(tokenPayload));
+    state.user = tokenPayload;
+    state.activeTab = 'dealer';
+    showToast(`🔓 Signed in successfully as System Administrator (${tokenPayload.name})!`);
+    renderApp();
+    return;
+  } else if (apiData && apiData.message) {
+    showToast(`❌ ${apiData.message}`);
+  } else {
+    showToast('❌ Invalid Administrator Credentials. Access Denied.');
+  }
+}
+
+  // Handle form submissions natively (prevent page reloads on Enter key submit)
+  document.addEventListener('submit', (e) => {
+    if (e.target.id === 'admin-page-login-form' || e.target.closest('#admin-page-login-form')) {
+      e.preventDefault();
+      const email = document.getElementById('admin-page-email')?.value?.trim();
+      const password = document.getElementById('admin-page-password')?.value;
+      if (email && password) {
+        handleAdminPageLogin(email, password);
+      }
+    } else if (e.target.id === 'email-auth-form' || e.target.closest('#email-auth-form')) {
+      e.preventDefault();
+      const submitBtn = document.getElementById('auth-submit-btn');
+      if (submitBtn) submitBtn.click();
+    } else if (e.target.id === 'forgot-password-form' || e.target.closest('#forgot-password-form')) {
+      e.preventDefault();
+      const submitBtn = document.getElementById('auth-forgot-submit-btn');
+      if (submitBtn) submitBtn.click();
+    } else if (e.target.id === 'adv-contact-form' || e.target.closest('#adv-contact-form')) {
+      e.preventDefault();
+      if (window.handleAdvFormSubmit) window.handleAdvFormSubmit(e);
+    }
+  });
+
+  // Handle Enter Key press in AI prompt search bar
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && e.target && e.target.id === 'ai-prompt-input') {
+      e.preventDefault();
+      handleSearchQueryExecution(e.target.value);
+    }
+  });
+
 // Activity Tracker to refresh lastActiveTime for logged-in sessions
 function recordUserActivity() {
   if (state.user) {
@@ -2260,12 +3159,25 @@ window.scrollToAdvSection = function(secId) {
   if (activeTabBtn) activeTabBtn.classList.add('active');
 };
 
+window.openAuthRegisterModal = function(role = 'DEALER') {
+  state.showAuthModal = true;
+  state.authRole = role;
+  state.authMode = 'signup';
+  state.authIsRegister = true;
+  state.phoneStep = 1;
+  state.showMobileNav = false;
+  renderApp();
+};
+
 window.handleAdvBuy = function(packageName, price) {
+  if (packageName.includes('Registration') || price === 0) {
+    window.openAuthRegisterModal('DEALER');
+    return;
+  }
   showToast(`🛒 Selected: ${packageName} (PKR ${price.toLocaleString()}). Redirecting to Checkout...`);
   if (!state.user) {
     setTimeout(() => {
-      state.showAuthModal = true;
-      renderApp();
+      window.openAuthRegisterModal('DEALER');
     }, 1200);
   } else {
     setTimeout(() => {

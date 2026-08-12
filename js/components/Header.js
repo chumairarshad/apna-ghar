@@ -1,51 +1,66 @@
 import { renderIcon } from '../utils/icons.js';
 import { checkPushSupport } from '../utils/pushClient.js';
+import { t, SUPPORTED_LANGUAGES, getLanguage } from '../utils/i18n.js';
 
 export function renderHeader(state, onStateChange) {
   const activeTab = state.activeTab || 'buy';
   const userName = state.user?.name || '';
   const isMobileDrawerOpen = state.showMobileNav || false;
+  const currentLang = state.language || getLanguage();
+  const currentLangInfo = SUPPORTED_LANGUAGES.find(l => l.code === currentLang) || SUPPORTED_LANGUAGES[0];
+  const isRtl = currentLang === 'ur' || currentLang === 'ar';
+
   const pushSupport = checkPushSupport();
   const pushStatusLabel = pushSupport.isSubscribed 
     ? '🟢 Mobile Push Alerts (ON)' 
     : '🔔 Enable Mobile Push Alerts';
 
   return `
-    <!-- Top Announcement & Currency Utility Bar -->
+    <!-- Top Utility Bar (Desktop Only) -->
     <div class="top-bar">
       <div class="container">
         <div class="top-bar-content">
-          <!-- Left Badges -->
-          <div class="top-bar-left">
-            <div class="top-bar-pill">
-              <span style="width:7px; height:7px; background-color:#22C55E; border-radius:50%; box-shadow:0 0 8px #22C55E;"></span>
-              <span>24/7 Helpline: <strong>+92 332 7507866</strong></span>
-            </div>
-
-            <div class="top-bar-pill">
-              ${renderIcon('shield-check', 13, 'var(--marigold)')}
-              <span>Pakistan's #1 Verified Exchange</span>
-            </div>
-
-            <div class="top-bar-ticker">
-              ${renderIcon('trending-up', 13, 'var(--marigold)')}
-              <span>DHA Lahore Phase 6: <strong>+4.2% Growth</strong></span>
-            </div>
+          <!-- Center Secondary Navigation Links Group -->
+          <div class="top-bar-center">
+            <a href="#" class="top-bar-nav-link ${activeTab === 'blogs' ? 'active' : ''}" data-nav="blogs">
+              ${renderIcon('book-open', 14)}
+              <span>${t('nav_blogs', 'Blogs & Insights')}</span>
+            </a>
+            <a href="#" class="top-bar-nav-link ${activeTab === 'tools' ? 'active' : ''}" data-nav="tools">
+              ${renderIcon('calculator', 14)}
+              <span>${t('nav_tools', 'Calculators & Tools')}</span>
+            </a>
+            <a href="#" class="top-bar-nav-link ${activeTab === 'agents' ? 'active' : ''}" data-nav="agents">
+              ${renderIcon('users', 14)}
+              <span>${t('nav_agents', 'Agents Directory')}</span>
+            </a>
+            <button type="button" class="top-bar-post-free-btn" id="top-bar-post-free-btn">
+              ${renderIcon('plus-circle', 14, '#064E3B')}
+              <span>${t('btn_post_property', '+ Post Free Listing')}</span>
+            </button>
           </div>
 
-          <!-- Right Pill Selectors -->
+          <!-- Right Language Selector Dropdown (Desktop Top Bar) -->
           <div class="top-bar-right">
-            <select id="unit-select" class="unit-selector" title="Area Unit Display">
-              <option value="Marla" ${state.unit === 'Marla' ? 'selected' : ''}>Unit: Marla</option>
-              <option value="Kanal" ${state.unit === 'Kanal' ? 'selected' : ''}>Unit: Kanal</option>
-              <option value="Sq.Ft" ${state.unit === 'Sq.Ft' ? 'selected' : ''}>Unit: Sq.Ft</option>
-              <option value="Sq.Yd" ${state.unit === 'Sq.Yd' ? 'selected' : ''}>Unit: Sq.Yd</option>
-            </select>
+            <div class="lang-selector-wrapper">
+              <button type="button" class="lang-selector-btn" id="lang-selector-btn" title="Change Website Language">
+                <span style="display:inline-flex; align-items:center; gap:5px;">
+                  🌐 <span>${currentLangInfo.flag}</span> <span>${currentLangInfo.name}</span>
+                </span>
+                ${renderIcon('chevron-down', 13, '#FFFFFF')}
+              </button>
 
-            <select id="currency-select" class="currency-selector" title="Currency Display">
-              <option value="PKR" ${state.currency === 'PKR' ? 'selected' : ''}>₨ PKR</option>
-              <option value="USD" ${state.currency === 'USD' ? 'selected' : ''}>$ USD</option>
-            </select>
+              ${state.showLangDropdown ? `
+                <div class="lang-dropdown-menu">
+                  ${SUPPORTED_LANGUAGES.map(lang => `
+                    <button type="button" class="lang-dropdown-item ${currentLang === lang.code ? 'active' : ''}" data-lang-select="${lang.code}">
+                      <span>${lang.flag}</span>
+                      <span>${lang.name}</span>
+                    </button>
+                  `).join('')}
+                </div>
+              ` : ''}
+            </div>
           </div>
         </div>
       </div>
@@ -70,52 +85,91 @@ export function renderHeader(state, onStateChange) {
             </div>
           </a>
 
-          <!-- Desktop Navigation Bar -->
+          <!-- Desktop Navigation Bar (Centered) -->
           <nav class="main-nav">
             <ul>
-              <li><a href="#" class="${activeTab === 'buy' ? 'active' : ''}" data-nav="buy">Properties for Sale</a></li>
-              <li><a href="#" class="${activeTab === 'rent' ? 'active' : ''}" data-nav="rent">Rental Properties</a></li>
-              <li><a href="#" class="${activeTab === 'projects' ? 'active' : ''}" data-nav="projects">Housing Megaprojects</a></li>
-              <li><a href="#" class="${activeTab === 'advertise' ? 'active' : ''}" data-nav="advertise" class="adv-nav-highlight" style="color:var(--marigold-dk); font-weight:800; background:var(--cream); padding:6px 12px; border-radius:20px; border:1px solid rgba(242,167,27,0.4);">📢 Advertise</a></li>
+              <li><a href="#" class="${activeTab === 'buy' ? 'active' : ''}" data-nav="buy">${t('nav_sale', 'Properties for Sale')}</a></li>
+              <li><a href="#" class="${activeTab === 'rent' ? 'active' : ''}" data-nav="rent">${t('nav_rent', 'Rental Properties')}</a></li>
+              <li><a href="#" class="${activeTab === 'projects' ? 'active' : ''}" data-nav="projects">${t('nav_projects', 'Housing Megaprojects')}</a></li>
               ${state.user?.role === 'ADMIN' ? `
                 <li>
                   <a href="#" class="${activeTab === 'dealer' ? 'active' : ''}" data-nav="dealer">
-                    Admin Portal <span class="dealer-nav-badge" style="background:#EF4444; color:#FFF;">SUPERVISOR</span>
+                    ${t('nav_admin', 'Admin Portal')} <span class="dealer-nav-badge" style="background:#EF4444; color:#FFF;">SUPERVISOR</span>
                   </a>
                 </li>
               ` : (state.user?.role === 'DEALER' ? `
                 <li>
                   <a href="#" class="${activeTab === 'dealer' ? 'active' : ''}" data-nav="dealer">
-                    Dealer Portal CRM <span class="dealer-nav-badge">DEALER</span>
+                    ${t('nav_dealer', 'Dealer Portal')} <span class="dealer-nav-badge">DEALER</span>
                   </a>
                 </li>
               ` : `
                 <li>
                   <a href="#" id="header-dealer-join-btn" class="${activeTab === 'dealer' ? 'active' : ''}" data-nav="dealer">
-                    Become a Dealer
+                    ${t('nav_become_dealer', 'Become a Dealer')}
                   </a>
                 </li>
               `)}
             </ul>
           </nav>
 
-          <!-- Header Actions -->
-          <div class="header-actions" style="display:flex; align-items:center; gap:0.5rem;">
+          <!-- Header Actions (Translator Alongside Navigation Bar) -->
+          <div class="header-actions" style="display:flex; align-items:center; gap:0.4rem;">
+            <!-- Optimized Language Translator Button alongside Navigation Bar -->
+            <div class="header-lang-wrapper" style="position:relative; display:inline-block;">
+              <button type="button" class="btn-header-lang" id="lang-selector-btn-main" title="Change Website Language" style="display:flex; align-items:center; gap:4px; padding:5px 10px; border-radius:20px; background:#ECFDF5; border:1px solid #A7F3D0; color:#064E3B; font-weight:800; font-size:0.78rem; cursor:pointer; transition:all 0.2s;">
+                <span>🌐</span>
+                <span>${currentLangInfo.flag}</span>
+                <span class="lang-code-text">${currentLangInfo.code.toUpperCase()}</span>
+                ${renderIcon('chevron-down', 12, '#059669')}
+              </button>
+
+              ${state.showLangDropdown ? `
+                <div class="lang-dropdown-menu" style="position:absolute; top:calc(100% + 6px); ${isRtl ? 'left:0;' : 'right:0;'} background:#ffffff; border-radius:12px; border:1px solid #E2E8F0; box-shadow:0 10px 25px rgba(0,0,0,0.15); padding:6px; z-index:1200; min-width:135px;">
+                  ${SUPPORTED_LANGUAGES.map(lang => `
+                    <button type="button" class="lang-dropdown-item ${currentLang === lang.code ? 'active' : ''}" data-lang-select="${lang.code}" style="width:100%; display:flex; align-items:center; gap:8px; padding:6px 10px; border-radius:8px; background:${currentLang === lang.code ? '#ECFDF5' : 'transparent'}; color:${currentLang === lang.code ? '#059669' : '#0F172A'}; border:none; font-weight:${currentLang === lang.code ? '800' : '600'}; font-size:0.8rem; cursor:pointer; text-align:left;">
+                      <span>${lang.flag}</span>
+                      <span>${lang.name}</span>
+                    </button>
+                  `).join('')}
+                </div>
+              ` : ''}
+            </div>
+
             ${state.user ? `
-              <!-- Logged-in Profile Button -->
-              <button type="button" class="btn-header-profile" id="header-user-profile-btn" title="Open My Profile & Settings">
-                ${renderIcon('user', 14, 'var(--marigold)')} ${userName} (${state.user.role})
-              </button>
-              <button type="button" class="btn btn-danger btn-sm" id="logout-btn" style="padding:6px 12px; font-size:0.75rem; background:#EF4444; color:white; border:none; border-radius:6px; cursor:pointer;" title="Sign Out">
-                Logout
-              </button>
+              <!-- Logged-in Profile Icon Button & Dropdown Menu -->
+              <div style="position:relative; display:inline-block;">
+                <button type="button" class="btn-header-profile" id="header-user-profile-icon-btn" title="Open My Account Menu" style="display:flex; align-items:center; gap:6px; padding:5px 12px; border-radius:20px; background:#F1F5F9; border:1px solid #CBD5E1; color:#0F172A; font-weight:800; cursor:pointer;">
+                  <img src="${state.user.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80'}" style="width:22px; height:22px; border-radius:50%; object-fit:cover;" alt="${userName}" />
+                  <span class="user-header-name-text">${userName}</span>
+                  <span class="badge" style="font-size:0.65rem; background:${state.user.role === 'ADMIN' ? '#EF4444' : state.user.role === 'DEALER' ? '#059669' : '#3B82F6'}; color:#ffffff; padding:2px 6px; border-radius:4px;">
+                    ${state.user.role}
+                  </span>
+                  ${renderIcon('chevron-down', 13, '#475569')}
+                </button>
+
+                ${state.showProfileDropdown ? `
+                  <div class="user-profile-dropdown" style="position:absolute; top:calc(100% + 8px); ${isRtl ? 'left:0;' : 'right:0;'} width:220px; background:#ffffff; border-radius:12px; border:1px solid #E2E8F0; box-shadow:0 10px 25px rgba(0,0,0,0.15); padding:8px; z-index:1100;">
+                    <div style="padding:8px; border-bottom:1px solid #E2E8F0; margin-bottom:4px;">
+                      <div style="font-weight:800; font-size:0.88rem; color:#0F172A;">${userName}</div>
+                      <div style="font-size:0.75rem; color:#64748B;">${state.user.email}</div>
+                    </div>
+                    <a href="#dashboard" class="dropdown-item" id="dropdown-dashboard-btn" style="display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:6px; color:#0F172A; font-weight:700; text-decoration:none; font-size:0.85rem; transition:background 0.2s;">
+                      ${renderIcon('layout-dashboard', 16, '#059669')} ${t('nav_dashboard', 'My Dashboard')}
+                    </a>
+                    <a href="#dashboard" class="dropdown-item" id="dropdown-settings-btn" style="display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:6px; color:#0F172A; font-weight:700; text-decoration:none; font-size:0.85rem; transition:background 0.2s;">
+                      ${renderIcon('settings', 16, '#64748B')} ${t('nav_settings', 'Account Settings')}
+                    </a>
+                    <div style="border-top:1px solid #E2E8F0; margin:4px 0;"></div>
+                    <button type="button" id="header-dropdown-logout-btn" style="width:100%; display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:6px; background:#FEF2F2; color:#DC2626; font-weight:800; border:none; font-size:0.85rem; cursor:pointer; text-align:${isRtl ? 'right' : 'left'};">
+                      ${renderIcon('log-out', 16, '#DC2626')} ${t('nav_logout', 'Logout')} (${userName})
+                    </button>
+                  </div>
+                ` : ''}
+              </div>
             ` : `
-              <!-- 2 Separate Buttons for Guest View (Desktop Only): Sign In & Register -->
-              <button type="button" class="btn btn-sm desktop-auth-btn" id="open-auth-login-btn" style="padding:6px 12px; font-size:0.78rem; border-radius:20px; font-weight:700; border:2px solid var(--forest); color:var(--forest-dk); background:transparent; cursor:pointer; transition:var(--transition);" title="Sign In">
-                ${renderIcon('log-in', 13)} Sign In
-              </button>
-              <button type="button" class="btn btn-primary btn-sm desktop-auth-btn" id="open-auth-signup-btn" style="padding:6px 14px; font-size:0.78rem; border-radius:20px; font-weight:700; background:linear-gradient(135deg, var(--forest), var(--forest-dk)); color:var(--paper); border:none; box-shadow:var(--shadow-sm); cursor:pointer; transition:var(--transition);" title="Register">
-                ${renderIcon('user-plus', 13)} Register
+              <button type="button" class="btn btn-sm" id="header-user-profile-icon-btn" style="width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:#ECFDF5; border:1.5px solid #059669; color:#059669; cursor:pointer; transition:all 0.2s;" title="${t('nav_login', 'Sign In / Register')}">
+                ${renderIcon('user', 18, '#059669')}
               </button>
             `}
 
@@ -126,32 +180,81 @@ export function renderHeader(state, onStateChange) {
           </div>
         </div>
 
-        <!-- Mobile Navigation Slide-down Drawer -->
+        <!-- Scrollable Mobile Navigation Drawer with ALL Menus -->
         <div class="mobile-nav-drawer ${isMobileDrawerOpen ? 'open' : ''}" id="mobile-drawer">
-          <a href="#" class="${activeTab === 'buy' ? 'active' : ''}" data-nav="buy">Properties for Sale</a>
-          <a href="#" class="${activeTab === 'rent' ? 'active' : ''}" data-nav="rent">Rental Properties</a>
-          <a href="#" class="${activeTab === 'projects' ? 'active' : ''}" data-nav="projects">Housing Megaprojects</a>
-          <a href="#" class="${activeTab === 'blogs' ? 'active' : ''}" data-nav="blogs">Blogs & Market Insights</a>
-          <a href="#" class="${activeTab === 'tools' ? 'active' : ''}" data-nav="tools">Calculators & Land Tools</a>
-          <a href="#" class="${activeTab === 'agents' ? 'active' : ''}" data-nav="agents">Agents Directory</a>
-          ${state.user?.role === 'DEALER' ? `<a href="#" class="${activeTab === 'dealer' ? 'active' : ''}" data-nav="dealer">Dealer Portal CRM</a>` : ''}
-          ${state.user?.role === 'ADMIN' ? `<a href="#" class="${activeTab === 'dealer' ? 'active' : ''}" data-nav="dealer">Admin Portal & Blog Studio</a>` : ''}
-          <a href="#" id="mobile-push-toggle-btn" style="color:#059669 !important; font-weight:800; background:rgba(16,185,129,0.08); padding:8px 12px; border-radius:8px; border:1px solid rgba(16,185,129,0.25); margin:4px 0; display:flex; align-items:center; justify-content:space-between;">
-            <span>${pushStatusLabel}</span>
-            <span style="font-size:0.75rem; background:#10b981; color:#fff; padding:2px 8px; border-radius:12px; font-weight:700;">TOGGLE</span>
-          </a>
-          ${state.user ? `
-            <a href="#" id="mobile-user-profile-btn" style="color:var(--forest-dk) !important; font-weight:700;">👤 My Profile & Account Settings (${userName})</a>
-            <a href="#" id="mobile-logout-btn" style="color:#EF4444 !important; font-weight:700;">Logout (${userName})</a>
-          ` : `
-            <div style="display:flex; gap:0.5rem; margin-top:0.75rem; padding-top:0.75rem; border-top:1.5px solid var(--border-dk);">
-              <button type="button" class="btn btn-sm" id="mobile-auth-login-btn" style="flex:1; padding:9px 12px; font-size:0.85rem; font-weight:700; border:2px solid var(--forest); color:var(--forest-dk); background:transparent; border-radius:8px; cursor:pointer;">
-                ${renderIcon('log-in', 14)} Sign In
-              </button>
-              <button type="button" class="btn btn-primary btn-sm" id="mobile-auth-signup-btn" style="flex:1; padding:9px 12px; font-size:0.85rem; font-weight:700; background:linear-gradient(135deg, var(--forest), var(--forest-dk)); color:white; border-radius:8px; border:none; cursor:pointer; box-shadow:var(--shadow-sm);">
-                ${renderIcon('user-plus', 14)} Register
-              </button>
+          <!-- Language Translator Selector Bar inside Mobile Navigation Menu -->
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:#ECFDF5; border-radius:10px; border:1px solid #A7F3D0; margin-bottom:10px;">
+            <span style="font-weight:800; font-size:0.85rem; color:#064E3B; display:flex; align-items:center; gap:6px;">
+              🌐 ${t('language', 'Select Language')}
+            </span>
+            <div style="display:flex; gap:5px;">
+              ${SUPPORTED_LANGUAGES.map(lang => `
+                <button type="button" class="btn btn-sm" data-lang-select="${lang.code}" style="padding:4px 10px; font-size:0.75rem; border-radius:14px; font-weight:800; background:${currentLang === lang.code ? '#059669' : '#FFFFFF'}; color:${currentLang === lang.code ? '#FFFFFF' : '#0F172A'}; border:1px solid #A7F3D0; cursor:pointer;">
+                  ${lang.flag} ${lang.code.toUpperCase()}
+                </button>
+              `).join('')}
             </div>
+          </div>
+
+          <!-- All Main Navigation Section Items -->
+          <div class="mobile-nav-group-title" style="font-size:0.72rem; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; color:#64748B; padding:4px 0 2px;">
+            Properties & Housing
+          </div>
+          <a href="#" class="${activeTab === 'buy' ? 'active' : ''}" data-nav="buy">
+            ${renderIcon('home', 16)} <span>${t('nav_sale', 'Properties for Sale')}</span>
+          </a>
+          <a href="#" class="${activeTab === 'rent' ? 'active' : ''}" data-nav="rent">
+            ${renderIcon('key', 16)} <span>${t('nav_rent', 'Rental Properties')}</span>
+          </a>
+          <a href="#" class="${activeTab === 'projects' ? 'active' : ''}" data-nav="projects">
+            ${renderIcon('building-2', 16)} <span>${t('nav_projects', 'Housing Megaprojects')}</span>
+          </a>
+
+          <div class="mobile-nav-group-title" style="font-size:0.72rem; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; color:#64748B; padding:10px 0 2px;">
+            Insights & Tools
+          </div>
+          <a href="#" class="${activeTab === 'blogs' ? 'active' : ''}" data-nav="blogs">
+            ${renderIcon('book-open', 16)} <span>${t('nav_blogs', 'Blogs & Insights')}</span>
+          </a>
+          <a href="#" class="${activeTab === 'tools' ? 'active' : ''}" data-nav="tools">
+            ${renderIcon('calculator', 16)} <span>${t('nav_tools', 'Calculators & Tools')}</span>
+          </a>
+          <a href="#" class="${activeTab === 'agents' ? 'active' : ''}" data-nav="agents">
+            ${renderIcon('users', 16)} <span>${t('nav_agents', 'Agents Directory')}</span>
+          </a>
+          <a href="#" id="mobile-drawer-post-free-btn" style="color:#047857 !important; font-weight:800; background:#ECFDF5; padding:9px 14px; border-radius:10px; border:1px solid #A7F3D0; margin:4px 0; display:flex; align-items:center; gap:8px;">
+            ${renderIcon('plus-circle', 16, '#059669')} <span>${t('btn_post_property', '+ Post Free Listing')}</span>
+          </a>
+
+          <div class="mobile-nav-group-title" style="font-size:0.72rem; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; color:#64748B; padding:10px 0 2px;">
+            Account & Portals
+          </div>
+          ${state.user?.role === 'DEALER' ? `
+            <a href="#" class="${activeTab === 'dealer' ? 'active' : ''}" data-nav="dealer">
+              ${renderIcon('shield-check', 16)} <span>${t('nav_dealer', 'Dealer Portal')}</span>
+            </a>
+          ` : ''}
+          ${state.user?.role === 'ADMIN' ? `
+            <a href="#" class="${activeTab === 'dealer' ? 'active' : ''}" data-nav="dealer">
+              ${renderIcon('shield-check', 16)} <span>${t('nav_admin', 'Admin Portal')}</span>
+            </a>
+          ` : `
+            <a href="#" id="mobile-dealer-join-btn" class="${activeTab === 'dealer' ? 'active' : ''}" data-nav="dealer">
+              ${renderIcon('shield', 16)} <span>${t('nav_become_dealer', 'Become a Dealer')}</span>
+            </a>
+          `}
+
+          ${state.user ? `
+            <a href="#dashboard" id="mobile-user-profile-btn" style="color:#047857 !important; font-weight:800; display:flex; align-items:center; gap:8px;">
+              ${renderIcon('layout-dashboard', 16, '#059669')} <span>${t('nav_dashboard', 'My Dashboard')} (${userName})</span>
+            </a>
+            <a href="#" id="mobile-logout-btn" style="color:#EF4444 !important; font-weight:800; display:flex; align-items:center; gap:8px;">
+              ${renderIcon('log-out', 16, '#EF4444')} <span>${t('nav_logout', 'Logout')}</span>
+            </a>
+          ` : `
+            <a href="#" id="mobile-auth-login-link-btn" style="color:#047857 !important; font-weight:800; display:flex; align-items:center; gap:8px;">
+              ${renderIcon('user', 18, '#059669')} <span>${t('nav_login', 'Sign In / Register')}</span>
+            </a>
           `}
         </div>
 

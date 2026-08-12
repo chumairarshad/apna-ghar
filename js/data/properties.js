@@ -192,5 +192,194 @@ export const INITIAL_PROPERTIES = [
       badge: 'PLATINUM VERIFIED',
       avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80'
     }
+  },
+  {
+    id: 'prop-107',
+    title: '10 Marla Prime Residential Plot in Bahria Town',
+    category: 'plot',
+    purpose: 'sale',
+    price: 18500000,
+    city: 'Lahore',
+    location: 'Bahria Town, Sector C',
+    address: 'Plot 412, Sector C, Bahria Town, Lahore',
+    sizeMarla: 10,
+    bedrooms: 0,
+    bathrooms: 0,
+    facing: 'Park Facing & 40ft Road',
+    badges: ['READY FOR CONSTRUCTION', 'PARK FACING', 'VERIFIED PLOT'],
+    featured: true,
+    views: 240,
+    postedDate: '2026-08-06',
+    description: 'Prime 10 Marla residential plot located in developed Sector C of Bahria Town Lahore. On 40ft wide boulevard road, facing lush green park. Possession paid, ready for instant house construction.',
+    images: [
+      'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1524813686514-a57563d77965?auto=format&fit=crop&w=800&q=80'
+    ],
+    features: ['40ft Road', 'Park Facing', 'Possession Paid', 'Underground Electricity', 'Gated Security'],
+    agency: {
+      name: 'Al-Rehman Real Estate & Builders',
+      agentName: 'Chaudhry Tariq Rehman',
+      phone: '+92 332 7507866',
+      whatsapp: '923327507866',
+      badge: 'PLATINUM VERIFIED',
+      avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80'
+    }
+  },
+  {
+    id: 'prop-108',
+    title: '5 Marla Brand New Modern House in Bahria Town',
+    category: 'house',
+    purpose: 'sale',
+    price: 21000000,
+    city: 'Lahore',
+    location: 'Bahria Town, Sector EE',
+    address: 'Street 8, Sector EE, Bahria Town, Lahore',
+    sizeMarla: 5,
+    bedrooms: 3,
+    bathrooms: 4,
+    facing: 'West Facing',
+    badges: ['BRAND NEW', 'HOT DEAL', 'DOCUMENTS CLEARED'],
+    featured: true,
+    views: 195,
+    postedDate: '2026-08-06',
+    description: 'Brand new 5 Marla double story modern house in Sector EE Bahria Town Lahore. Features 3 spacious bedrooms, double kitchen, Ash woodwork, car porch, and rooftop terrace.',
+    images: [
+      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=800&q=80'
+    ],
+    features: ['Double Kitchen', 'Solid Woodwork', 'Gated Security', 'Car Porch', 'Terrace'],
+    agency: {
+      name: 'Al-Rehman Real Estate & Builders',
+      agentName: 'Chaudhry Tariq Rehman',
+      phone: '+92 332 7507866',
+      whatsapp: '923327507866',
+      badge: 'PLATINUM VERIFIED',
+      avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80'
+    }
+  },
+  {
+    id: 'prop-109',
+    title: '5 Marla Prime Residential Plot in DHA Phase 6',
+    category: 'plot',
+    purpose: 'sale',
+    price: 16000000,
+    city: 'Lahore',
+    location: 'DHA Phase 6, Sector MB',
+    address: 'Sector MB, DHA Phase 6, Lahore',
+    sizeMarla: 5,
+    bedrooms: 0,
+    bathrooms: 0,
+    facing: 'East Facing',
+    badges: ['DHA VERIFIED', 'POSSESSION READY', 'INVESTMENT GRADE'],
+    featured: false,
+    views: 178,
+    postedDate: '2026-08-07',
+    description: 'Excellent investment opportunity 5 Marla plot in DHA Phase 6 Lahore Sector MB. Possession ready, prime location near commercial market and mosque.',
+    images: [
+      'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80'
+    ],
+    features: ['Near Commercial', 'DHA Transfer', 'Possession Ready'],
+    agency: {
+      name: 'Al-Rehman Real Estate & Builders',
+      agentName: 'Chaudhry Tariq Rehman',
+      phone: '+92 332 7507866',
+      whatsapp: '923327507866',
+      badge: 'PLATINUM VERIFIED',
+      avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80'
+    }
+  },
+  {
+    id: 'prop-110',
+    title: '10 Marla Luxury Modern House in DHA Phase 5',
+    category: 'house',
+    purpose: 'sale',
+    price: 48000000,
+    city: 'Lahore',
+    location: 'DHA Phase 5, Sector H',
+    address: 'Street 22, Sector H, DHA Phase 5, Lahore',
+    sizeMarla: 10,
+    bedrooms: 4,
+    bathrooms: 5,
+    facing: 'North Facing',
+    badges: ['DHA PHASE 5', 'LUXURY FINISH', 'VERIFIED LISTING'],
+    featured: true,
+    views: 310,
+    postedDate: '2026-08-07',
+    description: 'Elegant 10 Marla designer house in prime DHA Phase 5 Lahore. 4 master bedrooms, Spanish tile flooring, imported sanitary fittings, double height ceiling, and solar backup.',
+    images: [
+      'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80'
+    ],
+    features: ['Spanish Tiles', 'Double Height Ceiling', 'Solar Installed', '4 Car Park'],
+    agency: {
+      name: 'Al-Rehman Real Estate & Builders',
+      agentName: 'Chaudhry Tariq Rehman',
+      phone: '+92 332 7507866',
+      whatsapp: '923327507866',
+      badge: 'PLATINUM VERIFIED',
+      avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80'
+    }
+  },
+  {
+    id: 'prop-111',
+    title: '7 Marla Modern Double Story House in Askari 11',
+    category: 'house',
+    purpose: 'sale',
+    price: 29500000,
+    city: 'Lahore',
+    location: 'Askari 11, Sector A',
+    address: 'Block A, Askari 11, Lahore',
+    sizeMarla: 7,
+    bedrooms: 4,
+    bathrooms: 4,
+    facing: 'Park Facing',
+    badges: ['ASKARI 11', 'HIGH SECURITY', 'READY TO MOVE'],
+    featured: false,
+    views: 140,
+    postedDate: '2026-08-08',
+    description: 'Well-maintained 7 Marla house in secure Askari 11 Lahore. 4 bedrooms, servant room, solar net metering, and peaceful army-administered society environment.',
+    images: [
+      'https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1200&q=80'
+    ],
+    features: ['Gated Security', 'Solar Net Metering', 'Park Facing'],
+    agency: {
+      name: 'Al-Rehman Real Estate & Builders',
+      agentName: 'Chaudhry Tariq Rehman',
+      phone: '+92 332 7507866',
+      whatsapp: '923327507866',
+      badge: 'PLATINUM VERIFIED',
+      avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80'
+    }
+  },
+  {
+    id: 'prop-112',
+    title: '1 Kanal Prime Residential Plot in Bahria Town Phase 8',
+    category: 'plot',
+    purpose: 'sale',
+    price: 32000000,
+    city: 'Islamabad',
+    location: 'Bahria Town Phase 8, Sector F',
+    address: 'Sector F, Bahria Town Phase 8, Islamabad',
+    sizeMarla: 20,
+    bedrooms: 0,
+    bathrooms: 0,
+    facing: 'Main Boulevard Facing',
+    badges: ['1 KANAL PLOT', 'BAHRIA ISLAMABAD', 'TOP INVESTMENT'],
+    featured: true,
+    views: 260,
+    postedDate: '2026-08-08',
+    description: '1 Kanal (20 Marla) prime plot on main boulevard in Bahria Town Phase 8 Islamabad. Ideal for constructing custom luxury villa.',
+    images: [
+      'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80'
+    ],
+    features: ['Main Boulevard', 'Possession Paid', 'Corner Location'],
+    agency: {
+      name: 'Capital Heights Marketing',
+      agentName: 'Malik Zeeshan Awan',
+      phone: '+92 321 5567890',
+      whatsapp: '923215567890',
+      badge: 'PLATINUM VERIFIED',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
+    }
   }
 ];

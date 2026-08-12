@@ -1,17 +1,20 @@
+import { renderIcon } from '../utils/icons.js';
+import { t } from '../utils/i18n.js';
+
 export function renderAuthModal(state) {
   const isVisible = state.showAuthModal || false;
-  const authMode = state.authMode || (state.authIsRegister ? 'signup' : 'login');
-  const isRegister = authMode === 'signup' || authMode === 'register' || authMode === 'Register' || Boolean(state.authIsRegister);
+  const authMode = state.authMode || 'login';
   const isForgot = authMode === 'forgot';
+  const isRegister = (authMode === 'signup' || authMode === 'register') && !isForgot;
   const selectedRole = state.authRole || 'DEALER'; // 'DEALER' | 'ADMIN'
 
   const roleIcon = selectedRole === 'ADMIN' ? 'shield-check' : 'briefcase';
   const roleBadgeBg = selectedRole === 'ADMIN' ? 'var(--rani)' : 'var(--forest-dk)';
   const roleBadgeColor = selectedRole === 'ADMIN' ? 'var(--paper)' : 'var(--marigold)';
 
-  let titleText = 'Portal Sign In';
-  if (isRegister) titleText = 'Register Portal Account';
-  if (isForgot) titleText = 'Reset Account Password';
+  let titleText = t('auth_login_title', 'Portal Sign In');
+  if (isRegister) titleText = t('auth_register_title', 'Register Portal Account');
+  if (isForgot) titleText = t('dash_password', 'Reset Account Password');
 
   return `
     <div class="modal-overlay ${isVisible ? 'active' : ''}" id="auth-modal-overlay">
@@ -22,7 +25,7 @@ export function renderAuthModal(state) {
           <div>
             <div style="display: flex; align-items: center; gap: 8px;">
               <span class="badge" style="background: ${roleBadgeBg}; color: ${roleBadgeColor}; font-size: 0.7rem; padding: 4px 10px;">
-                <i data-lucide="${roleIcon}" style="width: 13px; height: 13px;"></i> ${selectedRole} ACCESS
+                ${renderIcon(roleIcon, 13, roleBadgeColor)} ${selectedRole} ACCESS
               </span>
             </div>
             <h3 class="modal-title" style="color: var(--paper); font-size: 1.25rem; margin-top: 6px;">
@@ -33,30 +36,15 @@ export function renderAuthModal(state) {
         </div>
 
         <div class="modal-body" style="padding: 1.5rem; background: var(--paper);">
-          
-          <!-- Role Selection Tabs (Dealer vs Admin ONLY) -->
-          <div class="form-group" style="margin-bottom: 1.25rem;">
-            <label style="font-family: var(--font-mono); font-weight: 700; font-size: 0.75rem; color: var(--forest-dk); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; display: block;">
-              Select Access Portal
-            </label>
-            <div style="display: flex; gap: 0.5rem; background: var(--cream); padding: 5px; border-radius: 10px; border: 2px solid var(--border-dk);">
-              <button type="button" class="btn btn-sm auth-role-select-btn ${selectedRole === 'DEALER' ? 'btn-dark active' : 'btn-ghost'}" data-role="DEALER" style="flex: 1; font-weight: 700; border-radius: 6px; font-size: 0.85rem;">
-                <i data-lucide="building-2" style="width: 15px; height: 15px; color: var(--marigold);"></i> Dealer Login
-              </button>
-              <button type="button" class="btn btn-sm auth-role-select-btn ${selectedRole === 'ADMIN' ? 'btn-dark active' : 'btn-ghost'}" data-role="ADMIN" style="flex: 1; font-weight: 700; border-radius: 6px; font-size: 0.85rem;">
-                <i data-lucide="shield-check" style="width: 15px; height: 15px; color: var(--rani);"></i> Admin Login
-              </button>
-            </div>
-          </div>
 
           ${!isForgot ? `
             <!-- Auth Mode Toggle (Login vs Register) -->
             <div style="display: flex; border-bottom: 2px solid var(--border-dk); margin-bottom: 1.25rem;">
               <button type="button" id="toggle-login-mode-btn" style="flex: 1; padding: 0.65rem; border: none; background: none; font-family: var(--font-body); font-weight: 700; font-size: 0.9rem; color: ${!isRegister ? 'var(--rani-dk)' : 'var(--forest)'}; border-bottom: 3px solid ${!isRegister ? 'var(--rani)' : 'transparent'}; cursor: pointer; transition: all 0.2s;">
-                <i data-lucide="log-in" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i> Sign In
+                ${renderIcon('log-in', 14)} ${t('nav_login', 'Sign In')}
               </button>
               <button type="button" id="toggle-signup-mode-btn" style="flex: 1; padding: 0.65rem; border: none; background: none; font-family: var(--font-body); font-weight: 700; font-size: 0.9rem; color: ${isRegister ? 'var(--rani-dk)' : 'var(--forest)'}; border-bottom: 3px solid ${isRegister ? 'var(--rani)' : 'transparent'}; cursor: pointer; transition: all 0.2s;">
-                <i data-lucide="user-plus" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i> Register
+                ${renderIcon('user-plus', 14)} ${t('btn_submit_register', 'Register')}
               </button>
             </div>
           ` : ''}
@@ -70,57 +58,67 @@ export function renderAuthModal(state) {
 
               <div class="form-group" style="margin-bottom: 1rem;">
                 <label style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--forest-dk); text-transform: uppercase;">
-                  Registered Email Address *
+                  ${t('email_label', 'Registered Email Address')} *
                 </label>
                 <input type="email" id="auth-forgot-email-input" class="form-control" placeholder="${selectedRole === 'ADMIN' ? 'admin@sarmayadar.com' : 'dealer@agency.com'}" value="${state.authPreFillEmail || ''}" required />
               </div>
 
               <div class="form-group" style="margin-bottom: 1.25rem;">
-                <label style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--forest-dk); text-transform: uppercase;">New Password *</label>
-                <input type="password" id="auth-forgot-password-input" class="form-control" placeholder="Minimum 6 characters" required />
+                <label style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--forest-dk); text-transform: uppercase;">${t('new_password', 'New Password')} *</label>
+                <div class="password-field-wrapper" style="position: relative; display: flex; align-items: center;">
+                  <input type="password" id="auth-forgot-password-input" class="form-control" placeholder="Minimum 6 characters" style="padding-right: 44px; width: 100%;" required />
+                  <button type="button" class="pwd-toggle-btn" title="Show/Hide Password" style="position: absolute; right: 8px; background: none; border: none; color: var(--forest-dk); opacity: 0.75; cursor: pointer; padding: 6px; display: flex; align-items: center; justify-content: center; transition: transform 0.2s ease, opacity 0.2s ease;">
+                    ${renderIcon('eye', 18, 'var(--forest-dk)')}
+                  </button>
+                </div>
               </div>
 
               <button type="submit" class="btn btn-primary" id="auth-forgot-submit-btn" style="width: 100%; padding: 0.85rem; font-size: 0.95rem; font-weight: 800; border-radius: 8px; box-shadow: var(--shadow-md); margin-bottom: 1rem;">
-                🔑 Reset Password & Save
+                🔑 ${t('update_password_btn', 'Reset Password & Save')}
               </button>
 
               <div style="text-align: center;">
                 <button type="button" id="toggle-login-mode-btn" style="background: none; border: none; color: var(--rani-dk); font-weight: 700; font-size: 0.85rem; cursor: pointer; text-decoration: underline;">
-                  ← Back to Sign In
+                  ← ${t('nav_login', 'Back to Sign In')}
                 </button>
               </div>
             </form>
           ` : `
-            <!-- LOGIN / Register FORM -->
+            <!-- LOGIN / REGISTER FORM -->
             <form id="email-auth-form">
               ${isRegister ? `
                 <div class="form-group" style="margin-bottom: 1rem;">
-                  <label style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--forest-dk); text-transform: uppercase;">Full Name / Agency Name *</label>
+                  <label style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--forest-dk); text-transform: uppercase;">${t('full_name_label', 'Full Name / Agency Name')} *</label>
                   <input type="text" id="auth-full-name" class="form-control" placeholder="${selectedRole === 'ADMIN' ? 'e.g. System Administrator' : 'e.g. Apex Real Estate Agency'}" value="" required />
                 </div>
                 <div class="form-group" style="margin-bottom: 1rem;">
-                  <label style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--forest-dk); text-transform: uppercase;">Mobile Phone (+92) *</label>
-                  <input type="text" id="auth-phone-num" class="form-control" placeholder="+92 300 1234567" value="" required />
+                  <label style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--forest-dk); text-transform: uppercase;">${t('phone_label', 'Mobile Phone (+92)')} *</label>
+                  <input type="tel" id="auth-phone-num" class="form-control" placeholder="+92 300 1234567" value="" required />
                 </div>
               ` : ''}
 
               <div class="form-group" style="margin-bottom: 1rem;">
                 <label style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--forest-dk); text-transform: uppercase;">
-                  ${selectedRole === 'ADMIN' ? 'Admin Email Address' : 'Dealer / Agency Email'} *
+                  ${t('email_label', 'Email Address')} *
                 </label>
                 <input type="email" id="auth-email-input" class="form-control" placeholder="${selectedRole === 'ADMIN' ? 'admin@sarmayadar.com' : 'dealer@agency.com'}" value="${state.authPreFillEmail || ''}" required />
               </div>
 
               <div class="form-group" style="margin-bottom: 1.25rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                  <label style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--forest-dk); text-transform: uppercase;">Password *</label>
+                  <label style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--forest-dk); text-transform: uppercase;">${t('password_label', 'Password')} *</label>
                   ${!isRegister ? `
                     <button type="button" id="toggle-forgot-mode-btn" style="background: none; border: none; color: var(--rani); font-family: var(--font-mono); font-size: 0.75rem; font-weight: 700; cursor: pointer; text-decoration: underline; padding: 0;">
-                      Forgot Password?
+                      ${t('dash_password', 'Forgot Password?')}
                     </button>
                   ` : ''}
                 </div>
-                <input type="password" id="auth-password-input" class="form-control" placeholder="••••••••" value="" required />
+                <div class="password-field-wrapper" style="position: relative; display: flex; align-items: center;">
+                  <input type="password" id="auth-password-input" class="form-control" placeholder="••••••••" value="" style="padding-right: 44px; width: 100%;" required />
+                  <button type="button" class="pwd-toggle-btn" title="Show/Hide Password" style="position: absolute; right: 8px; background: none; border: none; color: var(--forest-dk); opacity: 0.75; cursor: pointer; padding: 6px; display: flex; align-items: center; justify-content: center; transition: transform 0.2s ease, opacity 0.2s ease;">
+                    ${renderIcon('eye', 18, 'var(--forest-dk)')}
+                  </button>
+                </div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
                   <span style="font-size: 0.72rem; font-family: var(--font-mono); color: var(--forest); opacity: 0.85;">
                     🔒 48-Hour Secure JWT Session
@@ -129,7 +127,7 @@ export function renderAuthModal(state) {
               </div>
 
               <button type="submit" class="btn btn-primary" id="auth-submit-btn" style="width: 100%; padding: 0.85rem; font-size: 0.95rem; font-weight: 800; border-radius: 8px; box-shadow: var(--shadow-md);">
-                ${isRegister ? `🚀 Register as ${selectedRole}` : `🔓 Sign In as ${selectedRole}`}
+                ${isRegister ? `🚀 ${t('btn_submit_register', 'Register')} as ${selectedRole}` : `🔓 ${t('btn_submit_login', 'Sign In')} as ${selectedRole}`}
               </button>
             </form>
           `}

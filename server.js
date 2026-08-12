@@ -7,6 +7,8 @@ import { fileURLToPath } from 'url';
 import authRoutes from './server/routes/auth.js';
 import propertyRoutes from './server/routes/properties.js';
 import adminRoutes from './server/routes/admin.js';
+import megaProjectRoutes from './server/routes/megaProjects.js';
+import subscriptionRoutes from './server/routes/subscriptions.js';
 import uploadRoutes from './server/routes/upload.js';
 import pushRoutes from './server/routes/push.js';
 import { initDb } from './server/db.js';
@@ -33,8 +35,13 @@ app.use('/auth', authRoutes);
 app.use('/api/properties', propertyRoutes);
 app.use('/properties', propertyRoutes);
 
+app.use('/api/mega-projects', megaProjectRoutes);
+app.use('/mega-projects', megaProjectRoutes);
+
+app.use('/api/subscriptions', subscriptionRoutes);
+app.use('/subscriptions', subscriptionRoutes);
+
 app.use('/api/admin', adminRoutes);
-app.use('/admin', adminRoutes);
 
 app.use('/api/upload', uploadRoutes);
 app.use('/upload', uploadRoutes);
@@ -52,6 +59,14 @@ app.get(['/api', '/api/health', '/health'], (req, res) => {
     timestamp: new Date().toISOString(),
     service: 'Sarmayadar Real Estate Express API & Neon PostgreSQL'
   });
+});
+
+// SPA Fallback Route for non-API GET requests / client-side page refreshes
+app.get('*', (req, res) => {
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json({ success: false, message: 'API route not found' });
+  }
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 export default app;
