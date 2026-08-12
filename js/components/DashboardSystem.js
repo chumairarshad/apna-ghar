@@ -12,8 +12,8 @@ import { renderImagePreviewsList } from './PostPropertyWizard.js';
 export function renderDashboardSystem(rawProperties, state) {
   const properties = normalizeProperties(rawProperties || []);
   const user = state.user || {
-    name: 'Guest User',
-    email: 'guest@sarmayadar.com',
+    name: 'Sarmayadar User',
+    email: 'user@sarmayadar.com',
     role: 'USER',
     avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80'
   };
@@ -45,12 +45,12 @@ export function renderDashboardSystem(rawProperties, state) {
       <!-- ProFolio Topbar Navigation -->
       <header class="profolio-topbar">
         <div class="profolio-topbar-left">
-          <button type="button" class="btn-icon" id="dash-toggle-sidebar" title="Toggle Sidebar Navigation" style="background:none; border:none; cursor:pointer; color:#064E3B;">
+          <button type="button" class="btn-icon" id="dash-toggle-sidebar" title="Toggle Sidebar Navigation" style="background:none; border:none; cursor:pointer; color:#064E3B; flex-shrink:0;">
             ${renderIcon('menu', 22)}
           </button>
 
           <a href="#" class="profolio-brand-logo" id="dash-brand-logo">
-            <svg class="logo-mark" viewBox="0 0 100 100" fill="none" style="width:34px; height:34px;">
+            <svg class="logo-mark" viewBox="0 0 100 100" fill="none" style="width:32px; height:32px; flex-shrink:0;">
               <rect width="100" height="100" rx="14" fill="#064E3B"/>
               <path d="M50 18L18 45V82H82V45L50 18Z" fill="#FAF1DE"/>
               <path d="M50 25L26 46V76H74V46L50 25Z" fill="#064E3B"/>
@@ -61,13 +61,13 @@ export function renderDashboardSystem(rawProperties, state) {
           </a>
 
           <a href="#" class="profolio-portal-link" id="dash-go-portal" data-nav="buy" title="Return to Website Homepage">
-            ${renderIcon('home', 15)} <span>${t('go_to_home', 'Go Back to Home')}</span>
+            ${renderIcon('home', 15)} <span class="portal-link-text">${t('go_to_home', 'Go Back to Home')}</span>
           </a>
         </div>
 
         <div class="profolio-topbar-right">
           <button type="button" class="profolio-btn-post" id="dash-post-listing-btn">
-            ${renderIcon('plus-circle', 16, '#FFFFFF')} ${isUser ? t('btn_post_free', '+ Post Property FREE') : t('dash_add_property', '+ Post Listing')}
+            ${renderIcon('plus-circle', 16, '#FFFFFF')} <span class="btn-post-text">${isUser ? t('btn_post_free', '+ Post Property FREE') : t('dash_add_property', '+ Post Listing')}</span>
           </button>
 
           <!-- User Profile Dropdown Pill -->
@@ -251,7 +251,7 @@ function renderProFolioDashboardOverview(properties, user, data, state = {}) {
 
   return `
     <!-- Card 1: Listings Overview & Quota/Credits -->
-    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:1.5rem; margin-bottom:1.5rem;">
+    <div class="profolio-overview-grid">
       <!-- Listings Card -->
       <div class="profolio-card" style="margin-bottom:0;">
         <div class="profolio-card-header">
@@ -259,22 +259,22 @@ function renderProFolioDashboardOverview(properties, user, data, state = {}) {
           <a href="#" class="profolio-link-action" data-dash-tab="listings">View all Listings →</a>
         </div>
 
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:1rem;">
-          <div style="background:#ECFDF5; border-radius:12px; padding:1rem; text-align:center; border:1px solid #A7F3D0;">
-            <div style="color:#059669; font-size:1.6rem; font-weight:800;">${activeCount}</div>
-            <div style="font-size:0.78rem; font-weight:700; color:#064E3B; margin-top:4px;">🟢 Active</div>
+        <div class="profolio-stat-triplet">
+          <div style="background:#ECFDF5; border-radius:12px; padding:0.85rem 0.5rem; text-align:center; border:1px solid #A7F3D0;">
+            <div class="stat-num" style="color:#059669; font-size:1.5rem; font-weight:800; line-height:1;">${activeCount}</div>
+            <div class="stat-label" style="font-size:0.75rem; font-weight:700; color:#064E3B; margin-top:4px;">🟢 Active</div>
           </div>
-          <div style="background:#F8FAFC; border-radius:12px; padding:1rem; text-align:center; border:1px solid #E2E8F0;">
-            <div style="color:#0F172A; font-size:1.4rem; font-weight:800;">${forSaleCount}</div>
-            <div style="font-size:0.75rem; font-weight:700; color:#64748B; margin-top:4px;">For Sale</div>
+          <div style="background:#F8FAFC; border-radius:12px; padding:0.85rem 0.5rem; text-align:center; border:1px solid #E2E8F0;">
+            <div class="stat-num" style="color:#0F172A; font-size:1.3rem; font-weight:800; line-height:1;">${forSaleCount}</div>
+            <div class="stat-label" style="font-size:0.73rem; font-weight:700; color:#64748B; margin-top:4px;">For Sale</div>
           </div>
-          <div style="background:#F8FAFC; border-radius:12px; padding:1rem; text-align:center; border:1px solid #E2E8F0;">
-            <div style="color:#0F172A; font-size:1.4rem; font-weight:800;">${forRentCount}</div>
-            <div style="font-size:0.75rem; font-weight:700; color:#64748B; margin-top:4px;">For Rent</div>
+          <div style="background:#F8FAFC; border-radius:12px; padding:0.85rem 0.5rem; text-align:center; border:1px solid #E2E8F0;">
+            <div class="stat-num" style="color:#0F172A; font-size:1.3rem; font-weight:800; line-height:1;">${forRentCount}</div>
+            <div class="stat-label" style="font-size:0.73rem; font-weight:700; color:#64748B; margin-top:4px;">For Rent</div>
           </div>
         </div>
 
-        <div style="display:flex; justify-content:space-between; margin-top:1rem; padding-top:0.75rem; border-top:1px dashed #E2E8F0; font-size:0.82rem; font-weight:700; color:#64748B;">
+        <div class="profolio-credits-footer" style="display:flex; justify-content:space-between; margin-top:1rem; padding-top:0.75rem; border-top:1px dashed #E2E8F0; font-size:0.82rem; font-weight:700; color:#64748B; flex-wrap:wrap; gap:0.5rem;">
           <span>🔥 Super Hot: <strong style="color:#D1266E;">${superHotCount}</strong></span>
           <span>⚡ Hot Credits: <strong style="color:#F59E0B;">${hotCount}</strong></span>
         </div>
@@ -286,33 +286,33 @@ function renderProFolioDashboardOverview(properties, user, data, state = {}) {
           <h3 class="profolio-card-title">Quota and Credits</h3>
         </div>
 
-        <div style="display:flex; gap:1rem; border-bottom:2px solid #E2E8F0; margin-bottom:1rem; padding-bottom:4px; font-size:0.85rem; font-weight:700; color:#059669;">
-          <span style="border-bottom:3px solid #059669; padding-bottom:4px;">Listing Quota (Unlimited)</span>
-          <span style="color:#64748B;">Refresh Credits (50)</span>
+        <div class="profolio-tab-labels" style="display:flex; gap:0.75rem; border-bottom:2px solid #E2E8F0; margin-bottom:1rem; padding-bottom:4px; font-size:0.82rem; font-weight:700; color:#059669; flex-wrap:wrap;">
+          <span style="border-bottom:3px solid #059669; padding-bottom:4px; white-space:nowrap;">Listing Quota (Unlimited)</span>
+          <span style="color:#64748B; white-space:nowrap;">Refresh Credits (50)</span>
         </div>
 
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:1rem; text-align:center;">
+        <div class="profolio-stat-triplet">
           <div>
-            <div style="font-size:0.75rem; color:#64748B; font-weight:700;">Available Quota</div>
-            <div style="font-size:1.5rem; font-weight:800; color:#059669;">∞</div>
+            <div style="font-size:0.73rem; color:#64748B; font-weight:700;">Available Quota</div>
+            <div style="font-size:1.4rem; font-weight:800; color:#059669;">∞</div>
           </div>
           <div>
-            <div style="font-size:0.75rem; color:#64748B; font-weight:700;">Used</div>
-            <div style="font-size:1.5rem; font-weight:800; color:#0F172A;">${userProps.length}</div>
+            <div style="font-size:0.73rem; color:#64748B; font-weight:700;">Used</div>
+            <div style="font-size:1.4rem; font-weight:800; color:#0F172A;">${userProps.length}</div>
           </div>
           <div>
-            <div style="font-size:0.75rem; color:#64748B; font-weight:700;">Current Plan</div>
-            <div style="font-size:0.9rem; font-weight:800; color:#F59E0B; margin-top:6px;">PRO DEALER</div>
+            <div style="font-size:0.73rem; color:#64748B; font-weight:700;">Current Plan</div>
+            <div style="font-size:0.82rem; font-weight:800; color:#F59E0B; margin-top:4px; white-space:nowrap;">PRO DEALER</div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Card 2: Analytics & Insights Box (As Shown in Screenshot #1) -->
+    <!-- Card 2: Analytics & Insights Box -->
     <div class="profolio-card">
-      <div class="profolio-card-header">
+      <div class="profolio-card-header profolio-analytics-header">
         <h3 class="profolio-card-title">Analytics</h3>
-        <div style="display:flex; gap:8px;">
+        <div class="profolio-analytics-filters">
           <button class="btn btn-sm" style="background:#059669; color:#fff; font-weight:700; border-radius:6px; font-size:0.78rem;">All</button>
           <button class="btn btn-sm" style="background:#F1F5F9; color:#64748B; font-weight:700; border-radius:6px; font-size:0.78rem;">For Sale</button>
           <button class="btn btn-sm" style="background:#F1F5F9; color:#64748B; font-weight:700; border-radius:6px; font-size:0.78rem;">For Rent</button>
@@ -355,8 +355,8 @@ function renderProFolioDashboardOverview(properties, user, data, state = {}) {
         <a href="#" class="profolio-link-action" data-dash-tab="listings">View All Listings ↗</a>
       </div>
 
-      <div style="overflow-x:auto;">
-        <table style="width:100%; border-collapse:collapse; text-align:left; font-size:0.85rem;">
+      <div class="profolio-table-wrapper" style="overflow-x:auto; -webkit-overflow-scrolling:touch; width:100%; border-radius:10px; border:1px solid #E2E8F0;">
+        <table class="profolio-table" style="width:100%; min-width:580px; border-collapse:collapse; text-align:left; font-size:0.85rem;">
           <thead>
             <tr style="background:#F8FAFC; border-bottom:2px solid #E2E8F0; color:#64748B;">
               <th style="padding:10px;">Property</th>
@@ -372,15 +372,15 @@ function renderProFolioDashboardOverview(properties, user, data, state = {}) {
               <tr style="border-bottom:1px solid #E2E8F0;">
                 <td style="padding:10px; display:flex; align-items:center; gap:10px;">
                   <img src="${p.images[0]}" style="width:40px; height:40px; border-radius:6px; object-fit:cover;" />
-                  <span style="font-weight:700; color:#0F172A;">${p.title}</span>
+                  <span style="font-weight:700; color:#0F172A; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:160px;">${p.title}</span>
                 </td>
-                <td style="padding:10px; color:#64748B;">${p.location}, ${p.city}</td>
-                <td style="padding:10px; font-weight:800; color:#059669;">${formatPKR(p.price)}</td>
-                <td style="padding:10px; font-weight:700;">${formatArea(p.sizeMarla, state?.unit)}</td>
-                <td style="padding:10px;">
+                <td style="padding:10px; color:#64748B; white-space:nowrap;">${p.location}, ${p.city}</td>
+                <td style="padding:10px; font-weight:800; color:#059669; white-space:nowrap;">${formatPKR(p.price)}</td>
+                <td style="padding:10px; font-weight:700; white-space:nowrap;">${formatArea(p.sizeMarla, state?.unit)}</td>
+                <td style="padding:10px; white-space:nowrap;">
                   <span class="badge" style="background:#ECFDF5; color:#059669; font-weight:800; font-size:0.7rem;">VERIFIED</span>
                 </td>
-                <td style="padding:10px; text-align:right;">
+                <td style="padding:10px; text-align:right; white-space:nowrap;">
                   <button class="btn btn-sm dash-view-prop-btn" data-id="${p.id}" style="background:#F1F5F9; color:#0F172A; border:none; padding:4px 10px; border-radius:6px; cursor:pointer;">View Page</button>
                 </td>
               </tr>
@@ -409,7 +409,7 @@ function renderProFolioAddPropertyForm(state) {
       </div>
 
       <!-- Main Form Grid (2 Columns on Desktop) -->
-      <div style="display:grid; grid-template-columns: 1.2fr 1fr; gap:1.25rem;">
+      <div class="profolio-form-main-grid" style="display:grid; grid-template-columns: 1.2fr 1fr; gap:1.25rem;">
         
         <!-- Left Column: Details & Description -->
         <div style="display:flex; flex-direction:column; gap:1.25rem;">
@@ -437,7 +437,7 @@ function renderProFolioAddPropertyForm(state) {
                 </div>
               </div>
 
-              <div style="display:grid; grid-template-columns:1fr 1.2fr; gap:0.75rem;">
+              <div class="profolio-form-sub-grid" style="display:grid; grid-template-columns:1fr 1.2fr; gap:0.75rem;">
                 <div>
                   <label style="font-weight:700; font-size:0.8rem; display:block; margin-bottom:5px; color:#1E293B;">Property Type</label>
                   <select id="wiz_type" style="width:100%; padding:9px 12px; border-radius:8px; border:1px solid #CBD5E1; font-weight:700; font-size:0.85rem;">
@@ -593,8 +593,8 @@ function renderProFolioListingsManager(properties, user, state) {
         <button class="profolio-status-tab">Expired (0)</button>
       </div>
 
-      <div style="overflow-x:auto;">
-        <table style="width:100%; border-collapse:collapse; text-align:left; font-size:0.85rem;">
+      <div class="profolio-table-wrapper" style="overflow-x:auto; -webkit-overflow-scrolling:touch; width:100%; border-radius:10px; border:1px solid #E2E8F0;">
+        <table class="profolio-table" style="width:100%; min-width:580px; border-collapse:collapse; text-align:left; font-size:0.85rem;">
           <thead>
             <tr style="background:#F8FAFC; border-bottom:2px solid #E2E8F0; color:#64748B;">
               <th style="padding:12px;">ID</th>
@@ -671,28 +671,30 @@ function renderProFolioInquiriesInbox(leads) {
         <h3 class="profolio-card-title">Inquiries & Customer Leads Inbox</h3>
       </div>
 
-      <table style="width:100%; border-collapse:collapse; text-align:left; font-size:0.85rem;">
-        <thead>
-          <tr style="background:#F8FAFC; border-bottom:2px solid #E2E8F0; color:#64748B;">
-            <th style="padding:10px;">Client Name</th>
-            <th style="padding:10px;">Phone / Contact</th>
-            <th style="padding:10px;">Property Interest</th>
-            <th style="padding:10px;">Message</th>
-            <th style="padding:10px;">Stage</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${leads.map(l => `
-            <tr style="border-bottom:1px solid #E2E8F0;">
-              <td style="padding:10px; font-weight:700; color:#0F172A;">${l.clientName || 'Inquirer'}</td>
-              <td style="padding:10px; color:#059669; font-weight:700;">${l.phone || '+92 300 0000000'}</td>
-              <td style="padding:10px; font-weight:700;">${l.propertyTitle || 'General Inquiry'}</td>
-              <td style="padding:10px; color:#64748B;">${l.notes || 'Is this property still available?'}</td>
-              <td style="padding:10px;"><span class="badge" style="background:#DBEAFE; color:#1E40AF; font-weight:800;">${l.stage || 'New'}</span></td>
+      <div class="profolio-table-wrapper" style="overflow-x:auto; -webkit-overflow-scrolling:touch; width:100%; border-radius:10px; border:1px solid #E2E8F0;">
+        <table class="profolio-table" style="width:100%; min-width:580px; border-collapse:collapse; text-align:left; font-size:0.85rem;">
+          <thead>
+            <tr style="background:#F8FAFC; border-bottom:2px solid #E2E8F0; color:#64748B;">
+              <th style="padding:10px;">Client Name</th>
+              <th style="padding:10px;">Phone / Contact</th>
+              <th style="padding:10px;">Property Interest</th>
+              <th style="padding:10px;">Message</th>
+              <th style="padding:10px;">Stage</th>
             </tr>
-          `).join('')}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            ${leads.map(l => `
+              <tr style="border-bottom:1px solid #E2E8F0;">
+                <td style="padding:10px; font-weight:700; color:#0F172A;">${l.clientName || 'Inquirer'}</td>
+                <td style="padding:10px; color:#059669; font-weight:700;">${l.phone || '+92 300 0000000'}</td>
+                <td style="padding:10px; font-weight:700;">${l.propertyTitle || 'General Inquiry'}</td>
+                <td style="padding:10px; color:#64748B;">${l.notes || 'Is this property still available?'}</td>
+                <td style="padding:10px;"><span class="badge" style="background:#DBEAFE; color:#1E40AF; font-weight:800;">${l.stage || 'New'}</span></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
     </div>
   `;
 }
@@ -704,26 +706,28 @@ function renderProFolioUsersManager(users) {
         <h3 class="profolio-card-title">Master User Accounts Manager</h3>
       </div>
 
-      <table style="width:100%; border-collapse:collapse; text-align:left; font-size:0.85rem;">
-        <thead>
-          <tr style="background:#F8FAFC; border-bottom:2px solid #E2E8F0; color:#64748B;">
-            <th style="padding:10px;">User Name</th>
-            <th style="padding:10px;">Email</th>
-            <th style="padding:10px;">Role</th>
-            <th style="padding:10px;">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${users.map(u => `
-            <tr style="border-bottom:1px solid #E2E8F0;">
-              <td style="padding:10px; font-weight:700;">${u.name}</td>
-              <td style="padding:10px; color:#64748B;">${u.email}</td>
-              <td style="padding:10px;"><span class="badge" style="background:#059669; color:#fff;">${u.role}</span></td>
-              <td style="padding:10px; color:#059669; font-weight:800;">Active</td>
+      <div class="profolio-table-wrapper" style="overflow-x:auto; -webkit-overflow-scrolling:touch; width:100%; border-radius:10px; border:1px solid #E2E8F0;">
+        <table class="profolio-table" style="width:100%; min-width:520px; border-collapse:collapse; text-align:left; font-size:0.85rem;">
+          <thead>
+            <tr style="background:#F8FAFC; border-bottom:2px solid #E2E8F0; color:#64748B;">
+              <th style="padding:10px;">User Name</th>
+              <th style="padding:10px;">Email</th>
+              <th style="padding:10px;">Role</th>
+              <th style="padding:10px;">Status</th>
             </tr>
-          `).join('')}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            ${users.map(u => `
+              <tr style="border-bottom:1px solid #E2E8F0;">
+                <td style="padding:10px; font-weight:700;">${u.name}</td>
+                <td style="padding:10px; color:#64748B;">${u.email}</td>
+                <td style="padding:10px;"><span class="badge" style="background:#059669; color:#fff;">${u.role}</span></td>
+                <td style="padding:10px; color:#059669; font-weight:800;">Active</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
     </div>
   `;
 }

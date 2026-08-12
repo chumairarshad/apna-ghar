@@ -132,9 +132,6 @@ function getSavedActiveTab() {
     if (hash === 'register') return 'register';
 
     if (validTabs.includes(hash)) return hash;
-
-    const saved = localStorage.getItem('Sarmayadar_active_tab');
-    if (saved && validTabs.includes(saved)) return saved;
   }
   return 'buy';
 }
@@ -203,7 +200,7 @@ const state = {
   aiChatMessages: [
     { sender: 'bot', text: 'Hello! 👋 I am your **Sarmayadar Assistant**. Type any location, budget, or plot size to find matching properties, or select 🇵🇰 Roman Urdu language above!' }
   ],
-  showSplash: true,
+  showSplash: false,
   authMethod: 'phone', // google | phone | email
   phoneStep: 1, // 1: enter number, 2: enter 6-digit OTP
   tempPhone: '',
@@ -323,25 +320,13 @@ async function initApp() {
     localStorage.setItem('Sarmayadar_blogs_db', JSON.stringify(ARTICLES_DB));
   }
 
-  // Persistent Login Session with 10-Minute Inactivity Timeout Check
-  const INACTIVITY_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
+  // Persistent User Login Session (Never auto-log out user)
   const savedTokenStr = localStorage.getItem('Sarmayadar_jwt_token');
 
   if (savedTokenStr) {
     try {
       const tokenObj = JSON.parse(savedTokenStr);
-      const now = Date.now();
-      const lastActive = tokenObj.lastActiveTime || tokenObj.issuedAt || now;
-
-      if (now - lastActive > INACTIVITY_TIMEOUT_MS) {
-        localStorage.removeItem('Sarmayadar_jwt_token');
-        state.user = null;
-        showToast('⏱️ Session expired due to 10 minutes of inactivity. Please sign in again.');
-      } else {
-        tokenObj.lastActiveTime = now;
-        localStorage.setItem('Sarmayadar_jwt_token', JSON.stringify(tokenObj));
-        state.user = tokenObj;
-      }
+      state.user = tokenObj;
     } catch (e) {
       localStorage.removeItem('Sarmayadar_jwt_token');
       state.user = null;
@@ -411,14 +396,6 @@ async function initApp() {
       }
     }
   } catch (e) {}
-
-  // Auto-trigger Featured Property Popup Ad 10 seconds after opening website
-  setTimeout(() => {
-    if (!state.showFeaturedModal && !state.selectedProperty && !state.showAuthModal && !state.showPostWizard) {
-      state.showFeaturedModal = true;
-      renderApp();
-    }
-  }, 10000);
 }
 
 function renderApp() {

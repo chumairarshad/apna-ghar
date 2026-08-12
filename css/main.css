@@ -109,13 +109,17 @@ html[dir="rtl"] .fancy-360-badge {
   right: auto;
 }
 
+html, body, #app, main {
+  max-width: 100vw;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
 body {
   font-family: var(--font-body);
   background-color: var(--cream);
   color: var(--ink);
   line-height: 1.45;
-  max-width: 100vw;
-  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
 

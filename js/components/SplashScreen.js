@@ -77,59 +77,14 @@ export function renderSplashScreen() {
 }
 
 export function triggerSplashAnimation() {
-  const bar = document.querySelector('.bismillah-progress-fill');
-  if (bar) bar.style.width = '100%';
-
-  setTimeout(() => {
-    const splash = document.getElementById('bismillah-preloader') || document.getElementById('splash-screen');
-    if (splash) {
-      splash.style.opacity = '0';
-      splash.style.visibility = 'hidden';
-      setTimeout(() => {
-        if (splash.parentNode) splash.parentNode.removeChild(splash);
-      }, 500);
-    }
-  }, 1000);
+  const splash = document.getElementById('bismillah-preloader') || document.getElementById('splash-screen');
+  if (splash) {
+    splash.style.opacity = '0';
+    splash.style.visibility = 'hidden';
+    if (splash.parentNode) splash.parentNode.removeChild(splash);
+  }
 }
 
 export function triggerQuickPagePreloader(callback) {
-  let existing = document.getElementById('quick-page-preloader');
-  if (existing) existing.remove();
-
-  const preloaderHTML = `
-    <div id="quick-page-preloader" style="
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(15, 23, 42, 0.65);
-      backdrop-filter: blur(6px);
-      z-index: 99999;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: #FFFFFF;
-      animation: fadeIn 0.15s ease-out;
-    ">
-      <div style="
-        width: 50px;
-        height: 50px;
-        border: 4px solid rgba(255,255,255,0.2);
-        border-top: 4px solid #239C32;
-        border-radius: 50%;
-        animation: spinPreloader 0.8s linear infinite;
-        margin-bottom: 0.75rem;
-      "></div>
-      <div style="font-family: var(--font-mono); font-size: 0.8rem; font-weight: 700; color: #FFFFFF; letter-spacing: 0.5px;">
-        Loading Verified Properties...
-      </div>
-    </div>
-  `;
-
-  document.body.insertAdjacentHTML('beforeend', preloaderHTML);
-
-  setTimeout(() => {
-    const el = document.getElementById('quick-page-preloader');
-    if (el) el.remove();
-    if (typeof callback === 'function') callback();
-  }, 350);
+  if (typeof callback === 'function') callback();
 }

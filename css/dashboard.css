@@ -774,7 +774,128 @@
   }
 
   .profolio-table, .dashboard-table {
-    min-width: 600px;
+    min-width: 580px;
+  }
+}
+
+/* ==========================================================================
+   Mobile Responsive Overrides & Layout Fixes (320px - 768px)
+   ========================================================================== */
+.profolio-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.profolio-stat-triplet {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.profolio-analytics-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.profolio-analytics-filters {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  max-width: 100%;
+  padding-bottom: 2px;
+}
+
+.profolio-analytics-filters::-webkit-scrollbar {
+  display: none;
+}
+
+.profolio-table-wrapper {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 12px;
+  border: 1px solid #E2E8F0;
+  box-sizing: border-box;
+  margin-bottom: 1rem;
+}
+
+.profolio-table {
+  width: 100%;
+  min-width: 580px;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+@media (max-width: 768px) {
+  .profolio-dashboard-wrapper,
+  .profolio-main-layout,
+  .profolio-content-panel {
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  .profolio-topbar {
+    height: 56px;
+    padding: 0 0.5rem;
+    gap: 0.25rem;
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
+  }
+
+  .profolio-topbar-left {
+    gap: 0.35rem;
+    min-width: 0;
+    flex-shrink: 1;
+    overflow: hidden;
+  }
+
+  .profolio-topbar-right {
+    gap: 0.35rem;
+    flex-shrink: 0;
+  }
+
+  .profolio-brand-text {
+    font-size: 0.95rem;
+  }
+
+  .profolio-portal-link {
+    font-size: 0.72rem;
+    padding: 3px 6px;
+  }
+
+  .profolio-overview-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .profolio-form-main-grid,
+  .profolio-form-sub-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+
+  .profolio-card {
+    padding: 1rem;
+    border-radius: 14px;
+    width: 100%;
+    box-sizing: border-box;
   }
 }
 
@@ -787,5 +908,53 @@
 
   .profolio-nav-label {
     font-size: 0.74rem;
+  }
+
+  .portal-link-text {
+    display: none !important;
+  }
+
+  .profolio-user-name {
+    display: none !important;
+  }
+
+  .btn-post-text {
+    font-size: 0.72rem;
+  }
+
+  .profolio-btn-post {
+    padding: 6px 8px;
+    font-size: 0.75rem;
+  }
+
+  .profolio-stat-triplet {
+    gap: 0.35rem;
+  }
+
+  .profolio-stat-triplet > div {
+    padding: 0.6rem 0.25rem !important;
+  }
+
+  .stat-num {
+    font-size: 1.15rem !important;
+  }
+
+  .stat-label {
+    font-size: 0.68rem !important;
+  }
+
+  .profolio-analytics-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .profolio-analytics-filters {
+    width: 100%;
+  }
+
+  .profolio-analytics-item {
+    min-width: 68px;
+    padding: 0.65rem 0.35rem;
   }
 }
