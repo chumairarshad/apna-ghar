@@ -102,7 +102,7 @@ router.post('/', async (req, res) => {
         [resolvedDealerId]
       );
 
-      const listingLimit = subRes.rows.length > 0 ? subRes.rows[0].listing_limit : 25;
+      const listingLimit = subRes.rows.length > 0 ? subRes.rows[0].listing_limit : 5;
       const countRes = await pool.query(
         `SELECT COUNT(*)::int as count FROM properties WHERE dealer_id = $1 AND status = 'active'`,
         [resolvedDealerId]

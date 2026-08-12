@@ -183,6 +183,12 @@ router.put('/users/:id/role', authenticateToken, requireRole('ADMIN'), async (re
 router.delete('/users/:id', authenticateToken, requireRole('ADMIN'), async (req, res) => {
   try {
     const { id } = req.params;
+
+    // Prevent authenticated Admin from accidentally deleting their own active account
+    if (req.user && String(req.user.userId) === String(id)) {
+      return res.status(400).json({ success: false, message: 'Self-deletion prohibited: You cannot delete your own authenticated Admin account.' });
+    }
+
     const result = await pool.query(`DELETE FROM users WHERE id = $1 RETURNING id`, [id]);
     if (result.rows.length === 0) {
       return res.status(404).json({ success: false, message: 'User not found.' });
