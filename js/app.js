@@ -2519,12 +2519,12 @@ function setupEventListeners() {
                 })
               });
 
+              const rawText = await res.text().catch(() => '');
               let data = null;
               try {
-                data = await res.json();
+                data = JSON.parse(rawText);
               } catch (e) {
-                const rawText = await res.text().catch(() => '');
-                data = { success: false, message: rawText || `Server returned status ${res.status}` };
+                data = { success: false, message: rawText || `Server status ${res.status}` };
               }
 
               if (res.ok && data && data.success && data.user) {
@@ -2574,7 +2574,7 @@ function setupEventListeners() {
                   showToast(`❌ Registration Failed: ${data.message}`);
                 }
               } else {
-                showToast(`❌ Database Error (${res.status}): Registration failed. Please check network/server logs.`);
+                showToast(`❌ Database Error (${res.status}): Registration failed.`);
               }
             } catch (err) {
               console.error('Register fetch error:', err);
@@ -2588,7 +2588,6 @@ function setupEventListeners() {
         } else {
           // --- LOGIN FLOW ---
           (async () => {
-            let apiData = null;
             try {
               const res = await fetch('/api/auth/login', {
                 method: 'POST',
@@ -2596,11 +2595,12 @@ function setupEventListeners() {
                 body: JSON.stringify({ email: emailInput, password: passwordInput, role: role })
               });
 
+              const rawText = await res.text().catch(() => '');
+              let apiData = null;
               try {
-                apiData = await res.json();
+                apiData = JSON.parse(rawText);
               } catch (e) {
-                const rawText = await res.text().catch(() => '');
-                apiData = { success: false, message: rawText || `Server returned status ${res.status}` };
+                apiData = { success: false, message: rawText || `Server status ${res.status}` };
               }
 
               if (res.ok && apiData && apiData.success && apiData.user && apiData.token) {
