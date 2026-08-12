@@ -56,6 +56,20 @@
 
   <!-- Entry Script (Cache Busted v3.1.0) -->
   <script type="module" src="/js/app.js?v=3.1.0"></script>
+
+  <!-- Fail-Safe Fallback Script for Instant Shell Rendering -->
+  <script>
+    setTimeout(function() {
+      var appEl = document.getElementById('app');
+      if (appEl && (!appEl.children || appEl.children.length === 0)) {
+        if (typeof window.initApp === 'function') {
+          window.initApp();
+        } else if (typeof window.renderApp === 'function') {
+          window.renderApp();
+        }
+      }
+    }, 250);
+  </script>
 </body>
 
 </html>

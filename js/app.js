@@ -319,8 +319,13 @@ const ARTICLES_DB = [
 
 window.renderApp = renderApp;
 
+let appInitialized = false;
+
 // Initialize Application
 async function initApp() {
+  if (appInitialized) return;
+  appInitialized = true;
+
   try {
     state.properties = getEffectiveProperties(INITIAL_PROPERTIES);
   } catch (e) {
@@ -1706,10 +1711,10 @@ function setupEventListeners() {
     }
 
 
-    // Delete Property Button Handler
-    const deletePropBtn = e.target.closest('.delete-prop-btn') || e.target.closest('.modal-delete-prop-btn');
-    if (deletePropBtn) {
-      const id = deletePropBtn.getAttribute('data-id');
+    // Delete Property Button Handler (Dashboard / Modal)
+    const dashDeletePropBtn = e.target.closest('.delete-prop-btn') || e.target.closest('.modal-delete-prop-btn');
+    if (dashDeletePropBtn) {
+      const id = dashDeletePropBtn.getAttribute('data-id');
       const propToDelete = state.properties.find(p => p.id === id);
       const title = propToDelete ? propToDelete.title : 'this property';
 
@@ -3822,10 +3827,14 @@ window.toggleAdvFaq = function(el) {
   }
 };
 
-// Start application when DOM is ready or immediately if already loaded
-if (document.readyState === 'loading') {
-  window.addEventListener('DOMContentLoaded', initApp);
-} else {
+window.initApp = initApp;
+
+// Bulletproof initialization: execute immediately if DOM ready, register event listener, and set immediate fallback timer
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
   initApp();
+} else {
+  document.addEventListener('DOMContentLoaded', initApp);
+  window.addEventListener('load', initApp);
+  setTimeout(initApp, 50);
 }
 

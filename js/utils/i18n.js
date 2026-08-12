@@ -759,16 +759,19 @@ export function getDirection(langCode = getLanguage()) {
 }
 
 export function applyLanguageSettings(langCode) {
+  if (typeof document === 'undefined') return;
   const dir = getDirection(langCode);
-  document.documentElement.lang = langCode;
-  document.documentElement.dir = dir;
+  if (document.documentElement) {
+    document.documentElement.lang = langCode;
+    document.documentElement.dir = dir;
+  }
   
   if (dir === 'rtl') {
-    document.documentElement.classList.add('rtl-mode');
-    document.body.classList.add('rtl-mode');
+    if (document.documentElement && document.documentElement.classList) document.documentElement.classList.add('rtl-mode');
+    if (document.body && document.body.classList) document.body.classList.add('rtl-mode');
   } else {
-    document.documentElement.classList.remove('rtl-mode');
-    document.body.classList.remove('rtl-mode');
+    if (document.documentElement && document.documentElement.classList) document.documentElement.classList.remove('rtl-mode');
+    if (document.body && document.body.classList) document.body.classList.remove('rtl-mode');
   }
 }
 
