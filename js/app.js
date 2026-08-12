@@ -529,8 +529,9 @@ function renderApp() {
       <main>${mainContentHTML}</main>
       ${renderFooter()}
       
-      <!-- Drawers & Widgets (Popups Removed - Moved to Dedicated Pages) -->
+      <!-- Drawers & Widgets -->
       ${renderSavedFavoritesDrawer(state.properties, state)}
+      ${renderAuthModal(state)}
 
       <!-- Persistent Floating AI Chatbot Widget -->
       ${renderAIChatbotWidget(state)}
@@ -2017,15 +2018,16 @@ function setupEventListeners() {
           };
 
           if (!state.user) {
-            // User is not signed in -> Save pending listing and prompt sign in / sign up
+            // User is not signed in -> Save pending listing, open auth modal, and navigate to Sign In page
             state.pendingListingData = newProp;
             state.showPostWizard = false;
             state.uploadedImages = [];
+            state.authMode = 'login';
+            state.authIsRegister = false;
+            state.authIsSignup = false;
             state.showAuthModal = true;
-            state.authMode = 'signup';
-            state.authIsRegister = true;
-            state.authIsSignup = true;
-            showToast('🔒 Property details saved! Please sign in or create an account to publish your property live.');
+            setActiveTab('login');
+            showToast('🔒 Property details saved! Please sign in to publish your property live.');
             renderApp();
             window.scrollTo({ top: 0, behavior: 'smooth' });
           } else {
