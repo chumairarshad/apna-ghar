@@ -36,7 +36,7 @@ export function renderFooter() {
               <li><a href="#" data-nav="rent">${renderIcon('chevron-right', 12)} ${t('nav_rent', 'Rental Properties')}</a></li>
               <li><a href="#" data-nav="projects">${renderIcon('chevron-right', 12)} ${t('nav_projects', 'Housing Megaprojects')}</a></li>
               <li><a href="#" data-nav="advertise">${renderIcon('chevron-right', 12)} ${t('nav_advertise', '📢 Advertise')}</a></li>
-              <li><a href="#" data-nav="dealer">${renderIcon('chevron-right', 12)} ${t('nav_dealer', 'Dealer Portal')}</a></li>
+              <li><a href="#dealer-login" data-nav="dealer-login">${renderIcon('chevron-right', 12)} ${t('nav_dealer', 'Dealer Portal')}</a></li>
             </ul>
           </div>
 

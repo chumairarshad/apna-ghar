@@ -44,6 +44,7 @@ import { registerServiceWorker, togglePushNotifications } from './utils/pushClie
 import { parsePropertySizeFromQuery, formatWhatsAppSizeMessage } from './utils/sizeParser.js';
 import { extractEntitiesAndIntent } from './data/chatbotDataset.js';
 import { renderAdminLoginPage } from './components/AdminLoginPage.js';
+import { renderDealerLoginPage } from './components/DealerLoginPage.js';
 import { renderPropertyDetailPage } from './components/PropertyDetailPage.js';
 import { renderPostPropertyPage } from './components/PostPropertyPage.js';
 import { renderBlogDetailPage } from './components/BlogDetailPage.js';
@@ -66,8 +67,10 @@ const TAB_SLUG_MAP = {
   'advertise': '/advertise',
   'advertise-checkout': '/advertise/checkout',
   'advertise-invoice': '/advertise/invoice',
+  'dealer-login': '/dealer-login',
+  'admin-login': '/admin-login',
   'dealer': '/dashboard',
-  'admin': '/admin-login',
+  'admin': '/admin',
   'post-property': '/post-property',
   'privacy': '/privacy',
   'terms': '/terms',
@@ -79,15 +82,17 @@ const TAB_SLUG_MAP = {
 
 function getSavedActiveTab() {
   if (typeof window !== 'undefined') {
-    const validTabs = ['buy', 'rent', 'projects', 'featured', 'tools', 'agents', 'blogs', 'advertise', 'advertise-checkout', 'advertise-invoice', 'dealer', 'dashboard', 'admin', 'property-detail', 'post-property', 'blog-detail', 'privacy', 'terms', 'fbr-tax-guide', 'compare', 'login', 'register'];
+    const validTabs = ['buy', 'rent', 'projects', 'featured', 'tools', 'agents', 'blogs', 'advertise', 'advertise-checkout', 'advertise-invoice', 'dealer', 'dashboard', 'admin', 'admin-login', 'dealer-login', 'property-detail', 'post-property', 'blog-detail', 'privacy', 'terms', 'fbr-tax-guide', 'compare', 'login', 'register'];
 
     let pathname = window.location.pathname.toLowerCase().replace(/\/$/, '');
     if (pathname === '/featured') return 'featured';
     if (pathname === '/advertise') return 'advertise';
     if (pathname === '/advertise/checkout') return 'advertise-checkout';
     if (pathname === '/advertise/invoice') return 'advertise-invoice';
+    if (pathname === '/admin-login') return 'admin-login';
+    if (pathname === '/dealer-login') return 'dealer-login';
     if (pathname === '/dashboard' || pathname === '/dealer') return 'dealer';
-    if (pathname === '/admin-login' || pathname === '/admin' || pathname === '/dealer-login' || pathname === '/dealer/admin') return 'admin';
+    if (pathname === '/admin' || pathname === '/dealer/admin') return 'admin';
     if (pathname === '/post-property') return 'post-property';
     if (pathname === '/rent') return 'rent';
     if (pathname === '/projects') return 'projects';
@@ -114,7 +119,9 @@ function getSavedActiveTab() {
     if (hash === 'advertise') return 'advertise';
     if (hash === 'advertise-checkout') return 'advertise-checkout';
     if (hash === 'advertise-invoice') return 'advertise-invoice';
-    if (hash === 'admin-login' || hash === 'admin' || hash === 'dealer/admin' || hash === 'dealer-login') return 'admin';
+    if (hash === 'admin-login') return 'admin-login';
+    if (hash === 'dealer-login') return 'dealer-login';
+    if (hash === 'admin' || hash === 'dealer/admin') return 'admin';
     if (hash === 'dealer' || hash === 'dashboard') return 'dealer';
     if (hash.startsWith('property/')) {
       state.selectedPropertyId = hash.split('property/')[1];
@@ -138,7 +145,7 @@ function getSavedActiveTab() {
 }
 
 function setActiveTab(tabName) {
-  const validTabs = ['buy', 'rent', 'projects', 'featured', 'tools', 'agents', 'blogs', 'advertise', 'advertise-checkout', 'advertise-invoice', 'dealer', 'dashboard', 'admin', 'property-detail', 'post-property', 'blog-detail', 'privacy', 'terms', 'fbr-tax-guide', 'compare', 'login', 'register'];
+  const validTabs = ['buy', 'rent', 'projects', 'featured', 'tools', 'agents', 'blogs', 'advertise', 'advertise-checkout', 'advertise-invoice', 'dealer', 'dashboard', 'admin', 'admin-login', 'dealer-login', 'property-detail', 'post-property', 'blog-detail', 'privacy', 'terms', 'fbr-tax-guide', 'compare', 'login', 'register'];
   if (!validTabs.includes(tabName)) tabName = 'buy';
   state.activeTab = tabName;
   if (typeof window !== 'undefined') {
@@ -370,11 +377,8 @@ async function initApp() {
     try {
       const hash = window.location.hash.replace('#', '').toLowerCase();
       const path = window.location.pathname.toLowerCase();
-      const validTabs = ['buy', 'rent', 'projects', 'featured', 'tools', 'agents', 'blogs', 'advertise', 'advertise-checkout', 'advertise-invoice', 'dealer', 'dashboard', 'admin', 'dealer-login', 'property-detail', 'post-property', 'blog-detail', 'privacy', 'terms', 'fbr-tax-guide', 'compare', 'login', 'register'];
-      if ((path === '/dealer-login' || hash === 'dealer-login') && state.activeTab !== 'admin') {
-        setActiveTab('admin');
-        renderApp();
-      } else if (validTabs.includes(hash) && state.activeTab !== hash) {
+      const validTabs = ['buy', 'rent', 'projects', 'featured', 'tools', 'agents', 'blogs', 'advertise', 'advertise-checkout', 'advertise-invoice', 'dealer', 'dashboard', 'admin', 'admin-login', 'dealer-login', 'property-detail', 'post-property', 'blog-detail', 'privacy', 'terms', 'fbr-tax-guide', 'compare', 'login', 'register'];
+      if (validTabs.includes(hash) && state.activeTab !== hash) {
         setActiveTab(hash);
         renderApp();
       }
@@ -509,13 +513,17 @@ function renderApp() {
       mainContentHTML = `
         ${renderAdvertiseInvoice(state)}
       `;
-    } else if (state.activeTab === 'dealer' || state.activeTab === 'dashboard') {
+    } else if (state.activeTab === 'dealer' || state.activeTab === 'dashboard' || state.activeTab === 'admin') {
       mainContentHTML = `
         ${renderDashboardSystem(state.properties, state)}
       `;
-    } else if (state.activeTab === 'admin') {
+    } else if (state.activeTab === 'admin-login') {
       mainContentHTML = `
         ${renderAdminLoginPage(state)}
+      `;
+    } else if (state.activeTab === 'dealer-login') {
+      mainContentHTML = `
+        ${renderDealerLoginPage(state)}
       `;
     } else if (state.activeTab === 'property-detail') {
       mainContentHTML = `
@@ -2497,7 +2505,7 @@ function setupEventListeners() {
       }
     }
 
-    // Admin Gateway Login Form Submit (/dealer-login)
+    // Admin Gateway Login Form Submit (/admin-login)
     if (e.target.id === 'admin-page-login-form' || e.target.closest('#admin-page-login-form')) {
       if (e.type === 'submit' || e.target.closest('#admin-page-submit-btn')) {
         e.preventDefault();
@@ -2539,7 +2547,7 @@ function setupEventListeners() {
               };
               localStorage.setItem('Sarmayadar_jwt_token', JSON.stringify(userObj));
               state.user = userObj;
-              state.activeTab = 'dealer';
+              state.activeTab = 'admin';
               state.dashboardTab = 'overview';
 
               // Fetch live admin metrics & records
@@ -2565,8 +2573,70 @@ function setupEventListeners() {
       }
     }
 
+    // Dealer Gateway Login Form Submit (/dealer-login)
+    if (e.target.id === 'dealer-page-login-form' || e.target.closest('#dealer-page-login-form')) {
+      if (e.type === 'submit' || e.target.closest('#dealer-page-submit-btn')) {
+        e.preventDefault();
+        const emailInput = document.getElementById('dealer-page-email')?.value?.trim()?.toLowerCase();
+        const passwordInput = document.getElementById('dealer-page-password')?.value;
+
+        if (!emailInput || !passwordInput) {
+          showToast('⚠️ Please enter your Dealer Email and Password.');
+          return;
+        }
+
+        (async () => {
+          try {
+            showToast('⏳ Authenticating Dealer Account...');
+            const res = await fetch('/api/auth/login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: emailInput, password: passwordInput, role: 'DEALER' })
+            });
+
+            const apiData = await res.json().catch(() => null);
+
+            if (res.ok && apiData && apiData.success && apiData.user && apiData.token) {
+              const userObj = {
+                userId: apiData.user.id,
+                name: apiData.user.name,
+                email: apiData.user.email,
+                role: apiData.user.role,
+                phone: apiData.user.phone,
+                agencyName: apiData.user.agencyName || apiData.user.name,
+                token: apiData.token,
+                issuedAt: Date.now(),
+                expiresAt: Date.now() + (48 * 60 * 60 * 1000)
+              };
+              localStorage.setItem('Sarmayadar_jwt_token', JSON.stringify(userObj));
+              state.user = userObj;
+              state.activeTab = 'dealer';
+              state.dashboardTab = 'overview';
+
+              showToast(`🏢 Signed in successfully: Welcome ${userObj.name}!`);
+              renderApp();
+            } else {
+              showToast(`❌ ${apiData?.message || 'Dealer login failed'}`);
+            }
+          } catch (err) {
+            showToast(`❌ Connection Error: ${err.message}`);
+          }
+        })();
+        return;
+      }
+    }
+
     // Launch Admin Dashboard Button
     if (e.target.id === 'launch-admin-dashboard-btn' || e.target.closest('#launch-admin-dashboard-btn')) {
+      e.preventDefault();
+      state.activeTab = 'admin';
+      state.dashboardTab = 'overview';
+      renderApp();
+      return;
+    }
+
+    // Launch Dealer Dashboard Button
+    if (e.target.id === 'launch-dealer-dashboard-btn' || e.target.closest('#launch-dealer-dashboard-btn')) {
       e.preventDefault();
       state.activeTab = 'dealer';
       state.dashboardTab = 'overview';

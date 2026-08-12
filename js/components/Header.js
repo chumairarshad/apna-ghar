@@ -87,7 +87,7 @@ export function renderHeader(state, onStateChange) {
                 </li>
               ` : `
                 <li>
-                  <a href="#" id="header-dealer-join-btn" class="${activeTab === 'dealer' ? 'active' : ''}" data-nav="dealer">
+                  <a href="/dealer-login" id="header-dealer-join-btn" class="${activeTab === 'dealer-login' || activeTab === 'dealer' ? 'active' : ''}" data-nav="dealer-login">
                     ${t('nav_become_dealer', 'Become a Dealer')}
                   </a>
                 </li>
