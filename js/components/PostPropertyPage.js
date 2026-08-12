@@ -4,6 +4,19 @@ import { renderImagePreviewsList } from './PostPropertyWizard.js';
 export function renderPostPropertyPage(state) {
   const currentStep = state.wizardStep || 1;
   const images = state.uploadedImages || [];
+  const formData = state.postPropertyFormData || {};
+
+  const purpose = formData.purpose || 'sale';
+  const category = formData.category || 'house';
+  const city = formData.city || 'Lahore';
+  const size = formData.size !== undefined && formData.size !== null ? formData.size : '';
+  const location = formData.location || '';
+  const address = formData.address || '';
+  const title = formData.title || '';
+  const price = formData.price !== undefined && formData.price !== null ? formData.price : '';
+  const beds = formData.beds !== undefined && formData.beds !== null ? formData.beds : '';
+  const baths = formData.baths !== undefined && formData.baths !== null ? formData.baths : '';
+  const desc = formData.desc || '';
 
   return `
     <div class="post-property-page-wrapper" style="background: var(--cream); min-height: 90vh; padding: 2rem 0 4rem 0;">
@@ -90,10 +103,10 @@ export function renderPostPropertyPage(state) {
                     <label style="font-family: var(--font-mono); font-size: 0.78rem; font-weight: 800; color: var(--forest-dk); text-transform: uppercase;">Listing Purpose *</label>
                     <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
                       <label style="flex: 1; border: 2px solid var(--border-dk); padding: 1rem; border-radius: 12px; cursor: pointer; text-align: center; font-weight: 800; background: var(--cream);">
-                        <input type="radio" name="wiz_purpose" value="sale" checked style="margin-right: 6px;" /> Sell Property
+                        <input type="radio" name="wiz_purpose" value="sale" ${purpose === 'sale' ? 'checked' : ''} style="margin-right: 6px;" /> Sell Property
                       </label>
                       <label style="flex: 1; border: 2px solid var(--border-dk); padding: 1rem; border-radius: 12px; cursor: pointer; text-align: center; font-weight: 800; background: var(--cream);">
-                        <input type="radio" name="wiz_purpose" value="rent" style="margin-right: 6px;" /> Rent Property
+                        <input type="radio" name="wiz_purpose" value="rent" ${purpose === 'rent' ? 'checked' : ''} style="margin-right: 6px;" /> Rent Property
                       </label>
                     </div>
                   </div>
@@ -101,10 +114,10 @@ export function renderPostPropertyPage(state) {
                   <div class="form-group" style="margin-bottom: 1.5rem;">
                     <label style="font-family: var(--font-mono); font-size: 0.78rem; font-weight: 800; color: var(--forest-dk); text-transform: uppercase;">Property Category *</label>
                     <select id="wiz_category" class="form-control" style="padding: 0.85rem; font-weight: 700;" required>
-                      <option value="house">House / Villa / Townhouse</option>
-                      <option value="plot">Residential / Commercial Plot</option>
-                      <option value="apartment">Apartment / Penthouse</option>
-                      <option value="commercial">Commercial Plaza / Shop / Office</option>
+                      <option value="house" ${category === 'house' ? 'selected' : ''}>House / Villa / Townhouse</option>
+                      <option value="plot" ${category === 'plot' ? 'selected' : ''}>Residential / Commercial Plot</option>
+                      <option value="apartment" ${category === 'apartment' ? 'selected' : ''}>Apartment / Penthouse</option>
+                      <option value="commercial" ${category === 'commercial' ? 'selected' : ''}>Commercial Plaza / Shop / Office</option>
                     </select>
                   </div>
                 </div>
@@ -121,30 +134,30 @@ export function renderPostPropertyPage(state) {
                     <div class="form-group">
                       <label style="font-family: var(--font-mono); font-size: 0.78rem; font-weight: 800; color: var(--forest-dk); text-transform: uppercase;">City *</label>
                       <select id="wiz_city" class="form-control" style="padding: 0.85rem; font-weight: 700;" required>
-                        <option value="Lahore">Lahore</option>
-                        <option value="Islamabad">Islamabad</option>
-                        <option value="Karachi">Karachi</option>
-                        <option value="Rawalpindi">Rawalpindi</option>
-                        <option value="Peshawar">Peshawar</option>
-                        <option value="Faisalabad">Faisalabad</option>
-                        <option value="Multan">Multan</option>
+                        <option value="Lahore" ${city === 'Lahore' ? 'selected' : ''}>Lahore</option>
+                        <option value="Islamabad" ${city === 'Islamabad' ? 'selected' : ''}>Islamabad</option>
+                        <option value="Karachi" ${city === 'Karachi' ? 'selected' : ''}>Karachi</option>
+                        <option value="Rawalpindi" ${city === 'Rawalpindi' ? 'selected' : ''}>Rawalpindi</option>
+                        <option value="Peshawar" ${city === 'Peshawar' ? 'selected' : ''}>Peshawar</option>
+                        <option value="Faisalabad" ${city === 'Faisalabad' ? 'selected' : ''}>Faisalabad</option>
+                        <option value="Multan" ${city === 'Multan' ? 'selected' : ''}>Multan</option>
                       </select>
                     </div>
 
                     <div class="form-group">
                       <label style="font-family: var(--font-mono); font-size: 0.78rem; font-weight: 800; color: var(--forest-dk); text-transform: uppercase;">Area Size (in Marla) *</label>
-                      <input type="number" id="wiz_size" class="form-control" placeholder="e.g. 5 or 10 or 20 (1 Kanal)" style="padding: 0.85rem; font-weight: 700;" required />
+                      <input type="number" id="wiz_size" class="form-control" placeholder="e.g. 5 or 10 or 20 (1 Kanal)" value="${size}" style="padding: 0.85rem; font-weight: 700;" required />
                     </div>
                   </div>
 
                   <div class="form-group" style="margin-bottom: 1.25rem;">
                     <label style="font-family: var(--font-mono); font-size: 0.78rem; font-weight: 800; color: var(--forest-dk); text-transform: uppercase;">Society / Sector Name *</label>
-                    <input type="text" id="wiz_location" class="form-control" placeholder="e.g. DHA Phase 6, Sector J or Bahria Town Sector C" style="padding: 0.85rem; font-weight: 700;" required />
+                    <input type="text" id="wiz_location" class="form-control" placeholder="e.g. DHA Phase 6, Sector J or Bahria Town Sector C" value="${location}" style="padding: 0.85rem; font-weight: 700;" required />
                   </div>
 
                   <div class="form-group">
                     <label style="font-family: var(--font-mono); font-size: 0.78rem; font-weight: 800; color: var(--forest-dk); text-transform: uppercase;">Complete Address / Plot Number *</label>
-                    <input type="text" id="wiz_address" class="form-control" placeholder="e.g. Plot 142, Street 8, Sector J, DHA Phase 6, Lahore" style="padding: 0.85rem; font-weight: 700;" required />
+                    <input type="text" id="wiz_address" class="form-control" placeholder="e.g. Plot 142, Street 8, Sector J, DHA Phase 6, Lahore" value="${address}" style="padding: 0.85rem; font-weight: 700;" required />
                   </div>
                 </div>
               ` : ''}
@@ -158,27 +171,27 @@ export function renderPostPropertyPage(state) {
 
                   <div class="form-group" style="margin-bottom: 1.25rem;">
                     <label style="font-family: var(--font-mono); font-size: 0.78rem; font-weight: 800; color: var(--forest-dk); text-transform: uppercase;">Property Title *</label>
-                    <input type="text" id="wiz_title" class="form-control" placeholder="e.g. 10 Marla Brand New Corner Villa in DHA Phase 5" style="padding: 0.85rem; font-weight: 700;" required />
+                    <input type="text" id="wiz_title" class="form-control" placeholder="e.g. 10 Marla Brand New Corner Villa in DHA Phase 5" value="${title}" style="padding: 0.85rem; font-weight: 700;" required />
                   </div>
 
                   <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
                     <div class="form-group">
                       <label style="font-family: var(--font-mono); font-size: 0.78rem; font-weight: 800; color: var(--forest-dk); text-transform: uppercase;">Demand Price (PKR) *</label>
-                      <input type="number" id="wiz_price" class="form-control" placeholder="e.g. 35000000" style="padding: 0.85rem; font-weight: 700;" required />
+                      <input type="number" id="wiz_price" class="form-control" placeholder="e.g. 35000000" value="${price}" style="padding: 0.85rem; font-weight: 700;" required />
                     </div>
                     <div class="form-group">
                       <label style="font-family: var(--font-mono); font-size: 0.78rem; font-weight: 800; color: var(--forest-dk); text-transform: uppercase;">Bedrooms</label>
-                      <input type="number" id="wiz_beds" class="form-control" placeholder="e.g. 4" style="padding: 0.85rem; font-weight: 700;" />
+                      <input type="number" id="wiz_beds" class="form-control" placeholder="e.g. 4" value="${beds}" style="padding: 0.85rem; font-weight: 700;" />
                     </div>
                     <div class="form-group">
                       <label style="font-family: var(--font-mono); font-size: 0.78rem; font-weight: 800; color: var(--forest-dk); text-transform: uppercase;">Bathrooms</label>
-                      <input type="number" id="wiz_baths" class="form-control" placeholder="e.g. 5" style="padding: 0.85rem; font-weight: 700;" />
+                      <input type="number" id="wiz_baths" class="form-control" placeholder="e.g. 5" value="${baths}" style="padding: 0.85rem; font-weight: 700;" />
                     </div>
                   </div>
 
                   <div class="form-group">
                     <label style="font-family: var(--font-mono); font-size: 0.78rem; font-weight: 800; color: var(--forest-dk); text-transform: uppercase;">Detailed Property Description *</label>
-                    <textarea id="wiz_desc" class="form-control" rows="4" placeholder="Describe key highlights, woodwork, sanitary fittings, solar system, facing direction, etc." style="padding: 0.85rem; font-weight: 600;" required></textarea>
+                    <textarea id="wiz_desc" class="form-control" rows="4" placeholder="Describe key highlights, woodwork, sanitary fittings, solar system, facing direction, etc." style="padding: 0.85rem; font-weight: 600;" required>${desc}</textarea>
                   </div>
                 </div>
               ` : ''}

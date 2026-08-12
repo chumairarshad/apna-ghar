@@ -184,6 +184,20 @@ const state = {
   selectedProperty: null,
   showPostWizard: false,
   wizardStep: 1,
+  postPropertyFormData: {
+    purpose: 'sale',
+    category: 'house',
+    city: 'Lahore',
+    location: '',
+    address: '',
+    size: '',
+    price: '',
+    beds: 4,
+    baths: 5,
+    title: '',
+    desc: '',
+    features: []
+  },
   showFavoritesDrawer: false,
   showAuthModal: false,
   showMobileNav: false,
@@ -750,6 +764,58 @@ function canUserPostProperty(state) {
   return true;
 }
 
+function syncPostPropertyFormData() {
+  if (!state.postPropertyFormData) {
+    state.postPropertyFormData = {
+      purpose: 'sale',
+      category: 'house',
+      city: 'Lahore',
+      location: '',
+      address: '',
+      size: '',
+      price: '',
+      beds: 4,
+      baths: 5,
+      title: '',
+      desc: '',
+      features: []
+    };
+  }
+
+  const purposeRadio = document.querySelector('input[name="wiz_purpose"]:checked') || document.querySelector('input[name="wiz-purpose"]:checked');
+  if (purposeRadio) state.postPropertyFormData.purpose = purposeRadio.value;
+
+  const categoryEl = document.getElementById('wiz_category') || document.getElementById('wiz-category');
+  if (categoryEl) state.postPropertyFormData.category = categoryEl.value;
+
+  const cityEl = document.getElementById('wiz_city') || document.getElementById('wiz-city');
+  if (cityEl) state.postPropertyFormData.city = cityEl.value;
+
+  const sizeEl = document.getElementById('wiz_size') || document.getElementById('wiz-size');
+  if (sizeEl && sizeEl.value !== '') state.postPropertyFormData.size = sizeEl.value;
+
+  const locEl = document.getElementById('wiz_location') || document.getElementById('wiz-location');
+  if (locEl) state.postPropertyFormData.location = locEl.value.trim();
+
+  const addrEl = document.getElementById('wiz_address') || document.getElementById('wiz-address');
+  if (addrEl) state.postPropertyFormData.address = addrEl.value.trim();
+
+  const titleEl = document.getElementById('wiz_title') || document.getElementById('wiz-title');
+  if (titleEl) state.postPropertyFormData.title = titleEl.value.trim();
+
+  const priceEl = document.getElementById('wiz_price') || document.getElementById('wiz-price');
+  if (priceEl && priceEl.value !== '') state.postPropertyFormData.price = priceEl.value;
+
+  const bedsEl = document.getElementById('wiz_beds') || document.getElementById('wiz-bedrooms');
+  if (bedsEl && bedsEl.value !== '') state.postPropertyFormData.beds = bedsEl.value;
+
+  const bathsEl = document.getElementById('wiz_baths') || document.getElementById('wiz-bathrooms');
+  if (bathsEl && bathsEl.value !== '') state.postPropertyFormData.baths = bathsEl.value;
+
+  const descEl = document.getElementById('wiz_desc') || document.getElementById('wiz-description');
+  if (descEl) state.postPropertyFormData.desc = descEl.value.trim();
+}
+
 function setupEventListeners() {
   document.addEventListener('click', (e) => {
     // Top Bar + Mobile Drawer Post Free Listing Trigger
@@ -1300,9 +1366,60 @@ function setupEventListeners() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Step switching for Post Property Page
+    // Step switching for Post Property Page with Strict Per-Step Validation
     if (e.target.closest('#wiz-next-step-btn') || e.target.closest('#wizard-next-btn')) {
-      state.wizardStep = Math.min(4, (state.wizardStep || 1) + 1);
+      syncPostPropertyFormData();
+      const currentStep = state.wizardStep || 1;
+      const data = state.postPropertyFormData || {};
+
+      if (currentStep === 1) {
+        if (!data.purpose || !data.category) {
+          showToast('⚠️ Please select Listing Purpose and Category.');
+          return;
+        }
+      } else if (currentStep === 2) {
+        let errorMsg = '';
+        if (!data.size || isNaN(Number(data.size)) || Number(data.size) <= 0) {
+          errorMsg = '⚠️ Please enter a valid Area Size (in Marla).';
+          const el = document.getElementById('wiz_size');
+          if (el) el.style.borderColor = '#EF4444';
+        } else if (!data.location || data.location.length < 3) {
+          errorMsg = '⚠️ Please enter Society / Sector Name (e.g. DHA Phase 6).';
+          const el = document.getElementById('wiz_location');
+          if (el) el.style.borderColor = '#EF4444';
+        } else if (!data.address || data.address.length < 5) {
+          errorMsg = '⚠️ Please enter Complete Address or Plot Number.';
+          const el = document.getElementById('wiz_address');
+          if (el) el.style.borderColor = '#EF4444';
+        }
+
+        if (errorMsg) {
+          showToast(errorMsg);
+          return;
+        }
+      } else if (currentStep === 3) {
+        let errorMsg = '';
+        if (!data.title || data.title.length < 5) {
+          errorMsg = '⚠️ Please enter a Property Title (at least 5 characters).';
+          const el = document.getElementById('wiz_title');
+          if (el) el.style.borderColor = '#EF4444';
+        } else if (!data.price || isNaN(Number(data.price)) || Number(data.price) <= 0) {
+          errorMsg = '⚠️ Please enter a valid Demand Price (in PKR).';
+          const el = document.getElementById('wiz_price');
+          if (el) el.style.borderColor = '#EF4444';
+        } else if (!data.desc || data.desc.length < 10) {
+          errorMsg = '⚠️ Please enter a Detailed Property Description (at least 10 characters).';
+          const el = document.getElementById('wiz_desc');
+          if (el) el.style.borderColor = '#EF4444';
+        }
+
+        if (errorMsg) {
+          showToast(errorMsg);
+          return;
+        }
+      }
+
+      state.wizardStep = Math.min(4, currentStep + 1);
       renderApp();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -1754,24 +1871,22 @@ function setupEventListeners() {
       if (e.preventDefault) e.preventDefault();
       if (!state.editingProperty && !canUserPostProperty(state)) return;
 
-      const title = (document.getElementById('wiz_title')?.value || document.getElementById('wiz-title')?.value)?.trim();
-      const city = document.getElementById('wiz_city')?.value || document.getElementById('wiz-city')?.value || 'Lahore';
-      const location = (document.getElementById('wiz_location')?.value || document.getElementById('wiz-location')?.value)?.trim();
-      const address = (document.getElementById('wiz_address')?.value || document.getElementById('wiz-address')?.value)?.trim() || location;
-      const rawPrice = document.getElementById('wiz_price')?.value || document.getElementById('wiz-price')?.value;
-      const price = (rawPrice !== '' && rawPrice !== undefined) ? Number(rawPrice) : null;
-      const rawSize = document.getElementById('wiz_size')?.value || document.getElementById('wiz-size')?.value;
-      const size = (rawSize !== '' && rawSize !== undefined) ? Number(rawSize) : null;
-      const beds = Number(document.getElementById('wiz_beds')?.value || document.getElementById('wiz_bedrooms')?.value || document.getElementById('wiz-bedrooms')?.value || 0);
-      const baths = Number(document.getElementById('wiz_baths')?.value || document.getElementById('wiz_bathrooms')?.value || document.getElementById('wiz-bathrooms')?.value || 0);
-      const desc = (document.getElementById('wiz_desc')?.value || document.getElementById('wiz-description')?.value)?.trim();
+      syncPostPropertyFormData();
+      const formData = state.postPropertyFormData || {};
 
-      const purposeRadio = document.querySelector('input[name="wiz_purpose"]:checked') || document.querySelector('input[name="wiz-purpose"]:checked');
-      const purpose = purposeRadio ? purposeRadio.value : 'sale';
-      const categorySelect = document.getElementById('wiz_category') || document.getElementById('wiz-category');
-      const category = categorySelect ? categorySelect.value : 'house';
+      const title = formData.title || (document.getElementById('wiz_title')?.value || document.getElementById('wiz-title')?.value)?.trim();
+      const city = formData.city || document.getElementById('wiz_city')?.value || 'Lahore';
+      const location = formData.location || (document.getElementById('wiz_location')?.value || document.getElementById('wiz-location')?.value)?.trim();
+      const address = formData.address || (document.getElementById('wiz_address')?.value || document.getElementById('wiz-address')?.value)?.trim() || location;
+      const price = Number(formData.price || document.getElementById('wiz_price')?.value || 0);
+      const size = Number(formData.size || document.getElementById('wiz_size')?.value || 0);
+      const beds = Number(formData.beds || document.getElementById('wiz_beds')?.value || 4);
+      const baths = Number(formData.baths || document.getElementById('wiz_baths')?.value || 5);
+      const desc = formData.desc || (document.getElementById('wiz_desc')?.value || document.getElementById('wiz-description')?.value)?.trim();
+      const purpose = formData.purpose || 'sale';
+      const category = formData.category || 'house';
 
-      if (!location || !address) {
+      if (!location || !address || location.length < 3) {
         showToast('⚠️ Please fill in Location/Society and Full Address in Step 2.');
         state.wizardStep = 2;
         renderApp();
@@ -2771,6 +2886,38 @@ function setupEventListeners() {
 
   // Change Listeners for Selects & Inputs & Photo Uploads
   document.addEventListener('change', (e) => {
+    // Post Property File Upload Listener (#wiz_file_input)
+    if ((e.target.id === 'wiz_file_input' || e.target.id === 'wiz-file-input') && e.target.files?.length > 0) {
+      const files = Array.from(e.target.files);
+      showToast('⏳ Attaching selected property photos...');
+      state.uploadedImages = state.uploadedImages || [];
+
+      let processedCount = 0;
+      files.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = async (evt) => {
+          const rawBase64 = evt.target.result;
+          try {
+            const watermarked = await addWatermarkToImage(rawBase64);
+            state.uploadedImages.push(watermarked);
+          } catch (err) {
+            state.uploadedImages.push(rawBase64);
+          }
+          processedCount++;
+          if (processedCount === files.length) {
+            showToast(`📸 ${files.length} photo(s) attached successfully!`);
+            const container = document.getElementById('wiz-image-previews');
+            if (container) {
+              container.innerHTML = renderImagePreviewsList(state.uploadedImages);
+            } else {
+              renderApp();
+            }
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
     // User Profile Photo Upload Listener
     if ((e.target.id === 'user-profile-photo-input' || e.target.id === 'user-profile-photo-file') && e.target.files?.length > 0) {
       const file = e.target.files[0];
@@ -2904,6 +3051,16 @@ function setupEventListeners() {
           saveDealerLeads(leads);
           showToast(`Lead pipeline updated to "${newStage}"`);
         }
+      }
+    }
+  });
+
+  // Real-time Input Sync Listener for Post Property Form
+  document.addEventListener('input', (e) => {
+    if (e.target.closest('#post-property-page-form')) {
+      syncPostPropertyFormData();
+      if (e.target.style.borderColor === 'rgb(239, 68, 68)') {
+        e.target.style.borderColor = '#CBD5E1';
       }
     }
   });
