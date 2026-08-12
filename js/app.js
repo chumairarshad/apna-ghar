@@ -67,7 +67,7 @@ const TAB_SLUG_MAP = {
   'advertise-checkout': '/advertise/checkout',
   'advertise-invoice': '/advertise/invoice',
   'dealer': '/dashboard',
-  'admin': '/admin',
+  'admin': '/admin-login',
   'post-property': '/post-property',
   'privacy': '/privacy',
   'terms': '/terms',
@@ -87,7 +87,7 @@ function getSavedActiveTab() {
     if (pathname === '/advertise/checkout') return 'advertise-checkout';
     if (pathname === '/advertise/invoice') return 'advertise-invoice';
     if (pathname === '/dashboard' || pathname === '/dealer') return 'dealer';
-    if (pathname === '/dealer/admin' || pathname === '/admin') return 'admin';
+    if (pathname === '/admin-login' || pathname === '/admin' || pathname === '/dealer-login' || pathname === '/dealer/admin') return 'admin';
     if (pathname === '/post-property') return 'post-property';
     if (pathname === '/rent') return 'rent';
     if (pathname === '/projects') return 'projects';
@@ -114,7 +114,7 @@ function getSavedActiveTab() {
     if (hash === 'advertise') return 'advertise';
     if (hash === 'advertise-checkout') return 'advertise-checkout';
     if (hash === 'advertise-invoice') return 'advertise-invoice';
-    if (hash === 'admin' || hash === 'dealer/admin') return 'admin';
+    if (hash === 'admin-login' || hash === 'admin' || hash === 'dealer/admin' || hash === 'dealer-login') return 'admin';
     if (hash === 'dealer' || hash === 'dashboard') return 'dealer';
     if (hash.startsWith('property/')) {
       state.selectedPropertyId = hash.split('property/')[1];
