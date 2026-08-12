@@ -13,6 +13,8 @@ import uploadRoutes from './server/routes/upload.js';
 import pushRoutes from './server/routes/push.js';
 import { initDb } from './server/db.js';
 
+import fs from 'fs';
+
 dotenv.config();
 
 // Initialize DB schema (users, properties, push_subscriptions tables)
@@ -21,12 +23,21 @@ initDb();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Ensure uploads folder exists
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
 const app = express();
 
 // Middlewares
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// Serve uploaded media files
+app.use('/uploads', express.static(uploadsDir));
 
 // Mount API routes for both /api/* and /* for Vercel Serverless Function compatibility
 app.use('/api/auth', authRoutes);

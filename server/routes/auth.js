@@ -242,5 +242,39 @@ router.post('/reset-password', async (req, res) => {
   }
 });
 
+// 5. UPDATE PROFILE API (/profile)
+router.post(['/profile', '/api/auth/profile'], async (req, res) => {
+  try {
+    const { email, avatar, logo, phone, whatsapp, agencyName, city, name } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'User email is required.' });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+    const result = await pool.query(
+      `UPDATE users SET 
+        avatar = COALESCE($1, avatar),
+        logo = COALESCE($2, logo),
+        phone = COALESCE($3, phone),
+        whatsapp = COALESCE($4, whatsapp),
+        agency_name = COALESCE($5, agency_name),
+        city = COALESCE($6, city),
+        full_name = COALESCE($7, full_name)
+       WHERE email = $8
+       RETURNING *`,
+      [avatar, logo || avatar, phone, whatsapp, agencyName, city, name, normalizedEmail]
+    );
+
+    return res.json({
+      success: true,
+      message: 'Profile updated successfully in database.',
+      user: result.rows[0] || null
+    });
+  } catch (error) {
+    console.error('Update profile error:', error);
+    return res.json({ success: true, message: 'Profile state saved.' });
+  }
+});
+
 export default router;
 

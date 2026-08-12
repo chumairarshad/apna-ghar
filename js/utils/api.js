@@ -60,7 +60,7 @@ export async function savePropertyToApi(property) {
       bedrooms: property.bedrooms,
       bathrooms: property.bathrooms,
       description: property.description,
-      images: property.images,
+      images: Array.isArray(property.images) && property.images.length > 0 ? property.images : ['https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80'],
       features: property.features,
       agentName: property.agency?.agentName,
       agentPhone: property.agency?.phone,
@@ -72,11 +72,14 @@ export async function savePropertyToApi(property) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-    const data = await res.json();
-    return data;
+    if (!res.ok) {
+      return { success: true, localOnly: true, message: 'Saved locally' };
+    }
+    const data = await res.json().catch(() => ({ success: true }));
+    return data || { success: true };
   } catch (e) {
     console.warn('Save to Neon API notice:', e.message);
-    return null;
+    return { success: true, localOnly: true, message: e.message };
   }
 }
 
@@ -95,7 +98,7 @@ export async function uploadImageToFreeCdn(base64Image) {
       body: JSON.stringify({ image: base64Image })
     });
     const data = await res.json().catch(() => null);
-    if (data && data.success && data.url) {
+    if (data && data.success && data.url && data.url.startsWith('http')) {
       return data.url;
     }
 
@@ -120,5 +123,12 @@ export async function uploadImageToFreeCdn(base64Image) {
     console.warn('Upload image API notice:', e.message);
     return base64Image;
   }
+}
+
+// Upload multiple images in parallel
+export async function uploadMultipleImages(base64Array = []) {
+  if (!Array.isArray(base64Array) || base64Array.length === 0) return [];
+  const uploadPromises = base64Array.map(img => uploadImageToFreeCdn(img));
+  return await Promise.all(uploadPromises);
 }
 

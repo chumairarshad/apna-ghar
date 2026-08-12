@@ -54,10 +54,25 @@ if (typeof window !== 'undefined') {
         return;
       }
     }
-    if (window.showToast) {
-      window.showToast(`Selected Package: ${planName} (${formatPKR(price)}). Our team will contact you shortly!`);
-    } else {
-      alert(`Thank you for choosing ${planName}! Our advertising specialist will contact you.`);
+
+    if (window.appState) {
+      window.appState.selectedPackage = {
+        name: planName,
+        price: price,
+        period: 'Per Month',
+        features: [
+          'Verified Property Listing Quotas',
+          'Featured Search & Homepage Banners',
+          'Verified Dealer Badge & Agency Page',
+          'Direct WhatsApp Buyer Leads',
+          'Dedicated Sarmayadar Account Specialist'
+        ]
+      };
+      window.appState.activeTab = 'advertise-checkout';
+      if (window.renderApp) window.renderApp();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (window.showToast) {
+      window.showToast(`Selected Package: ${planName} (${formatPKR(price)}). Proceeding to checkout...`);
     }
   };
 

@@ -39,29 +39,6 @@ export function renderHeader(state, onStateChange) {
               <span>${t('btn_post_property', '+ Post Free Listing')}</span>
             </button>
           </div>
-
-          <!-- Right Language Selector Dropdown (Desktop Top Bar) -->
-          <div class="top-bar-right">
-            <div class="lang-selector-wrapper">
-              <button type="button" class="lang-selector-btn" id="lang-selector-btn" title="Change Website Language">
-                <span style="display:inline-flex; align-items:center; gap:5px;">
-                  🌐 <span>${currentLangInfo.flag}</span> <span>${currentLangInfo.name}</span>
-                </span>
-                ${renderIcon('chevron-down', 13, '#FFFFFF')}
-              </button>
-
-              ${state.showLangDropdown ? `
-                <div class="lang-dropdown-menu">
-                  ${SUPPORTED_LANGUAGES.map(lang => `
-                    <button type="button" class="lang-dropdown-item ${currentLang === lang.code ? 'active' : ''}" data-lang-select="${lang.code}">
-                      <span>${lang.flag}</span>
-                      <span>${lang.name}</span>
-                    </button>
-                  `).join('')}
-                </div>
-              ` : ''}
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -88,9 +65,15 @@ export function renderHeader(state, onStateChange) {
           <!-- Desktop Navigation Bar (Centered) -->
           <nav class="main-nav">
             <ul>
-              <li><a href="#" class="${activeTab === 'buy' ? 'active' : ''}" data-nav="buy">${t('nav_sale', 'Properties for Sale')}</a></li>
-              <li><a href="#" class="${activeTab === 'rent' ? 'active' : ''}" data-nav="rent">${t('nav_rent', 'Rental Properties')}</a></li>
-              <li><a href="#" class="${activeTab === 'projects' ? 'active' : ''}" data-nav="projects">${t('nav_projects', 'Housing Megaprojects')}</a></li>
+              <li><a href="/buy" class="${activeTab === 'buy' ? 'active' : ''}" data-nav="buy">${t('nav_sale', 'Properties for Sale')}</a></li>
+              <li><a href="/rent" class="${activeTab === 'rent' ? 'active' : ''}" data-nav="rent">${t('nav_rent', 'Rental Properties')}</a></li>
+              <li><a href="/projects" class="${activeTab === 'projects' ? 'active' : ''}" data-nav="projects">${t('nav_projects', 'Housing Megaprojects')}</a></li>
+              <li><a href="/featured" class="${activeTab === 'featured' ? 'active' : ''}" data-nav="featured" style="color:#059669; font-weight:800;">⭐ Featured Ads</a></li>
+              <li>
+                <a href="/advertise" class="nav-advertise-highlight ${activeTab === 'advertise' ? 'active' : ''}" data-nav="advertise" title="Promote Your Listings & Agencies">
+                  ${t('nav_advertise', '📢 Advertise')} <span class="nav-adv-badge">HOT 🔥</span>
+                </a>
+              </li>
               ${state.user?.role === 'ADMIN' ? `
                 <li>
                   <a href="#" class="${activeTab === 'dealer' ? 'active' : ''}" data-nav="dealer">
@@ -206,8 +189,11 @@ export function renderHeader(state, onStateChange) {
           <a href="#" class="${activeTab === 'rent' ? 'active' : ''}" data-nav="rent">
             ${renderIcon('key', 16)} <span>${t('nav_rent', 'Rental Properties')}</span>
           </a>
-          <a href="#" class="${activeTab === 'projects' ? 'active' : ''}" data-nav="projects">
+          <a href="/projects" class="${activeTab === 'projects' ? 'active' : ''}" data-nav="projects">
             ${renderIcon('building-2', 16)} <span>${t('nav_projects', 'Housing Megaprojects')}</span>
+          </a>
+          <a href="/featured" class="${activeTab === 'featured' ? 'active' : ''}" data-nav="featured" style="color:#059669 !important; font-weight:800;">
+            ${renderIcon('sparkles', 16, '#059669')} <span>⭐ Featured Ads & Spotlights</span>
           </a>
 
           <div class="mobile-nav-group-title" style="font-size:0.72rem; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; color:#64748B; padding:10px 0 2px;">
@@ -221,6 +207,12 @@ export function renderHeader(state, onStateChange) {
           </a>
           <a href="#" class="${activeTab === 'agents' ? 'active' : ''}" data-nav="agents">
             ${renderIcon('users', 16)} <span>${t('nav_agents', 'Agents Directory')}</span>
+          </a>
+          <a href="#" class="mobile-nav-adv-link ${activeTab === 'advertise' ? 'active' : ''}" data-nav="advertise" style="color:#D97706 !important; font-weight:800; background:#FEF3C7; padding:9px 14px; border-radius:10px; border:1px solid #FCD34D; margin:4px 0; display:flex; align-items:center; justify-content:space-between;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              ${renderIcon('megaphone', 16, '#D97706')} <span>${t('nav_advertise', '📢 Advertise With Us')}</span>
+            </div>
+            <span style="font-size:0.65rem; background:#F59E0B; color:#FFFFFF; padding:2px 6px; border-radius:4px; font-weight:800;">HOT 🔥</span>
           </a>
           <a href="#" id="mobile-drawer-post-free-btn" style="color:#047857 !important; font-weight:800; background:#ECFDF5; padding:9px 14px; border-radius:10px; border:1px solid #A7F3D0; margin:4px 0; display:flex; align-items:center; gap:8px;">
             ${renderIcon('plus-circle', 16, '#059669')} <span>${t('btn_post_property', '+ Post Free Listing')}</span>

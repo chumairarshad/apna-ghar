@@ -14,9 +14,14 @@ export function renderFeaturedBannersSection() {
             </h2>
           </div>
 
-          <button type="button" class="btn btn-primary btn-sm" id="open-featured-modal-btn" style="font-size:0.85rem; padding:9px 18px; border-radius:8px;">
-            ${renderIcon('plus-circle', 14)} Feature Your Property Here
-          </button>
+          <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+            <a href="/featured" data-nav="featured" class="btn btn-outline btn-sm" style="font-size:0.85rem; padding:8px 16px; border-radius:8px; font-weight:800; border:2px solid #15803D; color:#15803D; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+              ⭐ View All Featured Ads →
+            </a>
+            <button type="button" class="btn btn-primary btn-sm" id="open-featured-modal-btn" style="font-size:0.85rem; padding:9px 18px; border-radius:8px;">
+              ${renderIcon('plus-circle', 14)} Feature Your Property Here
+            </button>
+          </div>
         </div>
 
         <!-- 2 Paid Featured Banners Grid (1 Green 1 White Theme) -->
@@ -65,7 +70,10 @@ export function renderFeaturedBannersSection() {
                   </div>
                 </div>
 
-                <div style="display:flex; gap:0.4rem;">
+                <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+                  <a href="/property/prop-1" data-id="prop-1" class="btn btn-sm view-property-detail-btn" style="background:#F2A71B; color:#0F172A; font-weight:800; padding:6px 12px; font-size:0.78rem; border-radius:6px; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
+                    ${renderIcon('eye', 14, '#0F172A')} 👁️ View Details
+                  </a>
                   <button type="button" class="fancy-360-btn open-tour-btn" data-id="prop-1" title="360° Tour">
                     ${renderIcon('sparkles', 12, '#F2A71B')} 360° Tour
                   </button>
@@ -121,7 +129,10 @@ export function renderFeaturedBannersSection() {
                   </div>
                 </div>
 
-                <div style="display:flex; gap:0.4rem;">
+                <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+                  <a href="/property/prop-2" data-id="prop-2" class="btn btn-sm view-property-detail-btn" style="background:#064E3B; color:#FFFFFF; font-weight:800; padding:6px 12px; font-size:0.78rem; border-radius:6px; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
+                    ${renderIcon('eye', 14, '#FFFFFF')} 👁️ View Details
+                  </a>
                   <button type="button" class="fancy-360-btn open-tour-btn" data-id="prop-2" title="360° Tour">
                     ${renderIcon('sparkles', 12, '#F2A71B')} 360° Tour
                   </button>

@@ -1,6 +1,6 @@
 /* Catalog Section for Sarmayadar */
 .catalog-section {
-  padding: 4rem 0;
+  padding: 2rem 0;
   background-color: #F8FAFC;
 }
 
@@ -8,14 +8,14 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.25rem;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
 .results-count {
   font-family: var(--font-display);
-  font-size: 1.3rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: var(--forest-dk);
 }
@@ -27,7 +27,7 @@
 .catalog-controls {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
 .view-toggle {
@@ -40,10 +40,10 @@
 
 .view-btn {
   background: transparent;
-  padding: 8px 14px;
+  padding: 6px 12px;
   border-radius: 6px;
   color: #475569;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -58,10 +58,10 @@
 }
 
 .sort-select {
-  padding: 8px 14px;
+  padding: 6px 12px;
   border: 1.5px solid #CBD5E1;
   border-radius: 8px;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 700;
   color: #0F172A;
   background-color: #FFFFFF;
@@ -71,11 +71,11 @@
 .catalog-main-layout {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
 .catalog-main-layout.with-map {
-  grid-template-columns: 1fr 480px;
+  grid-template-columns: 1fr 440px;
 }
 
 @media (max-width: 1024px) {
@@ -87,8 +87,8 @@
 /* Property Grid */
 .properties-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.25rem;
 }
 
 .catalog-main-layout.with-map .properties-grid {
@@ -233,6 +233,7 @@
   margin-bottom: 0.35rem;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   height: 2.8rem;
@@ -269,8 +270,6 @@
   gap: 0.4rem;
   color: #166534;
   font-weight: 700;
-}
-  gap: 0.3rem;
 }
 
 .card-footer {

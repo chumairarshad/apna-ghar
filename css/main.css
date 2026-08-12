@@ -36,6 +36,31 @@
   --transition: all 0.2s ease;
 }
 
+html {
+  font-size: 14.5px;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+@media (min-width: 1440px) {
+  html {
+    font-size: 15px;
+  }
+}
+
+@media (min-width: 1920px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  html {
+    font-size: 14px;
+  }
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -88,12 +113,11 @@ body {
   font-family: var(--font-body);
   background-color: var(--cream);
   color: var(--ink);
-  line-height: 1.5;
+  line-height: 1.45;
   max-width: 100vw;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
-
 
 h1,
 h2,
@@ -105,7 +129,7 @@ h6,
   font-family: var(--font-display);
   font-weight: 700;
   color: var(--forest-dk);
-  line-height: 1.1;
+  line-height: 1.15;
 }
 
 a {
@@ -136,9 +160,17 @@ textarea {
 .container,
 .wrap {
   width: 100%;
-  max-width: 1260px;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 0 1.25rem;
+  padding: 0 max(1rem, 2vw);
+  box-sizing: border-box;
+}
+
+@media (min-width: 1600px) {
+  .container,
+  .wrap {
+    padding: 0 max(1.5rem, 3vw);
+  }
 }
 
 /* Mobile Blog Cards Grid Responsive Styling */

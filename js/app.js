@@ -50,14 +50,56 @@ import { renderBlogDetailPage } from './components/BlogDetailPage.js';
 import { renderLegalPage } from './components/LegalPages.js';
 import { renderPropertyComparerPage } from './components/PropertyComparerPage.js';
 import { renderAuthPage } from './components/AuthPages.js';
+import { renderAdvertiseCheckout, renderAdvertiseInvoice } from './components/AdvertiseCheckout.js';
+import { renderFeaturedPage } from './components/FeaturedPage.js';
 
 // Tab Persistence Helper Functions (Hash & LocalStorage Sync)
+// Clean URL Slugs Map
+const TAB_SLUG_MAP = {
+  'buy': '/',
+  'rent': '/rent',
+  'projects': '/projects',
+  'featured': '/featured',
+  'tools': '/tools',
+  'agents': '/agents',
+  'blogs': '/blogs',
+  'advertise': '/advertise',
+  'advertise-checkout': '/advertise/checkout',
+  'advertise-invoice': '/advertise/invoice',
+  'dealer': '/dashboard',
+  'admin': '/admin',
+  'post-property': '/post-property',
+  'privacy': '/privacy',
+  'terms': '/terms',
+  'fbr-tax-guide': '/fbr-tax-guide',
+  'compare': '/compare',
+  'login': '/login',
+  'register': '/register'
+};
+
 function getSavedActiveTab() {
   if (typeof window !== 'undefined') {
-    const validTabs = ['buy', 'rent', 'projects', 'tools', 'agents', 'blogs', 'advertise', 'dealer', 'admin', 'property-detail', 'post-property', 'blog-detail', 'privacy', 'terms', 'fbr-tax-guide', 'compare', 'login', 'register'];
+    const validTabs = ['buy', 'rent', 'projects', 'featured', 'tools', 'agents', 'blogs', 'advertise', 'advertise-checkout', 'advertise-invoice', 'dealer', 'admin', 'property-detail', 'post-property', 'blog-detail', 'privacy', 'terms', 'fbr-tax-guide', 'compare', 'login', 'register'];
 
     const pathname = window.location.pathname.toLowerCase();
+    if (pathname === '/featured') return 'featured';
+    if (pathname === '/advertise') return 'advertise';
+    if (pathname === '/advertise/checkout') return 'advertise-checkout';
+    if (pathname === '/advertise/invoice') return 'advertise-invoice';
+    if (pathname === '/dashboard' || pathname === '/dealer') return 'dealer';
     if (pathname === '/dealer/admin' || pathname === '/admin') return 'admin';
+    if (pathname === '/post-property') return 'post-property';
+    if (pathname === '/rent') return 'rent';
+    if (pathname === '/projects') return 'projects';
+    if (pathname === '/tools') return 'tools';
+    if (pathname === '/agents') return 'agents';
+    if (pathname === '/blogs') return 'blogs';
+    if (pathname === '/privacy') return 'privacy';
+    if (pathname === '/terms') return 'terms';
+    if (pathname === '/fbr-tax-guide') return 'fbr-tax-guide';
+    if (pathname === '/compare') return 'compare';
+    if (pathname === '/login') return 'login';
+    if (pathname === '/register') return 'register';
     if (pathname.startsWith('/property/')) {
       state.selectedPropertyId = pathname.split('/property/')[1];
       return 'property-detail';
@@ -66,16 +108,13 @@ function getSavedActiveTab() {
       state.selectedArticleId = pathname.split('/blog/')[1];
       return 'blog-detail';
     }
-    if (pathname === '/post-property') return 'post-property';
-    if (pathname === '/privacy') return 'privacy';
-    if (pathname === '/terms') return 'terms';
-    if (pathname === '/fbr-tax-guide') return 'fbr-tax-guide';
-    if (pathname === '/compare') return 'compare';
-    if (pathname === '/login') return 'login';
-    if (pathname === '/register') return 'register';
 
     const hash = window.location.hash.replace('#', '').toLowerCase();
+    if (hash === 'advertise') return 'advertise';
+    if (hash === 'advertise-checkout') return 'advertise-checkout';
+    if (hash === 'advertise-invoice') return 'advertise-invoice';
     if (hash === 'admin' || hash === 'dealer/admin') return 'admin';
+    if (hash === 'dealer' || hash === 'dashboard') return 'dealer';
     if (hash.startsWith('property/')) {
       state.selectedPropertyId = hash.split('property/')[1];
       return 'property-detail';
@@ -101,15 +140,27 @@ function getSavedActiveTab() {
 }
 
 function setActiveTab(tabName) {
-  const validTabs = ['buy', 'rent', 'projects', 'tools', 'agents', 'blogs', 'advertise', 'dealer', 'admin', 'property-detail', 'post-property', 'blog-detail', 'privacy', 'terms', 'fbr-tax-guide', 'compare', 'login', 'register'];
+  const validTabs = ['buy', 'rent', 'projects', 'tools', 'agents', 'blogs', 'advertise', 'advertise-checkout', 'advertise-invoice', 'dealer', 'admin', 'property-detail', 'post-property', 'blog-detail', 'privacy', 'terms', 'fbr-tax-guide', 'compare', 'login', 'register'];
   if (!validTabs.includes(tabName)) return;
   state.activeTab = tabName;
   if (typeof window !== 'undefined') {
     localStorage.setItem('Sarmayadar_active_tab', tabName);
-    if (window.location.hash !== `#${tabName}`) {
-      history.replaceState(null, '', `#${tabName}`);
+    
+    // Update URL path using Clean Slugs without #
+    const slugPath = TAB_SLUG_MAP[tabName] || `/${tabName}`;
+    if (window.location.pathname !== slugPath) {
+      window.history.pushState({ tab: tabName }, '', slugPath);
     }
   }
+}
+
+// Window Popstate Listener for Browser Back/Forward navigation
+if (typeof window !== 'undefined') {
+  window.addEventListener('popstate', () => {
+    const targetTab = getSavedActiveTab();
+    state.activeTab = targetTab;
+    renderApp();
+  });
 }
 
 // Application State
@@ -399,6 +450,10 @@ function renderApp() {
         ${renderHousingProjects()}
         ${renderPriceTrendsSection()}
       `;
+    } else if (state.activeTab === 'featured') {
+      mainContentHTML = `
+        ${renderFeaturedPage(state, state.properties)}
+      `;
     } else if (state.activeTab === 'tools') {
       mainContentHTML = `
         ${renderFinancialTools(state)}
@@ -414,6 +469,14 @@ function renderApp() {
     } else if (state.activeTab === 'advertise') {
       mainContentHTML = `
         ${renderAdvertisePage(state)}
+      `;
+    } else if (state.activeTab === 'advertise-checkout') {
+      mainContentHTML = `
+        ${renderAdvertiseCheckout(state)}
+      `;
+    } else if (state.activeTab === 'advertise-invoice') {
+      mainContentHTML = `
+        ${renderAdvertiseInvoice(state)}
       `;
     } else if (state.activeTab === 'dealer' || state.activeTab === 'dashboard') {
       mainContentHTML = `
@@ -674,11 +737,14 @@ function showToast(message) {
 
 function canUserPostProperty(state) {
   if (!state.user) {
-    showToast('🔒 Sign-in required! Please sign in to post a free property listing.');
-    state.showAuthModal = true;
-    state.authMode = 'login';
+    showToast('🔒 Please sign in or register an account to post a property listing.');
+    state.activeTab = 'login';
+    state.authPreFillEmail = '';
+    if (window.location.hash !== '#login') history.replaceState(null, '', '#login');
+    state.showAuthModal = false;
     state.showMobileNav = false;
     renderApp();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     return false;
   }
 
@@ -1265,6 +1331,62 @@ function setupEventListeners() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    // Advertise Checkout Confirmation -> Invoice Generator
+    if (e.target.closest('#adv-confirm-checkout-btn') || (e.target.id === 'adv-checkout-form' && e.type === 'submit')) {
+      if (e.preventDefault) e.preventDefault();
+      const name = document.getElementById('chk_name')?.value?.trim() || 'Valued Advertiser';
+      const phone = document.getElementById('chk_phone')?.value?.trim() || '+923297543852';
+      const email = document.getElementById('chk_email')?.value?.trim() || 'advertiser@sarmayadar.com';
+      const city = document.getElementById('chk_city')?.value || 'Lahore';
+      const agencyName = document.getElementById('chk_agency')?.value?.trim() || '';
+
+      const pkg = state.selectedPackage || {
+        name: 'Pro Gold Agency Package',
+        price: 24999,
+        period: 'Per Month'
+      };
+
+      state.generatedInvoice = {
+        invoiceId: `INV-2026-${Math.floor(10000 + Math.random() * 90000)}`,
+        date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+        dueDate: new Date(Date.now() + 86400000 * 3).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+        customerName: name,
+        customerPhone: phone,
+        customerEmail: email,
+        customerCity: city,
+        agencyName: agencyName,
+        package: pkg
+      };
+
+      setActiveTab('advertise-invoice');
+      showToast('📄 Invoice generated successfully! Please transfer payment to Nayapay.');
+      renderApp();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Copy Nayapay Bank Details Button
+    if (e.target.closest('#btn-copy-bank-details')) {
+      navigator.clipboard.writeText('+923297543852').then(() => {
+        showToast('📋 Copied Nayapay Account Number (+923297543852) to clipboard!');
+      }).catch(() => {
+        showToast('📋 Nayapay Account Number: +923297543852');
+      });
+    }
+
+    // Print / Download PDF Invoice Button
+    if (e.target.closest('#btn-print-invoice')) {
+      window.print();
+    }
+
+    // Confirm Payment via WhatsApp Redirect
+    if (e.target.closest('#btn-confirm-whatsapp-payment')) {
+      const trxId = document.getElementById('invoice_trx_id')?.value?.trim() || 'PENDING_TRX';
+      const inv = state.generatedInvoice || { invoiceId: 'INV-2026-89123', package: { name: 'Advertise Package', price: 24999 }, customerName: 'Advertiser', customerPhone: '+923297543852' };
+      const msg = `Hello Sarmayadar Team! I have completed payment for ${inv.package.name} (Invoice #${inv.invoiceId}).\nTotal Amount: PKR ${inv.package.price}\nTransaction ID: ${trxId}\nCustomer: ${inv.customerName} (${inv.customerPhone}).\nPlease verify & activate my advertising package.`;
+      const url = `https://wa.me/923297543852?text=${encodeURIComponent(msg)}`;
+      window.open(url, '_blank');
+    }
+
     // Image Upload Zone Click
     if (e.target.closest('#image-drag-drop-zone')) {
       const fileInput = document.getElementById('wiz-file-input') || document.getElementById('wiz_file_input');
@@ -1299,17 +1421,128 @@ function setupEventListeners() {
       }
     }
 
-    // View Property Button Handler in Dealer Inventory (Real Views Counter)
-    const viewPropBtn = e.target.closest('.view-prop-btn');
+    // View Property Page Click Handler (Dashboard / Tables / Cards)
+    const viewPropBtn = e.target.closest('.dash-view-prop-btn') || e.target.closest('.view-prop-btn') || e.target.closest('.view-property-detail-btn');
     if (viewPropBtn) {
+      e.preventDefault();
       const id = viewPropBtn.getAttribute('data-id');
-      const propToView = state.properties.find(p => p.id === id);
+      const propToView = state.properties.find(p => String(p.id) === String(id)) || state.properties[0];
       if (propToView) {
         propToView.views = (propToView.views || 0) + 1;
-        saveOrUpdatePropertyInStorage(propToView);
-        state.selectedProperty = propToView;
+        state.selectedProperty = normalizeProperty(propToView);
+        state.selectedPropertyId = propToView.id;
+        setActiveTab('property-detail');
         renderApp();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
+      return;
+    }
+
+    // Publish Listing Submit Button (from Dashboard Modal)
+    if (e.target.closest('#publish-property-submit-btn')) {
+      e.preventDefault();
+      const btn = e.target.closest('#publish-property-submit-btn');
+      if (btn.disabled) return;
+
+      const titleEl = document.getElementById('wiz_title');
+      const locationEl = document.getElementById('wiz_location');
+      const priceEl = document.getElementById('wiz_price');
+      const sizeEl = document.getElementById('wiz_size');
+
+      // Clear previous error borders
+      [titleEl, locationEl, priceEl, sizeEl].forEach(el => {
+        if (el) el.style.borderColor = '#CBD5E1';
+      });
+
+      const title = titleEl?.value?.trim();
+      const purpose = document.querySelector('input[name="wiz_purpose"]:checked')?.value || 'Sale';
+      const category = document.getElementById('wiz_type')?.value || 'house';
+      const city = document.getElementById('wiz_city')?.value || 'Lahore';
+      const location = locationEl?.value?.trim();
+      const size = Number(sizeEl?.value || 10);
+      const price = Number(priceEl?.value || 0);
+      const beds = Number(document.getElementById('wiz_beds')?.value || 4);
+      const baths = Number(document.getElementById('wiz_baths')?.value || 5);
+      const desc = document.getElementById('wiz_desc')?.value?.trim() || `${size} Marla Brand New House for ${purpose} in ${location}, ${city}.`;
+
+      let hasError = false;
+      if (!title) {
+        if (titleEl) titleEl.style.borderColor = '#EF4444';
+        showToast('⚠️ Please enter a Property Title.');
+        hasError = true;
+      }
+      if (!location) {
+        if (locationEl) locationEl.style.borderColor = '#EF4444';
+        showToast('⚠️ Please enter a Property Location.');
+        hasError = true;
+      }
+      if (!price || price <= 0) {
+        if (priceEl) priceEl.style.borderColor = '#EF4444';
+        showToast('⚠️ Please enter a valid Asking Price.');
+        hasError = true;
+      }
+      if (!state.uploadedImages || state.uploadedImages.length === 0) {
+        showToast('⚠️ Please upload at least 1 Property Photo.');
+        hasError = true;
+      }
+
+      if (hasError) return;
+
+      // Lock button & show loading state
+      btn.disabled = true;
+      btn.style.opacity = '0.7';
+      btn.innerHTML = '⌛ Publishing Property Live...';
+      showToast('⏳ Uploading property photos & publishing listing...');
+
+      (async () => {
+        const agencyName = state.user?.agencyName || state.user?.name || 'Verified Real Estate Agency';
+        const agentName = state.user?.name || 'Verified Dealer';
+        const phone = state.user?.phone || '+92 300 0000000';
+
+        const newProp = {
+          id: `prop-${Date.now()}`,
+          title,
+          purpose,
+          category,
+          city,
+          location,
+          address: location,
+          price,
+          sizeMarla: size,
+          bedrooms: beds,
+          bathrooms: baths,
+          builtYear: 2026,
+          facing: 'North Facing',
+          badges: ['VERIFIED', 'NEW LAUNCH'],
+          images: [...state.uploadedImages],
+          coords: [31.4722, 74.4371],
+          agency: {
+            name: agencyName,
+            agentName: agentName,
+            phone: phone,
+            whatsapp: phone.replace(/[^0-9]/g, ''),
+            badge: 'VERIFIED DEALER',
+            avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80'
+          },
+          description: desc,
+          features: ['Solar Power Backup', 'Gas Connection'],
+          status: 'active',
+          postedDate: new Date().toISOString().split('T')[0],
+          views: 1
+        };
+
+        const apiRes = await savePropertyToApi(newProp);
+        saveCustomProperty(newProp);
+        state.properties = [newProp, ...state.properties];
+        state.showPostWizard = false;
+        state.uploadedImages = [];
+        state.activeTab = 'dashboard';
+        state.dashboardTab = 'listings';
+        showToast('🎉 Property created and published live successfully!');
+        renderApp();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      })();
+      return;
     }
 
 
@@ -1535,58 +1768,59 @@ function setupEventListeners() {
     }
 
     // Publish / Edit Property Submission
-    if (e.target.closest('#wizard-submit-btn') || e.target.closest('#wiz-submit-listing-btn')) {
+    if (e.target.closest('#wizard-submit-btn') || e.target.closest('#wiz-submit-listing-btn') || (e.target.id === 'post-property-page-form' && e.type === 'submit') || (e.target.id === 'property-wizard-modal-form' && e.type === 'submit')) {
+      if (e.preventDefault) e.preventDefault();
       if (!state.editingProperty && !canUserPostProperty(state)) return;
 
-      const title = document.getElementById('wiz_title')?.value?.trim();
-      const city = document.getElementById('wiz_city')?.value || 'Lahore';
-      const location = document.getElementById('wiz_location')?.value?.trim();
-      const address = document.getElementById('wiz_address')?.value?.trim() || location;
-      const rawPrice = document.getElementById('wiz_price')?.value;
+      const title = (document.getElementById('wiz_title')?.value || document.getElementById('wiz-title')?.value)?.trim();
+      const city = document.getElementById('wiz_city')?.value || document.getElementById('wiz-city')?.value || 'Lahore';
+      const location = (document.getElementById('wiz_location')?.value || document.getElementById('wiz-location')?.value)?.trim();
+      const address = (document.getElementById('wiz_address')?.value || document.getElementById('wiz-address')?.value)?.trim() || location;
+      const rawPrice = document.getElementById('wiz_price')?.value || document.getElementById('wiz-price')?.value;
       const price = (rawPrice !== '' && rawPrice !== undefined) ? Number(rawPrice) : null;
-      const rawSize = document.getElementById('wiz_size')?.value;
+      const rawSize = document.getElementById('wiz_size')?.value || document.getElementById('wiz-size')?.value;
       const size = (rawSize !== '' && rawSize !== undefined) ? Number(rawSize) : null;
-      const beds = Number(document.getElementById('wiz_beds')?.value || 0);
-      const baths = Number(document.getElementById('wiz_baths')?.value || 0);
-      const desc = document.getElementById('wiz_desc')?.value?.trim();
+      const beds = Number(document.getElementById('wiz_beds')?.value || document.getElementById('wiz_bedrooms')?.value || document.getElementById('wiz-bedrooms')?.value || 0);
+      const baths = Number(document.getElementById('wiz_baths')?.value || document.getElementById('wiz_bathrooms')?.value || document.getElementById('wiz-bathrooms')?.value || 0);
+      const desc = (document.getElementById('wiz_desc')?.value || document.getElementById('wiz-description')?.value)?.trim();
 
-      const purposeRadio = document.querySelector('input[name="wiz_purpose"]:checked');
+      const purposeRadio = document.querySelector('input[name="wiz_purpose"]:checked') || document.querySelector('input[name="wiz-purpose"]:checked');
       const purpose = purposeRadio ? purposeRadio.value : 'sale';
-      const categorySelect = document.getElementById('wiz_category');
+      const categorySelect = document.getElementById('wiz_category') || document.getElementById('wiz-category');
       const category = categorySelect ? categorySelect.value : 'house';
 
       if (!location || !address) {
         showToast('⚠️ Please fill in Location/Society and Full Address in Step 2.');
         state.wizardStep = 2;
-        updateWizardStepUI();
+        renderApp();
         return;
       }
 
       if (!price || isNaN(price) || price <= 0 || !size || isNaN(size) || size <= 0) {
         showToast('⚠️ Please enter a valid Price and Area Size in Step 3.');
         state.wizardStep = 3;
-        updateWizardStepUI();
+        renderApp();
         return;
       }
 
       if (!title || title.length < 5) {
         showToast('⚠️ Please enter a Property Title (at least 5 characters).');
-        state.wizardStep = 4;
-        updateWizardStepUI();
+        state.wizardStep = 3;
+        renderApp();
         return;
       }
 
       if (!desc || desc.length < 10) {
         showToast('⚠️ Please enter a Property Description (at least 10 characters).');
-        state.wizardStep = 4;
-        updateWizardStepUI();
+        state.wizardStep = 3;
+        renderApp();
         return;
       }
 
       if (!state.uploadedImages || state.uploadedImages.length === 0) {
         showToast('⚠️ Photo upload is required! Please select at least 1 image from your PC gallery.');
         state.wizardStep = 4;
-        updateWizardStepUI();
+        renderApp();
         return;
       }
 
@@ -1610,8 +1844,16 @@ function setupEventListeners() {
       const phone = state.user?.phone || '+92 300 0000000';
 
       (async () => {
-        // Upload images to Free CDN (ImgBB)
-        const finalImages = await Promise.all(rawImages.map(img => uploadImageToFreeCdn(img)));
+        let finalImages = rawImages && rawImages.length > 0 ? rawImages : ['https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80'];
+        try {
+          showToast('⏳ Uploading property photos & saving listing...');
+          const cdnImages = await Promise.all(rawImages.map(img => uploadImageToFreeCdn(img)));
+          if (cdnImages && cdnImages.length > 0) {
+            finalImages = cdnImages;
+          }
+        } catch (err) {
+          console.warn('Image CDN processing notice:', err);
+        }
 
         if (state.editingProperty) {
           // Editing existing property
@@ -1633,13 +1875,16 @@ function setupEventListeners() {
           };
 
           saveOrUpdatePropertyInStorage(updatedProp);
-          savePropertyToApi(updatedProp); // Save to Neon PostgreSQL
+          savePropertyToApi(updatedProp); // Save to Neon PostgreSQL API
           state.properties = state.properties.map(p => p.id === updatedProp.id ? updatedProp : p);
           state.showPostWizard = false;
           state.editingProperty = null;
           state.uploadedImages = [];
+          state.activeTab = 'dashboard';
+          state.dashboardTab = 'listings';
           showToast('✏️ Property updated successfully!');
           renderApp();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
           // Publishing new property
           const newProp = {
@@ -1675,12 +1920,15 @@ function setupEventListeners() {
           };
 
           saveCustomProperty(newProp);
-          savePropertyToApi(newProp); // Save to Neon PostgreSQL Database
+          savePropertyToApi(newProp); // Save to Neon PostgreSQL API
           state.properties = [newProp, ...state.properties];
           state.showPostWizard = false;
           state.uploadedImages = [];
+          state.activeTab = 'dashboard';
+          state.dashboardTab = 'listings';
           showToast('🎉 Property published live successfully!');
           renderApp();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         }
       })();
     }
@@ -1705,6 +1953,33 @@ function setupEventListeners() {
         state.selectedProperty = normalizeProperty(targetProp);
         renderApp();
       }
+    }
+
+    // Featured Property "View Details" Click Handler
+    const viewDetailBtn = e.target.closest('.view-property-detail-btn');
+    if (viewDetailBtn) {
+      e.preventDefault();
+      const propId = viewDetailBtn.getAttribute('data-id');
+      const targetProp = state.properties.find(p => String(p.id) === String(propId)) || {
+        id: propId || 'prop-1',
+        title: '10 Marla Ultra-Modern Smart Automation Villa',
+        location: 'DHA Lahore Phase 9 Prism',
+        city: 'Lahore',
+        price: 48000000,
+        size: '10 Marla',
+        beds: 5,
+        baths: 6,
+        type: 'House',
+        badge: 'PLATINUM',
+        images: ['https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1000&q=80'],
+        agency: { name: 'Chaudhry Real Estate', logo: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80' }
+      };
+      state.selectedProperty = normalizeProperty(targetProp);
+      state.selectedPropertyId = targetProp.id;
+      setActiveTab('property-detail');
+      renderApp();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
     }
 
 
@@ -2039,32 +2314,27 @@ function setupEventListeners() {
                   agencyName: nameInput
                 });
 
-                if (data.token && data.user) {
-                  const userObj = {
-                    userId: data.user.id,
-                    name: data.user.name || nameInput,
-                    email: data.user.email || emailInput,
-                    role: data.user.role || role,
-                    phone: data.user.phone || phoneInput,
-                    agencyName: data.user.agencyName || nameInput,
-                    token: data.token,
-                    issuedAt: Date.now(),
-                    expiresAt: Date.now() + (48 * 60 * 60 * 1000)
-                  };
-                  localStorage.setItem('Sarmayadar_jwt_token', JSON.stringify(userObj));
-                  state.user = userObj;
-                  state.showAuthModal = false;
-                  state.authMode = 'login';
-                  state.authIsRegister = false;
-                  state.authIsSignup = false;
-                  showToast(`🎉 Account created & signed in as ${userObj.role} (${userObj.name})!`);
-                } else {
-                  showToast(`🎉 Account created successfully! Please sign in.`);
-                  state.authMode = 'login';
-                  state.authIsRegister = false;
-                  state.authIsSignup = false;
-                  state.authPreFillEmail = emailInput;
-                }
+                const userObj = {
+                  userId: (data && data.user) ? data.user.id : `user-${Date.now()}`,
+                  name: (data && data.user) ? (data.user.name || nameInput) : nameInput,
+                  email: (data && data.user) ? (data.user.email || emailInput) : emailInput,
+                  role: (data && data.user) ? (data.user.role || role) : role,
+                  phone: (data && data.user) ? (data.user.phone || phoneInput) : phoneInput,
+                  agencyName: (data && data.user) ? (data.user.agencyName || nameInput) : nameInput,
+                  token: (data && data.token) ? data.token : null,
+                  issuedAt: Date.now(),
+                  expiresAt: Date.now() + (48 * 60 * 60 * 1000)
+                };
+                localStorage.setItem('Sarmayadar_jwt_token', JSON.stringify(userObj));
+                state.user = userObj;
+                state.showAuthModal = false;
+                state.authMode = 'login';
+                state.authIsRegister = false;
+                state.authIsSignup = false;
+                state.activeTab = 'dashboard';
+                state.dashboardTab = 'dashboard';
+                if (window.location.hash !== '#dashboard') history.replaceState(null, '', '#dashboard');
+                showToast(`🎉 Registration complete! Welcome to your Dashboard, ${userObj.name}.`);
                 renderApp();
               } else if (res.status === 400 && data && data.message) {
                 if (data.message.toLowerCase().includes('already exists')) {
@@ -2102,7 +2372,10 @@ function setupEventListeners() {
                 state.authMode = 'login';
                 state.authIsRegister = false;
                 state.authIsSignup = false;
-                showToast(`🎉 Account registered successfully as ${role} (${nameInput})!`);
+                state.activeTab = 'dashboard';
+                state.dashboardTab = 'dashboard';
+                if (window.location.hash !== '#dashboard') history.replaceState(null, '', '#dashboard');
+                showToast(`🎉 Registration complete! Welcome to your Dashboard, ${nameInput}.`);
                 renderApp();
               }
             } catch (err) {
@@ -2131,7 +2404,10 @@ function setupEventListeners() {
               state.authMode = 'login';
               state.authIsRegister = false;
               state.authIsSignup = false;
-              showToast(`🎉 Account registered locally! Welcome ${nameInput}.`);
+              state.activeTab = 'dashboard';
+              state.dashboardTab = 'dashboard';
+              if (window.location.hash !== '#dashboard') history.replaceState(null, '', '#dashboard');
+              showToast(`🎉 Registration complete! Welcome to your Dashboard, ${nameInput}.`);
               renderApp();
             }
           })();
@@ -2443,8 +2719,6 @@ function setupEventListeners() {
         }
       }
     }
-
-
     // Footer Links Navigation
     if (e.target.id === 'footer-link-dealer') { e.preventDefault(); state.activeTab = 'dealer'; renderApp(); }
     if (e.target.id === 'footer-link-converter') { e.preventDefault(); state.activeTab = 'tools'; state.activeTool = 'converter'; renderApp(); }
@@ -2453,67 +2727,56 @@ function setupEventListeners() {
 
   // Change Listeners for Selects & Inputs & Photo Uploads
   document.addEventListener('change', (e) => {
-    // Profile Photo File Input Change Listener
-    if (e.target.id === 'user-profile-photo-input' && e.target.files?.length > 0) {
+    // User Profile Photo Upload Listener
+    if ((e.target.id === 'user-profile-photo-input' || e.target.id === 'user-profile-photo-file') && e.target.files?.length > 0) {
       const file = e.target.files[0];
       const reader = new FileReader();
-      reader.onload = (evt) => {
-        const dataUrl = evt.target.result;
-        if (state.user) {
-          state.user.avatar = dataUrl;
-          state.user.logo = dataUrl;
-          localStorage.setItem('Sarmayadar_jwt_token', JSON.stringify(state.user));
-          const storedUsers = getStoredUsers();
-          const found = storedUsers.find(u => u.email?.toLowerCase() === state.user?.email?.toLowerCase());
-          if (found) {
-            found.avatar = dataUrl;
-            found.logo = dataUrl;
-            saveStoredUser(found);
+      reader.onload = async (evt) => {
+        const rawBase64 = evt.target.result;
+        showToast('⏳ Uploading profile photo to CDN...');
+        try {
+          const watermarked = await addWatermarkToImage(rawBase64);
+          const cdnUrl = await uploadImageToFreeCdn(watermarked);
+
+          if (!cdnUrl || !cdnUrl.startsWith('http')) {
+            throw new Error('CDN upload returned invalid URL');
           }
+
+          if (state.user) {
+            state.user.avatar = cdnUrl;
+            state.user.logo = cdnUrl;
+            localStorage.setItem('Sarmayadar_jwt_token', JSON.stringify(state.user));
+
+            // Persist to Neon PostgreSQL Database
+            await fetch('/api/auth/profile', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                email: state.user.email,
+                avatar: cdnUrl,
+                logo: cdnUrl,
+                phone: state.user.phone,
+                agencyName: state.user.agencyName,
+                name: state.user.name
+              })
+            }).catch(() => null);
+
+            const storedUsers = getStoredUsers();
+            const found = storedUsers.find(u => u.email?.toLowerCase() === state.user?.email?.toLowerCase());
+            if (found) {
+              found.avatar = cdnUrl;
+              found.logo = cdnUrl;
+              saveStoredUser(found);
+            }
+          }
+          showToast('✅ Profile photo updated & saved successfully!');
+          renderApp();
+        } catch (uploadErr) {
+          console.error('Profile photo upload error:', uploadErr);
+          showToast(`❌ Profile photo upload failed: ${uploadErr.message}`);
         }
-        showToast('📷 Profile photo updated successfully!');
-        renderApp();
       };
       reader.readAsDataURL(file);
-    }
-
-    // Mega Project Photos File Input Change Listener
-    if (e.target.id === 'mp_file_input' && e.target.files?.length > 0) {
-      const files = Array.from(e.target.files);
-      state.mpUploadedImages = state.mpUploadedImages || (state.editingMegaProject?.images ? [...state.editingMegaProject.images] : []);
-      let loadedCount = 0;
-      files.forEach(file => {
-        const reader = new FileReader();
-        reader.onload = (evt) => {
-          state.mpUploadedImages.push(evt.target.result);
-          if (state.editingMegaProject) state.editingMegaProject.images = state.mpUploadedImages;
-          loadedCount++;
-          if (loadedCount === files.length) {
-            showToast(`📷 Uploaded ${files.length} project photo(s)!`);
-            renderApp();
-          }
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-
-    // Product (Property) Photos File Input Change Listener
-    if (e.target.id === 'wiz_file_input' && e.target.files?.length > 0) {
-      const files = Array.from(e.target.files);
-      state.uploadedImages = state.uploadedImages || [];
-      let loadedCount = 0;
-      files.forEach(file => {
-        const reader = new FileReader();
-        reader.onload = (evt) => {
-          state.uploadedImages.push(evt.target.result);
-          loadedCount++;
-          if (loadedCount === files.length) {
-            showToast(`📷 Uploaded ${files.length} property photo(s)!`);
-            renderApp();
-          }
-        };
-        reader.readAsDataURL(file);
-      });
     }
     // Search Filter Dropdowns
     if (e.target.id === 'filter-city') {
@@ -2882,24 +3145,47 @@ function updateWizardStepUI() {
 
 // Global Image Upload File Selector & Drag and Drop Event Listeners (With Auto Watermark)
 document.addEventListener('change', async (e) => {
-  if (e.target.id === 'wiz_file_input' && e.target.files?.length > 0) {
-    showToast('🎨 Adding Sarmayadar watermark to photos...');
+  if ((e.target.id === 'wiz_file_input' || e.target.id === 'wiz-file-input') && e.target.files?.length > 0) {
     const files = Array.from(e.target.files);
+    showToast(`⏳ Processing & uploading ${files.length} property photo(s) to server...`);
+    state.uploadedImages = state.uploadedImages || [];
+    let uploadSuccessCount = 0;
+    let uploadErrors = [];
+
     for (const file of files) {
-      const dataUrl = await new Promise(r => {
-        const reader = new FileReader();
-        reader.onload = evt => r(evt.target.result);
-        reader.readAsDataURL(file);
-      });
-      const watermarked = await addWatermarkToImage(dataUrl);
-      state.uploadedImages = state.uploadedImages || [];
-      state.uploadedImages.push(watermarked);
+      try {
+        const dataUrl = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = evt => resolve(evt.target.result);
+          reader.onerror = err => reject(err);
+          reader.readAsDataURL(file);
+        });
+
+        const watermarked = await addWatermarkToImage(dataUrl);
+        const savedUrl = await uploadImageToFreeCdn(watermarked);
+
+        if (savedUrl && (savedUrl.startsWith('http') || savedUrl.startsWith('/uploads'))) {
+          state.uploadedImages.push(savedUrl);
+          uploadSuccessCount++;
+        } else {
+          throw new Error('Server returned invalid image storage URL');
+        }
+      } catch (err) {
+        console.error('Property image upload error:', err);
+        uploadErrors.push(err.message || 'Server upload failed');
+      }
     }
+
     const container = document.getElementById('wiz-image-previews');
     if (container) {
       container.innerHTML = renderImagePreviewsList(state.uploadedImages);
     }
-    showToast('✨ Photos uploaded & watermarked successfully!');
+
+    if (uploadSuccessCount > 0) {
+      showToast(`✅ ${uploadSuccessCount} property photo(s) uploaded & stored on server!`);
+    } else {
+      showToast(`❌ Property image upload failed: ${uploadErrors[0] || 'Server connection error'}`);
+    }
   }
 
   if (e.target.id === 'agency-photo-file-input' && e.target.files?.[0]) {
@@ -3112,6 +3398,36 @@ async function handleAdminPageLogin(emailInput, passwordInput) {
       e.preventDefault();
       if (window.handleAdvFormSubmit) window.handleAdvFormSubmit(e);
     }
+
+    if (e.target.closest('#btn-admin-activate-package')) {
+      e.preventDefault();
+      const pendingInvoice = state.generatedInvoice || {
+        invoiceId: 'INV-2026-89124',
+        customerName: 'Umair Arshad',
+        package: { name: 'Pro Gold Agency Package', price: 24999 }
+      };
+
+      if (state.user) {
+        state.user.subscriptionPlan = pendingInvoice.package?.name || 'Pro Gold Agency Package';
+        state.user.role = 'DEALER';
+        state.user.listingQuota = 50;
+        const users = getStoredUsers();
+        const found = users.find(u => u.email === state.user.email);
+        if (found) {
+          found.subscriptionPlan = state.user.subscriptionPlan;
+          found.role = 'DEALER';
+          saveStoredUsers(users);
+        }
+      }
+      
+      if (state.generatedInvoice) {
+        state.generatedInvoice.status = 'PAID & ACTIVATED';
+      }
+
+      showToast(`🎉 Success! Package "${pendingInvoice.package?.name}" HAS BEEN VERIFIED & ACTIVATED!`);
+      renderApp();
+      return;
+    }
   });
 
   // Handle Enter Key press in AI prompt search bar
@@ -3170,21 +3486,29 @@ window.openAuthRegisterModal = function(role = 'DEALER') {
 };
 
 window.handleAdvBuy = function(packageName, price) {
-  if (packageName.includes('Registration') || price === 0) {
+  if (packageName && (packageName.includes('Registration') || price === 0)) {
     window.openAuthRegisterModal('DEALER');
     return;
   }
-  showToast(`🛒 Selected: ${packageName} (PKR ${price.toLocaleString()}). Redirecting to Checkout...`);
-  if (!state.user) {
-    setTimeout(() => {
-      window.openAuthRegisterModal('DEALER');
-    }, 1200);
-  } else {
-    setTimeout(() => {
-      state.showPostWizard = true;
-      renderApp();
-    }, 1200);
-  }
+
+  showToast(`🛒 Selected: ${packageName} (${formatPKR(price)}). Redirecting to Checkout...`);
+
+  state.selectedPackage = {
+    name: packageName || 'Pro Gold Agency Package',
+    price: price || 24999,
+    period: 'Per Month',
+    features: [
+      'Verified Property Listing Quotas',
+      'Featured Search & Homepage Banners',
+      'Verified Dealer Badge & Agency Page',
+      'Direct WhatsApp Buyer Leads',
+      'Dedicated Sarmayadar Account Specialist'
+    ]
+  };
+
+  setActiveTab('advertise-checkout');
+  renderApp();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 window.updateAdvCalc = function(budgetVal) {

@@ -5,6 +5,9 @@ import { getStoredFavorites, getStoredRecentViews, getDealerLeads, getAgencyProf
 import { INITIAL_DEALER_LEADS } from '../data/leads.js';
 import { INITIAL_AGENTS } from '../data/agents.js';
 import { t, tText, tCity } from '../utils/i18n.js';
+import { hasFeatureAccess, renderFeatureLockOverlay, getUserPlanConfig } from '../utils/planAccess.js';
+
+import { renderImagePreviewsList } from './PostPropertyWizard.js';
 
 export function renderDashboardSystem(rawProperties, state) {
   const properties = normalizeProperties(rawProperties || []);
@@ -57,8 +60,8 @@ export function renderDashboardSystem(rawProperties, state) {
             <span class="profolio-brand-text">SARMAYA<span>DAR</span></span>
           </a>
 
-          <a href="#" class="profolio-portal-link" id="dash-go-portal">
-            ${renderIcon('external-link', 14)} ${t('go_to_portal', 'Go to sarmayadar.com')}
+          <a href="#" class="profolio-portal-link" id="dash-go-portal" data-nav="buy" title="Return to Website Homepage">
+            ${renderIcon('home', 15)} <span>${t('go_to_home', 'Go Back to Home')}</span>
           </a>
         </div>
 
@@ -114,6 +117,12 @@ export function renderDashboardSystem(rawProperties, state) {
           </div>
 
           <div class="profolio-sidebar-menu-list">
+            <!-- Go Back to Home Button (Visible in Mobile Drawer & Desktop Sidebar) -->
+            <button type="button" class="profolio-nav-item dash-back-home-btn" data-nav="buy" title="Return to Homepage" style="background:#ECFDF5; color:#047857; font-weight:800; border:1px solid #A7F3D0; margin-bottom:8px;">
+              ${renderIcon('home', 20, '#047857')}
+              <span class="profolio-nav-label">Go Back to Home</span>
+            </button>
+
             <button type="button" class="profolio-nav-item ${activeTab === 'dashboard' ? 'active' : ''}" data-dash-tab="dashboard" title="${t('dash_overview', 'Dashboard Overview')}">
               ${renderIcon('layout-dashboard', 20)}
               <span class="profolio-nav-label">${t('dash_overview', 'Dashboard Overview')}</span>
@@ -137,6 +146,9 @@ export function renderDashboardSystem(rawProperties, state) {
             <button type="button" class="profolio-nav-item ${activeTab === 'inquiries' ? 'active' : ''}" data-dash-tab="inquiries" title="${t('dash_inquiries', 'Inquiries & Leads')}">
               ${renderIcon('mail', 20)}
               <span class="profolio-nav-label">${t('dash_inquiries', 'Inquiries & Leads')}</span>
+            <button type="button" class="profolio-nav-item ${activeTab === 'invoices' ? 'active' : ''}" data-dash-tab="invoices" title="Pay Invoices & Bank Transfer Details">
+              ${renderIcon('credit-card', 20)}
+              <span class="profolio-nav-label">Invoices & Payments</span>
             </button>
 
             ${isDealer || isAdmin ? `
@@ -145,7 +157,7 @@ export function renderDashboardSystem(rawProperties, state) {
                 <span class="profolio-nav-label">${t('dash_mega_projects', 'Mega Projects Studio')}</span>
               </button>
               <button type="button" class="profolio-nav-item ${activeTab === 'subscriptions' ? 'active' : ''}" data-dash-tab="subscriptions" title="${t('dash_subscriptions', 'Subscriptions & Limits')}">
-                ${renderIcon('credit-card', 20)}
+                ${renderIcon('award', 20)}
                 <span class="profolio-nav-label">${t('dash_subscriptions', 'Subscriptions & Limits')}</span>
               </button>
             ` : ''}
@@ -193,7 +205,7 @@ function renderRoleTabContent(activeTab, properties, state, user, data) {
 
   switch (activeTab) {
     case 'dashboard':
-      return renderProFolioDashboardOverview(properties, user, data);
+      return renderProFolioDashboardOverview(properties, user, data, state);
     case 'add-property':
       return renderProFolioAddPropertyForm(state);
     case 'listings':
@@ -206,6 +218,8 @@ function renderRoleTabContent(activeTab, properties, state, user, data) {
       return renderProFolioSavedProperties(properties, data.favorites);
     case 'inquiries':
       return renderProFolioInquiriesInbox(data.leads);
+    case 'invoices':
+      return renderProFolioInvoicesManager(state, user);
     case 'users':
       return renderProFolioUsersManager(data.users);
     case 'dealers':
@@ -222,7 +236,7 @@ function renderRoleTabContent(activeTab, properties, state, user, data) {
 /* ==========================================================================
    1. PROFOLIO DASHBOARD OVERVIEW (As Shown in Screenshot #1)
    ========================================================================== */
-function renderProFolioDashboardOverview(properties, user, data) {
+function renderProFolioDashboardOverview(properties, user, data, state = {}) {
   const isDealer = user.role === 'DEALER';
   const isAdmin = user.role === 'ADMIN';
 
@@ -362,7 +376,7 @@ function renderProFolioDashboardOverview(properties, user, data) {
                 </td>
                 <td style="padding:10px; color:#64748B;">${p.location}, ${p.city}</td>
                 <td style="padding:10px; font-weight:800; color:#059669;">${formatPKR(p.price)}</td>
-                <td style="padding:10px; font-weight:700;">${formatArea(p.sizeMarla, state.unit)}</td>
+                <td style="padding:10px; font-weight:700;">${formatArea(p.sizeMarla, state?.unit)}</td>
                 <td style="padding:10px;">
                   <span class="badge" style="background:#ECFDF5; color:#059669; font-weight:800; font-size:0.7rem;">VERIFIED</span>
                 </td>
@@ -382,102 +396,176 @@ function renderProFolioDashboardOverview(properties, user, data) {
    2. PROFOLIO SECTIONED ADD PROPERTY FORM (As Shown in Screenshot #2)
    ========================================================================== */
 function renderProFolioAddPropertyForm(state) {
-  const wizardStep = state.wizardStep || 1;
-
   return `
-    <div style="max-width:900px; margin:0 auto;">
-      <h2 style="font-size:1.5rem; font-weight:800; color:#0F172A; margin-bottom:1.5rem;">Post Free Property Listing</h2>
-
-      <!-- Card 1: Location and Purpose -->
-      <div class="profolio-form-section">
-        <div class="profolio-form-section-header">
-          <div class="profolio-section-icon">${renderIcon('map-pin', 22)}</div>
-          <div>
-            <div class="profolio-section-title">Location and Purpose</div>
-            <div class="profolio-section-desc">Select property purpose, category type, city and exact society address.</div>
-          </div>
-        </div>
+    <div style="max-width:1150px; margin:0 auto; padding-bottom:2rem;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
         <div>
-          <div style="margin-bottom:1rem;">
-            <label style="font-weight:700; font-size:0.85rem; display:block; margin-bottom:6px;">Select Purpose</label>
-            <div style="display:flex; gap:10px;">
-              <label style="background:#ECFDF5; border:2px solid #059669; padding:8px 16px; border-radius:8px; font-weight:700; color:#059669; cursor:pointer;">
-                <input type="radio" name="wiz_purpose" value="Sale" checked /> For Sale
-              </label>
-              <label style="background:#F8FAFC; border:1px solid #CBD5E1; padding:8px 16px; border-radius:8px; font-weight:700; color:#64748B; cursor:pointer;">
-                <input type="radio" name="wiz_purpose" value="Rent" /> For Rent
-              </label>
-            </div>
-          </div>
-
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-            <div>
-              <label style="font-weight:700; font-size:0.85rem; display:block; margin-bottom:6px;">City</label>
-              <select id="wiz_city" style="width:100%; padding:10px; border-radius:8px; border:1px solid #CBD5E1; font-weight:700;">
-                <option value="Lahore">Lahore</option>
-                <option value="Karachi">Karachi</option>
-                <option value="Islamabad">Islamabad</option>
-                <option value="Rawalpindi">Rawalpindi</option>
-              </select>
-            </div>
-            <div>
-              <label style="font-weight:700; font-size:0.85rem; display:block; margin-bottom:6px;">Location / Society</label>
-              <input type="text" id="wiz_location" placeholder="e.g. DHA Phase 6, Bahria Town" style="width:100%; padding:10px; border-radius:8px; border:1px solid #CBD5E1;" />
-            </div>
-          </div>
+          <h2 style="font-size:1.4rem; font-weight:800; color:#0F172A; margin:0;">Post Property Listing</h2>
+          <p style="font-size:0.85rem; color:#64748B; margin-top:3px;">Publish your property live on Pakistan's #1 Sarmayadar Portal.</p>
         </div>
+        <span class="badge" style="background:#ECFDF5; color:#059669; font-weight:800; padding:6px 14px; border-radius:20px; font-size:0.78rem;">
+          ⚡ Instant AI Verified
+        </span>
       </div>
 
-      <!-- Card 2: Price and Area -->
-      <div class="profolio-form-section">
-        <div class="profolio-form-section-header">
-          <div class="profolio-section-icon">${renderIcon('dollar-sign', 22)}</div>
-          <div>
-            <div class="profolio-section-title">Price and Area</div>
-            <div class="profolio-section-desc">Specify land area size, area unit and demand price in PKR.</div>
-          </div>
-        </div>
-        <div>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-            <div>
-              <label style="font-weight:700; font-size:0.85rem; display:block; margin-bottom:6px;">Area Size (Marla)</label>
-              <input type="number" id="wiz_size" placeholder="e.g. 10" style="width:100%; padding:10px; border-radius:8px; border:1px solid #CBD5E1;" />
+      <!-- Main Form Grid (2 Columns on Desktop) -->
+      <div style="display:grid; grid-template-columns: 1.2fr 1fr; gap:1.25rem;">
+        
+        <!-- Left Column: Details & Description -->
+        <div style="display:flex; flex-direction:column; gap:1.25rem;">
+          
+          <!-- Card 1: Purpose, Type & Location -->
+          <div class="profolio-form-section" style="padding:1.25rem; margin-bottom:0;">
+            <div class="profolio-form-section-header" style="margin-bottom:1rem;">
+              <div class="profolio-section-icon" style="width:36px; height:36px; font-size:0.9rem;">${renderIcon('map-pin', 18)}</div>
+              <div>
+                <div class="profolio-section-title" style="font-size:1rem;">Location & Purpose</div>
+                <div class="profolio-section-desc" style="font-size:0.78rem;">Property purpose, type, city and exact society address.</div>
+              </div>
             </div>
-            <div>
-              <label style="font-weight:700; font-size:0.85rem; display:block; margin-bottom:6px;">Asking Price (PKR)</label>
-              <input type="number" id="wiz_price" placeholder="e.g. 35000000" style="width:100%; padding:10px; border-radius:8px; border:1px solid #CBD5E1;" />
+
+            <div style="display:flex; flex-direction:column; gap:0.9rem;">
+              <div>
+                <label style="font-weight:700; font-size:0.8rem; display:block; margin-bottom:5px; color:#1E293B;">Select Purpose</label>
+                <div style="display:flex; gap:8px;">
+                  <label style="flex:1; text-align:center; background:#ECFDF5; border:2px solid #059669; padding:8px 12px; border-radius:8px; font-weight:700; color:#059669; cursor:pointer; font-size:0.85rem;">
+                    <input type="radio" name="wiz_purpose" value="Sale" checked /> For Sale
+                  </label>
+                  <label style="flex:1; text-align:center; background:#F8FAFC; border:1px solid #CBD5E1; padding:8px 12px; border-radius:8px; font-weight:700; color:#64748B; cursor:pointer; font-size:0.85rem;">
+                    <input type="radio" name="wiz_purpose" value="Rent" /> For Rent
+                  </label>
+                </div>
+              </div>
+
+              <div style="display:grid; grid-template-columns:1fr 1.2fr; gap:0.75rem;">
+                <div>
+                  <label style="font-weight:700; font-size:0.8rem; display:block; margin-bottom:5px; color:#1E293B;">Property Type</label>
+                  <select id="wiz_type" style="width:100%; padding:9px 12px; border-radius:8px; border:1px solid #CBD5E1; font-weight:700; font-size:0.85rem;">
+                    <option value="house">House / Villa</option>
+                    <option value="plot">Residential Plot</option>
+                    <option value="commercial">Commercial Shop / Office</option>
+                    <option value="apartment">Luxury Apartment</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="font-weight:700; font-size:0.8rem; display:block; margin-bottom:5px; color:#1E293B;">City</label>
+                  <select id="wiz_city" style="width:100%; padding:9px 12px; border-radius:8px; border:1px solid #CBD5E1; font-weight:700; font-size:0.85rem;">
+                    <option value="Lahore">Lahore</option>
+                    <option value="Karachi">Karachi</option>
+                    <option value="Islamabad">Islamabad</option>
+                    <option value="Rawalpindi">Rawalpindi</option>
+                    <option value="Faisalabad">Faisalabad</option>
+                    <option value="Multan">Multan</option>
+                    <option value="Peshawar">Peshawar</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label style="font-weight:700; font-size:0.8rem; display:block; margin-bottom:5px; color:#1E293B;">Society / Area Location <span style="color:#EF4444;">*</span></label>
+                <input type="text" id="wiz_location" placeholder="e.g. Phase 6, DHA Lahore" style="width:100%; padding:9px 12px; border-radius:8px; border:1px solid #CBD5E1; font-size:0.88rem;" />
+              </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <!-- Card 3: Ad Information & Images -->
-      <div class="profolio-form-section">
-        <div class="profolio-form-section-header">
-          <div class="profolio-section-icon">${renderIcon('camera', 22)}</div>
-          <div>
-            <div class="profolio-section-title">Property Photos & Info</div>
-            <div class="profolio-section-desc">Upload photos and provide detailed property description.</div>
-          </div>
-        </div>
-        <div>
-          <div style="margin-bottom:1rem;">
-            <label style="font-weight:700; font-size:0.85rem; display:block; margin-bottom:6px;">Property Title</label>
-            <input type="text" id="wiz_title" placeholder="e.g. Brand New 10 Marla Modern Designer House For Sale" style="width:100%; padding:10px; border-radius:8px; border:1px solid #CBD5E1;" />
+          <!-- Card 2: Price, Size & Specs -->
+          <div class="profolio-form-section" style="padding:1.25rem; margin-bottom:0;">
+            <div class="profolio-form-section-header" style="margin-bottom:1rem;">
+              <div class="profolio-section-icon" style="width:36px; height:36px; font-size:0.9rem;">${renderIcon('dollar-sign', 18)}</div>
+              <div>
+                <div class="profolio-section-title" style="font-size:1rem;">Price, Size & Features</div>
+                <div class="profolio-section-desc" style="font-size:0.78rem;">Demand price, land size and specs.</div>
+              </div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:0.9rem;">
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+                <div>
+                  <label style="font-weight:700; font-size:0.8rem; display:block; margin-bottom:5px; color:#1E293B;">Area Size (Marla) <span style="color:#EF4444;">*</span></label>
+                  <input type="number" id="wiz_size" placeholder="e.g. 10" style="width:100%; padding:9px 12px; border-radius:8px; border:1px solid #CBD5E1; font-size:0.88rem;" />
+                </div>
+                <div>
+                  <label style="font-weight:700; font-size:0.8rem; display:block; margin-bottom:5px; color:#1E293B;">Asking Price (PKR) <span style="color:#EF4444;">*</span></label>
+                  <input type="number" id="wiz_price" placeholder="e.g. 35000000" style="width:100%; padding:9px 12px; border-radius:8px; border:1px solid #CBD5E1; font-size:0.88rem;" />
+                </div>
+              </div>
+
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+                <div>
+                  <label style="font-weight:700; font-size:0.8rem; display:block; margin-bottom:5px; color:#1E293B;">Bedrooms</label>
+                  <select id="wiz_beds" style="width:100%; padding:9px 12px; border-radius:8px; border:1px solid #CBD5E1; font-size:0.85rem;">
+                    <option value="3">3 Bedrooms</option>
+                    <option value="4" selected>4 Bedrooms</option>
+                    <option value="5">5 Bedrooms</option>
+                    <option value="6">6+ Bedrooms</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="font-weight:700; font-size:0.8rem; display:block; margin-bottom:5px; color:#1E293B;">Bathrooms</label>
+                  <select id="wiz_baths" style="width:100%; padding:9px 12px; border-radius:8px; border:1px solid #CBD5E1; font-size:0.85rem;">
+                    <option value="3">3 Bathrooms</option>
+                    <option value="4">4 Bathrooms</option>
+                    <option value="5" selected>5 Bathrooms</option>
+                    <option value="6">6+ Bathrooms</option>
+                  </select>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div style="border:2px dashed #059669; background:#ECFDF5; padding:2rem; border-radius:12px; text-align:center; cursor:pointer;" id="image-drag-drop-zone">
-            <div style="color:#059669; font-weight:800;">📷 Click to Upload Property Photos</div>
-            <div style="font-size:0.78rem; color:#64748B; margin-top:4px;">Supports JPG, PNG up to 10MB (Auto Watermarked)</div>
-            <input type="file" id="wiz-file-input" multiple accept="image/*" style="display:none;" />
-          </div>
         </div>
-      </div>
 
-      <div style="text-align:right; margin-top:1.5rem;">
-        <button class="profolio-btn-post" id="publish-property-submit-btn" style="padding:12px 28px; font-size:1rem;">
-          🚀 Publish Listing Live
-        </button>
+        <!-- Right Column: Photos, Title & Submit -->
+        <div style="display:flex; flex-direction:column; gap:1.25rem;">
+          
+          <!-- Card 3: Title, Description & Photos -->
+          <div class="profolio-form-section" style="padding:1.25rem; margin-bottom:0;">
+            <div class="profolio-form-section-header" style="margin-bottom:1rem;">
+              <div class="profolio-section-icon" style="width:36px; height:36px; font-size:0.9rem;">${renderIcon('camera', 18)}</div>
+              <div>
+                <div class="profolio-section-title" style="font-size:1rem;">Listing Title, Description & Photos</div>
+                <div class="profolio-section-desc" style="font-size:0.78rem;">Attract buyers with photos and detailed highlights.</div>
+              </div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:0.9rem;">
+              <div>
+                <label style="font-weight:700; font-size:0.8rem; display:block; margin-bottom:5px; color:#1E293B;">Property Title <span style="color:#EF4444;">*</span></label>
+                <input type="text" id="wiz_title" placeholder="e.g. Brand New 10 Marla Modern Designer House For Sale" style="width:100%; padding:9px 12px; border-radius:8px; border:1px solid #CBD5E1; font-size:0.88rem;" />
+              </div>
+
+              <div>
+                <label style="font-weight:700; font-size:0.8rem; display:block; margin-bottom:5px; color:#1E293B;">Detailed Description</label>
+                <textarea id="wiz_desc" rows="3" placeholder="Describe key woodwork, fittings, solar system, park facing, nearby schools..." style="width:100%; padding:10px 12px; border-radius:8px; border:1px solid #CBD5E1; font-family:inherit; font-size:0.85rem; line-height:1.4; resize:vertical;"></textarea>
+              </div>
+
+              <!-- Compact Drag and Dropzone -->
+              <div style="border:2px dashed #059669; background:#ECFDF5; padding:1.25rem 1rem; border-radius:10px; text-align:center; cursor:pointer; transition:background 0.2s;" id="image-drag-drop-zone">
+                <div style="color:#059669; font-weight:800; font-size:0.9rem;">📷 Drag & Drop or Click to Upload Photos</div>
+                <div style="font-size:0.75rem; color:#64748B; margin-top:3px;">PNG, JPG up to 10MB (Watermark Applied Automatically)</div>
+                <input type="file" id="wiz-file-input" multiple accept="image/*" style="display:none;" />
+              </div>
+
+              <!-- Image Previews Container -->
+              <div id="wiz-image-previews" style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.5rem;">
+                ${renderImagePreviewsList(state.uploadedImages || [])}
+              </div>
+            </div>
+          </div>
+
+          <!-- Sticky / Prominent Action Bar -->
+          <div style="background:#ffffff; border-radius:14px; border:1px solid #E2E8F0; padding:1.25rem; display:flex; flex-direction:column; gap:0.75rem; box-shadow:0 4px 12px rgba(0,0,0,0.04);">
+            <button class="profolio-btn-post" id="publish-property-submit-btn" style="width:100%; justify-content:center; padding:12px 24px; font-size:1rem; border-radius:10px;">
+              🚀 Publish Property Live
+            </button>
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; color:#64748B;">
+              <span>🔒 256-bit Encrypted Transmission</span>
+              <span>✅ Instant Public Directory View</span>
+            </div>
+          </div>
+
+        </div>
+
       </div>
     </div>
   `;
@@ -651,8 +739,67 @@ function renderProFolioDealersManager() {
   `;
 }
 
-function renderProFolioApprovalsQueue(properties) {
+function renderProFolioApprovalsQueue(properties, state = {}) {
+  const pendingInvoice = state.generatedInvoice || {
+    invoiceId: 'INV-2026-89124',
+    customerName: 'Umair Arshad (Verified Dealer)',
+    customerPhone: '+923297543852',
+    customerEmail: 'umair@sarmayadar.com',
+    agencyName: 'Al-Rehman Estate & Builders',
+    date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+    package: {
+      name: 'Pro Gold Agency Package',
+      price: 24999,
+      period: 'Per Month'
+    }
+  };
+
   return `
+    <!-- ADVERTISER PACKAGE ACTIVATION QUEUE (FOR ADMIN) -->
+    <div class="profolio-card" style="border: 2px solid #059669; background: #F0FDF4; margin-bottom: 1.5rem;">
+      <div class="profolio-card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+        <div>
+          <h3 class="profolio-card-title" style="color:#064E3B; display:flex; align-items:center; gap:8px;">
+            <span>⚡</span> Advertiser Package Activation Queue (Admin Approval)
+          </h3>
+          <p style="font-size:0.85rem; color:#047857; margin-top:4px; font-weight:600;">
+            Review pending payment invoices transferred via Nayapay (+923297543852) and click approve to activate package quotas & features for advertisers.
+          </p>
+        </div>
+        <span class="badge" style="background:#064E3B; color:#FFFFFF; font-size:0.75rem; font-weight:800; padding:6px 12px; border-radius:20px;">
+          ADMIN CONTROL CENTER
+        </span>
+      </div>
+
+      <div style="background:#FFFFFF; border:1px solid #A7F3D0; border-radius:12px; padding:1.25rem; margin-top:1rem;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem; border-bottom:1px solid #E2E8F0; padding-bottom:1rem; margin-bottom:1rem;">
+          <div>
+            <span style="font-family:monospace; font-weight:900; color:#059669; font-size:1.05rem;">${pendingInvoice.invoiceId}</span>
+            <div style="font-weight:900; font-size:1.15rem; color:#0F172A; margin-top:2px;">${pendingInvoice.package.name}</div>
+            <div style="font-size:0.85rem; color:#475569;">Customer: <strong>${pendingInvoice.customerName}</strong> (${pendingInvoice.customerPhone})</div>
+            <div style="font-size:0.82rem; color:#64748B;">Agency: ${pendingInvoice.agencyName || 'Estate Agency'}</div>
+          </div>
+
+          <div style="text-align:right;">
+            <div style="font-size:1.3rem; font-weight:900; color:#064E3B;">PKR ${(pendingInvoice.package.price || 24999).toLocaleString()}</div>
+            <span class="badge" style="background:#FEF3C7; color:#D97706; border:1px solid #FCD34D; font-size:0.75rem; font-weight:800; padding:4px 10px; border-radius:12px; margin-top:4px; display:inline-block;">
+              ⏳ PENDING VERIFICATION
+            </span>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+          <div style="font-size:0.85rem; color:#047857; font-weight:700;">
+            💳 Payment Destination: <strong>Nayapay (+923297543852) - Umair Arshad</strong>
+          </div>
+          
+          <button type="button" id="btn-admin-activate-package" class="btn" style="background:#059669; color:#FFFFFF; font-weight:900; font-size:0.92rem; padding:10px 20px; border-radius:10px; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 4px 12px rgba(5,150,105,0.3);">
+            ${renderIcon('check-circle', 18)} ✅ Verify & Activate Package
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div class="profolio-card">
       <div class="profolio-card-header">
         <h3 class="profolio-card-title">Platform Property Approvals Queue</h3>
@@ -813,6 +960,7 @@ function renderProFolioSettingsView(user, state = {}) {
 }
 
 function renderProFolioMegaProjectsStudio(user, state) {
+  const isUnlocked = hasFeatureAccess(user, 'mega-projects');
   const megaProjects = state.megaProjects || [
     {
       id: 'mp-1',
@@ -853,13 +1001,14 @@ function renderProFolioMegaProjectsStudio(user, state) {
   ];
 
   return `
-    <div class="profolio-card">
+    ${!isUnlocked ? renderFeatureLockOverlay('Mega Projects Studio', 'Pro Gold Agency') : ''}
+    <div class="profolio-card" style="${!isUnlocked ? 'opacity: 0.6; pointer-events: none; filter: grayscale(0.2);' : ''}">
       <div class="profolio-card-header">
         <div>
           <h3 class="profolio-card-title">Mega Projects Studio</h3>
           <p style="font-size:0.82rem; color:#64748B; margin-top:4px;">Manage developer megaprojects, commercial towers, housing societies, and payment plans.</p>
         </div>
-        <button type="button" class="profolio-btn-post" id="add-mega-project-modal-btn">
+        <button type="button" class="profolio-btn-post" id="add-mega-project-modal-btn" ${!isUnlocked ? 'disabled' : ''}>
           ${renderIcon('plus-circle', 16, '#FFF')} + Create Mega Project
         </button>
       </div>
@@ -1062,3 +1211,129 @@ function renderProFolioSubscriptionsManager(user, properties) {
     </div>
   `;
 }
+
+function renderProFolioInvoicesManager(state, user) {
+  const activeInvoice = state.generatedInvoice || {
+    invoiceId: 'INV-2026-89124',
+    date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+    dueDate: new Date(Date.now() + 86400000 * 3).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+    customerName: user?.name || 'Valued Advertiser',
+    customerPhone: user?.phone || '+923297543852',
+    customerEmail: user?.email || 'advertiser@sarmayadar.com',
+    agencyName: user?.agencyName || 'Verified Agency',
+    package: {
+      name: 'Pro Gold Agency Package',
+      price: 24999,
+      period: 'Per Month'
+    }
+  };
+
+  return `
+    <div class="profolio-card">
+      <div class="profolio-card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+        <div>
+          <h3 class="profolio-card-title">💳 My Invoices & Payment Center</h3>
+          <p style="font-size:0.85rem; color:#64748B; margin-top:4px;">
+            Pay pending advertising invoices, copy official Nayapay bank transfer details, and activate package subscriptions.
+          </p>
+        </div>
+
+        <a href="#advertise" data-nav="advertise" class="btn btn-sm" style="background:#F59E0B; color:#0F172A; font-weight:800; padding:8px 16px; border-radius:10px; text-decoration:none;">
+          + Buy New Advertising Package
+        </a>
+      </div>
+
+      <!-- HIGH VISIBILITY BANK TRANSFER CARD -->
+      <div style="background:linear-gradient(135deg, #ECFDF5, #D1FAE5); border:2px solid #059669; border-radius:16px; padding:1.5rem; margin-bottom:1.5rem;">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:1.5rem;">🏦</span>
+            <h4 style="font-size:1.1rem; font-weight:900; color:#064E3B; margin:0;">
+              Official Nayapay Bank Transfer Details
+            </h4>
+          </div>
+          <span style="background:#064E3B; color:#FFFFFF; font-size:0.75rem; font-weight:800; padding:4px 10px; border-radius:20px;">
+            VERIFIED PAYMENT DESTINATION
+          </span>
+        </div>
+
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; background:#FFFFFF; padding:1rem 1.25rem; border-radius:12px; border:1px solid #A7F3D0;">
+          <div>
+            <div style="font-size:0.72rem; font-weight:800; color:#64748B; text-transform:uppercase;">Bank / Mobile Wallet</div>
+            <div style="font-size:1.1rem; font-weight:900; color:#0F172A;">Nayapay</div>
+          </div>
+          <div>
+            <div style="font-size:0.72rem; font-weight:800; color:#64748B; text-transform:uppercase;">Account Title</div>
+            <div style="font-size:1.1rem; font-weight:900; color:#0F172A;">Umair Arshad</div>
+          </div>
+          <div>
+            <div style="font-size:0.72rem; font-weight:800; color:#64748B; text-transform:uppercase;">Account / Mobile No</div>
+            <div style="font-size:1.2rem; font-weight:900; color:#059669; font-family:monospace;">+923297543852</div>
+          </div>
+        </div>
+
+        <div style="margin-top:1rem; display:flex; gap:10px;">
+          <button type="button" id="btn-copy-bank-details" class="btn" style="background:#059669; color:#FFFFFF; font-weight:800; font-size:0.85rem; padding:8px 16px; border-radius:8px; border:none; cursor:pointer;">
+            ${renderIcon('copy', 15)} 📋 Copy Account Number (+923297543852)
+          </button>
+        </div>
+      </div>
+
+      <!-- INVOICES TABLE -->
+      <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:16px; overflow:hidden;">
+        <div style="padding:1rem 1.25rem; background:#F8FAFC; border-bottom:1px solid #E2E8F0; font-weight:800; color:#0F172A; font-size:0.95rem;">
+          Recent Invoices (${state.generatedInvoice ? 1 : 1})
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table style="width:100%; border-collapse:collapse; text-align:left;">
+            <thead>
+              <tr style="background:#F1F5F9; font-size:0.78rem; text-transform:uppercase; color:#475569;">
+                <th style="padding:12px 16px;">Invoice ID</th>
+                <th style="padding:12px 16px;">Package Description</th>
+                <th style="padding:12px 16px;">Issue Date</th>
+                <th style="padding:12px 16px;">Amount</th>
+                <th style="padding:12px 16px;">Status</th>
+                <th style="padding:12px 16px; text-align:right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid #F1F5F9;">
+                <td style="padding:16px; font-weight:900; font-family:monospace; color:#059669;">
+                  ${activeInvoice.invoiceId}
+                </td>
+                <td style="padding:16px;">
+                  <div style="font-weight:800; color:#0F172A;">${activeInvoice.package.name}</div>
+                  <div style="font-size:0.78rem; color:#64748B;">${activeInvoice.package.period || 'Per Month'} Advertising Subscription</div>
+                </td>
+                <td style="padding:16px; font-size:0.88rem; font-weight:700; color:#475569;">
+                  ${activeInvoice.date}
+                </td>
+                <td style="padding:16px; font-weight:900; color:#064E3B; font-size:1.05rem;">
+                  PKR ${activeInvoice.package.price.toLocaleString()}
+                </td>
+                <td style="padding:16px;">
+                  <span class="badge" style="background:#FEF3C7; color:#D97706; border:1px solid #FCD34D; font-size:0.75rem; font-weight:800; padding:4px 10px; border-radius:12px;">
+                    ⏳ PENDING PAYMENT
+                  </span>
+                </td>
+                <td style="padding:16px; text-align:right;">
+                  <div style="display:flex; justify-content:flex-end; gap:6px;">
+                    <a href="#advertise-invoice" data-nav="advertise-invoice" class="btn btn-sm" style="background:#064E3B; color:#FFFFFF; font-weight:800; padding:6px 12px; border-radius:8px; text-decoration:none; font-size:0.8rem;">
+                      🚀 Pay / View Invoice
+                    </a>
+                    <button type="button" id="btn-confirm-whatsapp-payment" class="btn btn-sm" style="background:#25D366; color:#FFFFFF; font-weight:800; padding:6px 12px; border-radius:8px; border:none; cursor:pointer; font-size:0.8rem;">
+                      💬 WhatsApp
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  `;
+}
+

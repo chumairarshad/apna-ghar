@@ -227,8 +227,10 @@ header.site-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 0;
-  gap: 0.5rem;
+  padding: 10px 0;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 100%;
 }
 
 /* Brand Logo */
@@ -249,7 +251,7 @@ header.site-header {
 .logo-word {
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   color: var(--forest-dk);
   line-height: 1;
   letter-spacing: -0.02em;
@@ -280,7 +282,7 @@ header.site-header {
 
 .main-nav ul {
   display: flex;
-  gap: 2.2rem;
+  gap: clamp(1.2rem, 2.2vw, 3rem);
   align-items: center;
   justify-content: center;
   list-style: none;
@@ -318,6 +320,42 @@ header.site-header {
   height: 3px;
   background: var(--forest);
   border-radius: 4px;
+}
+
+/* Highlighted Advertise Link Styling */
+.main-nav a.nav-advertise-highlight {
+  color: #D97706 !important;
+  background: #FEF3C7;
+  border: 1px solid #FCD34D;
+  padding: 5px 12px !important;
+  border-radius: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
+  transition: all 0.25s ease;
+}
+
+.main-nav a.nav-advertise-highlight:hover {
+  background: #FDE68A;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+}
+
+.main-nav .nav-adv-badge {
+  font-size: 0.65rem;
+  background: #F59E0B;
+  color: #FFFFFF;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  animation: pulseBadge 2s infinite ease-in-out;
+}
+
+@keyframes pulseBadge {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.08); opacity: 0.9; }
 }
 
 .dealer-nav-badge {
