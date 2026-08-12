@@ -317,6 +317,8 @@ const ARTICLES_DB = [
   }
 ];
 
+window.renderApp = renderApp;
+
 // Initialize Application
 async function initApp() {
   try {

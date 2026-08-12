@@ -257,6 +257,10 @@ router.delete('/dealer/properties/:id', authenticateToken, requireRole('DEALER',
     return res.json({ success: true, message: 'Property deleted successfully.' });
   } catch (error) {
     console.error('Delete property error:', error);
+    return res.status(500).json({ success: false, message: 'Error deleting property.' });
+  }
+});
+
 // 6. PUBLIC / USER: Delete Property Listing
 router.delete('/:id', async (req, res) => {
   try {
