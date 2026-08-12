@@ -518,6 +518,18 @@ function renderApp() {
       `;
     }
 
+    if (!mainContentHTML) {
+      state.activeTab = 'buy';
+      mainContentHTML = `
+        ${renderHeroSearch(state)}
+        ${renderFeaturedBannersSection()}
+        ${renderCatalog(filteredProperties, state)}
+        ${renderOverseasPortal()}
+        ${renderPriceTrendsSection()}
+        ${renderNewsSection()}
+      `;
+    }
+
     const shouldRenderSplash = state.showSplash;
     if (state.showSplash) {
       state.showSplash = false;
