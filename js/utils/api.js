@@ -40,7 +40,8 @@ function mapDbPropertyToFrontend(p) {
 // Fetch properties from Neon PostgreSQL database
 export async function fetchPropertiesFromApi() {
   try {
-    const res = await fetch('/api/properties');
+    const apiUrl = (typeof window !== 'undefined') ? '/api/properties' : 'http://localhost:5000/api/properties';
+    const res = await fetch(apiUrl);
     if (!res.ok) return null;
     const data = await res.json();
     if (data.success && Array.isArray(data.properties) && data.properties.length > 0) {
