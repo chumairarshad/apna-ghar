@@ -88,7 +88,6 @@ export function renderFooter() {
             <a href="#" id="footer-privacy-btn" style="color:var(--cream); opacity:0.9; font-weight:700;">Privacy Policy</a>
             <a href="#" id="footer-terms-btn" style="color:var(--cream); opacity:0.9; font-weight:700;">Terms of Service</a>
             <a href="#" id="footer-tax-guide-btn" style="color:var(--cream); opacity:0.9;">FBR Tax Guide</a>
-            <a href="#admin-login" id="footer-admin-btn" style="color:var(--marigold); opacity:0.95; font-weight:800;">🛡️ ${t('nav_admin', 'Admin Portal')}</a>
           </div>
         </div>
       </div>

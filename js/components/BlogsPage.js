@@ -59,11 +59,7 @@ export function renderBlogsPage(state) {
               <button type="button" id="go-to-admin-blogs-btn" class="btn btn-primary" style="background: var(--marigold); color: var(--ink); font-weight: 800; border: none; padding: 11px 22px; border-radius: 8px; box-shadow: var(--shadow-md); font-size: 0.95rem; cursor: pointer;">
                 ✍️ Open Admin Blog Writer Studio (+ Write New Article) →
               </button>
-            ` : `
-              <button type="button" id="open-admin-login-for-blog-btn" class="btn btn-secondary" style="background: rgba(255,255,255,0.15); color: var(--paper); font-weight: 700; border: 1.5px solid var(--marigold); padding: 10px 20px; border-radius: 8px; backdrop-filter: blur(4px); font-size: 0.88rem; cursor: pointer;">
-                ${renderIcon('shield-check', 16, 'var(--marigold)')} Admin Login to Write & Publish Articles →
-              </button>
-            `}
+            ` : ''}
           </div>
         </div>
 

@@ -95,12 +95,9 @@ export function renderDealerLoginPage(state) {
             </form>
           `}
 
-          <div style="margin-top: 1.75rem; pt-3; border-top: 1px solid #E2E8F0; text-align: center; display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem;">
+          <div style="margin-top: 1.75rem; pt-3; border-top: 1px solid #E2E8F0; text-align: center; font-size: 0.82rem;">
             <a href="#register" style="color: #059669; font-weight: 700; text-decoration: none;">
               Register New Agency →
-            </a>
-            <a href="#admin-login" style="color: #64748B; font-weight: 700; text-decoration: none;">
-              🛡️ Admin Access
             </a>
           </div>
         </div>
