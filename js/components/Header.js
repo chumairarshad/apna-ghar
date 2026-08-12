@@ -68,7 +68,6 @@ export function renderHeader(state, onStateChange) {
               <li><a href="/buy" class="${activeTab === 'buy' ? 'active' : ''}" data-nav="buy">${t('nav_sale', 'Properties for Sale')}</a></li>
               <li><a href="/rent" class="${activeTab === 'rent' ? 'active' : ''}" data-nav="rent">${t('nav_rent', 'Rental Properties')}</a></li>
               <li><a href="/projects" class="${activeTab === 'projects' ? 'active' : ''}" data-nav="projects">${t('nav_projects', 'Housing Megaprojects')}</a></li>
-              <li><a href="/featured" class="${activeTab === 'featured' ? 'active' : ''}" data-nav="featured" style="color:#059669; font-weight:800;">⭐ Featured Ads</a></li>
               <li>
                 <a href="/advertise" class="nav-advertise-highlight ${activeTab === 'advertise' ? 'active' : ''}" data-nav="advertise" title="Promote Your Listings & Agencies">
                   ${t('nav_advertise', '📢 Advertise')} <span class="nav-adv-badge">HOT 🔥</span>
@@ -191,9 +190,6 @@ export function renderHeader(state, onStateChange) {
           </a>
           <a href="/projects" class="${activeTab === 'projects' ? 'active' : ''}" data-nav="projects">
             ${renderIcon('building-2', 16)} <span>${t('nav_projects', 'Housing Megaprojects')}</span>
-          </a>
-          <a href="/featured" class="${activeTab === 'featured' ? 'active' : ''}" data-nav="featured" style="color:#059669 !important; font-weight:800;">
-            ${renderIcon('sparkles', 16, '#059669')} <span>⭐ Featured Ads & Spotlights</span>
           </a>
 
           <div class="mobile-nav-group-title" style="font-size:0.72rem; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; color:#64748B; padding:10px 0 2px;">
