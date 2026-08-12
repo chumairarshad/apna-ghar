@@ -2518,7 +2518,14 @@ function setupEventListeners() {
                   agencyName: nameInput
                 })
               });
-              const data = await res.json().catch(() => null);
+
+              let data = null;
+              try {
+                data = await res.json();
+              } catch (e) {
+                const rawText = await res.text().catch(() => '');
+                data = { success: false, message: rawText || `Server returned status ${res.status}` };
+              }
 
               if (res.ok && data && data.success && data.user) {
                 saveStoredUser({
@@ -2556,7 +2563,7 @@ function setupEventListeners() {
                   renderApp();
                 }
               } else if (data && data.message) {
-                if (data.message.toLowerCase().includes('already exists')) {
+                if (typeof data.message === 'string' && data.message.toLowerCase().includes('already exists')) {
                   showToast(`⚠️ Account already exists for ${emailInput}! Switching to Sign In...`);
                   state.authMode = 'login';
                   state.authIsRegister = false;
@@ -2567,11 +2574,11 @@ function setupEventListeners() {
                   showToast(`❌ Registration Failed: ${data.message}`);
                 }
               } else {
-                showToast('❌ Database Error: Registration failed to persist account in database. Please check your network and try again.');
+                showToast(`❌ Database Error (${res.status}): Registration failed. Please check network/server logs.`);
               }
             } catch (err) {
               console.error('Register fetch error:', err);
-              showToast('❌ Server Connection Error: Failed to reach Sarmayadar database. Registration aborted.');
+              showToast(`❌ Connection Error: ${err.message || 'Could not connect to server'}`);
             } finally {
               state.isAuthSubmitting = false;
             }
@@ -2588,7 +2595,13 @@ function setupEventListeners() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: emailInput, password: passwordInput, role: role })
               });
-              apiData = await res.json().catch(() => null);
+
+              try {
+                apiData = await res.json();
+              } catch (e) {
+                const rawText = await res.text().catch(() => '');
+                apiData = { success: false, message: rawText || `Server returned status ${res.status}` };
+              }
 
               if (res.ok && apiData && apiData.success && apiData.user && apiData.token) {
                 const userObj = {
@@ -2617,12 +2630,12 @@ function setupEventListeners() {
                 showToast(`❌ ${apiData.message}`);
                 return;
               } else {
-                showToast('❌ Login Failed: Could not authenticate with database.');
+                showToast(`❌ Login Failed (${res.status}): Could not authenticate with database.`);
                 return;
               }
             } catch (err) {
               console.error('Login fetch error:', err);
-              showToast('❌ Server Connection Error: Could not reach authentication database.');
+              showToast(`❌ Connection Error: ${err.message || 'Could not connect to server'}`);
             } finally {
               state.isAuthSubmitting = false;
             }
