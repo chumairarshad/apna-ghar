@@ -44,8 +44,15 @@ export function renderAdminLoginPage(state) {
             </div>
           ` : `
             <form id="admin-page-login-form">
-              <div style="background: #ECFDF5; border-left: 4px solid #059669; padding: 0.85rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.85rem; color: #064E3B; line-height: 1.5;">
+              <div style="background: #ECFDF5; border-left: 4px solid #059669; padding: 0.85rem 1rem; border-radius: 8px; margin-bottom: 1.25rem; font-size: 0.85rem; color: #064E3B; line-height: 1.5;">
                 🔒 Please enter your registered <strong>System Administrator</strong> email address and security password to manage dealers, verify listings, and access CRM controls.
+              </div>
+
+              <!-- Quick Auto-Fill Demo Credentials -->
+              <div style="margin-bottom:1.25rem; text-align:center;">
+                <button type="button" id="btn-fill-admin-creds" style="background:#ECFDF5; border:1.5px dashed #059669; color:#064E3B; padding:8px 16px; border-radius:10px; font-weight:800; font-size:0.82rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 6px rgba(5,150,105,0.15);">
+                  🔑 Auto-fill Admin Credentials
+                </button>
               </div>
 
               <div class="form-group" style="margin-bottom: 1.25rem;">
