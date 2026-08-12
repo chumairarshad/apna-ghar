@@ -74,18 +74,24 @@ export function saveOrUpdatePropertyInStorage(property) {
   }
 }
 
-export function getEffectiveProperties(initialProperties) {
-  const deletedIds = getDeletedPropertyIds();
-  const custom = getCustomProperties();
-  const modifiedMap = getModifiedPropertiesMap();
+export function getEffectiveProperties(initialProperties = []) {
+  try {
+    const list = Array.isArray(initialProperties) ? initialProperties : [];
+    const deletedIds = getDeletedPropertyIds();
+    const custom = getCustomProperties();
+    const modifiedMap = getModifiedPropertiesMap();
 
-  const effectiveInitial = initialProperties
-    .filter(p => !deletedIds.includes(p.id))
-    .map(p => modifiedMap[p.id] ? { ...p, ...modifiedMap[p.id] } : p);
+    const effectiveInitial = list
+      .filter(p => p && !deletedIds.includes(p.id))
+      .map(p => (modifiedMap && modifiedMap[p.id]) ? { ...p, ...modifiedMap[p.id] } : p);
 
-  const effectiveCustom = custom.filter(p => !deletedIds.includes(p.id));
+    const effectiveCustom = (Array.isArray(custom) ? custom : []).filter(p => p && !deletedIds.includes(p.id));
 
-  return [...effectiveCustom, ...effectiveInitial];
+    return [...effectiveCustom, ...effectiveInitial];
+  } catch (e) {
+    console.warn('getEffectiveProperties notice:', e);
+    return Array.isArray(initialProperties) ? initialProperties : [];
+  }
 }
 
 export function getCustomProperties() {

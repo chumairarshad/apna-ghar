@@ -318,52 +318,63 @@ const ARTICLES_DB = [
 
 // Initialize Application
 async function initApp() {
-  state.properties = getEffectiveProperties(INITIAL_PROPERTIES);
+  try {
+    state.properties = getEffectiveProperties(INITIAL_PROPERTIES);
+  } catch (e) {
+    console.warn('Properties load notice:', e);
+    state.properties = INITIAL_PROPERTIES || [];
+  }
 
   // Initialize Blogs DB from LocalStorage or seed default articles
-  const savedBlogs = localStorage.getItem('Sarmayadar_blogs_db');
-  if (savedBlogs) {
-    try {
+  try {
+    const savedBlogs = localStorage.getItem('Sarmayadar_blogs_db');
+    if (savedBlogs) {
       const parsed = JSON.parse(savedBlogs);
       state.blogsList = (Array.isArray(parsed) && parsed.length > 0) ? parsed : ARTICLES_DB;
-    } catch (e) {
+    } else {
       state.blogsList = ARTICLES_DB;
+      localStorage.setItem('Sarmayadar_blogs_db', JSON.stringify(ARTICLES_DB));
     }
-  } else {
+  } catch (e) {
     state.blogsList = ARTICLES_DB;
-    localStorage.setItem('Sarmayadar_blogs_db', JSON.stringify(ARTICLES_DB));
   }
 
   // Persistent User Login Session (Never auto-log out user)
-  const savedTokenStr = localStorage.getItem('Sarmayadar_jwt_token');
-
-  if (savedTokenStr) {
-    try {
+  try {
+    const savedTokenStr = localStorage.getItem('Sarmayadar_jwt_token');
+    if (savedTokenStr) {
       const tokenObj = JSON.parse(savedTokenStr);
       state.user = tokenObj;
-    } catch (e) {
-      localStorage.removeItem('Sarmayadar_jwt_token');
+    } else {
       state.user = null;
     }
-  } else {
+  } catch (e) {
     state.user = null;
   }
 
   // Ensure activeTab is persisted in LocalStorage & URL Hash
-  setActiveTab(state.activeTab);
+  try {
+    setActiveTab(state.activeTab);
+  } catch (e) {}
 
   // Hashchange listener for browser back/forward and URL navigation
   window.addEventListener('hashchange', () => {
-    const hash = window.location.hash.replace('#', '').toLowerCase();
-    const validTabs = ['buy', 'rent', 'projects', 'featured', 'tools', 'agents', 'blogs', 'advertise', 'advertise-checkout', 'advertise-invoice', 'dealer', 'admin', 'property-detail', 'post-property', 'blog-detail', 'privacy', 'terms', 'fbr-tax-guide', 'compare', 'login', 'register'];
-    if (validTabs.includes(hash) && state.activeTab !== hash) {
-      setActiveTab(hash);
-      renderApp();
-    }
+    try {
+      const hash = window.location.hash.replace('#', '').toLowerCase();
+      const validTabs = ['buy', 'rent', 'projects', 'featured', 'tools', 'agents', 'blogs', 'advertise', 'advertise-checkout', 'advertise-invoice', 'dealer', 'admin', 'property-detail', 'post-property', 'blog-detail', 'privacy', 'terms', 'fbr-tax-guide', 'compare', 'login', 'register'];
+      if (validTabs.includes(hash) && state.activeTab !== hash) {
+        setActiveTab(hash);
+        renderApp();
+      }
+    } catch (err) {}
   });
 
-  renderApp();
-  setupEventListeners();
+  try {
+    renderApp();
+    setupEventListeners();
+  } catch (err) {
+    console.error('Fatal renderApp error:', err);
+  }
 
   // Trigger Bismillah Preloader progress and smooth fade out
   triggerSplashAnimation();
