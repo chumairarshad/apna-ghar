@@ -133,3 +133,16 @@ export async function uploadMultipleImages(base64Array = []) {
   return await Promise.all(uploadPromises);
 }
 
+// Delete property from Neon PostgreSQL Database
+export async function deletePropertyFromApi(id) {
+  try {
+    const res = await fetch(`/api/properties/${id}`, {
+      method: 'DELETE'
+    });
+    return res.ok;
+  } catch (e) {
+    console.warn('API property delete notice:', e.message);
+    return false;
+  }
+}
+

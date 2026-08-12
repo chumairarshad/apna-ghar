@@ -257,6 +257,14 @@ router.delete('/dealer/properties/:id', authenticateToken, requireRole('DEALER',
     return res.json({ success: true, message: 'Property deleted successfully.' });
   } catch (error) {
     console.error('Delete property error:', error);
+// 6. PUBLIC / USER: Delete Property Listing
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.query('DELETE FROM properties WHERE id = $1', [id]);
+    return res.json({ success: true, message: 'Property deleted successfully.' });
+  } catch (error) {
+    console.error('Delete property error in Neon DB:', error);
     return res.status(500).json({ success: false, message: 'Error deleting property.' });
   }
 });

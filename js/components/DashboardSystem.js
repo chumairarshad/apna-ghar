@@ -619,8 +619,9 @@ function renderProFolioListingsManager(properties, user, state) {
                 <td style="padding:12px; font-weight:700;">${p.purpose}</td>
                 <td style="padding:12px; font-weight:800; color:#059669;">${formatPKR(p.price)}</td>
                 <td style="padding:12px;"><span class="badge" style="background:#ECFDF5; color:#059669; font-weight:800;">ACTIVE</span></td>
-                <td style="padding:12px; text-align:right;">
-                  <button class="btn btn-sm dash-view-prop-btn" data-id="${p.id}" style="background:#059669; color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer;">View Page</button>
+                <td style="padding:12px; text-align:right; white-space:nowrap;">
+                  <button class="btn btn-sm dash-view-prop-btn" data-id="${p.id}" style="background:#059669; color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; margin-right:6px;">View Page</button>
+                  <button class="btn btn-sm delete-property-btn" data-id="${p.id}" style="background:#EF4444; color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:700;">🗑️ Delete</button>
                 </td>
               </tr>
             `).join('')}

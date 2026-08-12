@@ -3,7 +3,7 @@ import { INITIAL_AGENTS } from './data/agents.js';
 import { getFavorites, toggleFavorite, getCustomProperties, saveCustomProperty, saveOrUpdatePropertyInStorage, deletePropertyFromStorage, getEffectiveProperties, getDealerLeads, saveDealerLeads, saveAgencyProfile, getDealersFromStorage, saveDealersToStorage } from './utils/storage.js';
 import { convertArea, calculateMortgage, formatPKR } from './utils/formatters.js';
 import { normalizeProperty, normalizeProperties } from './utils/normalizeProperty.js';
-import { fetchPropertiesFromApi, savePropertyToApi, uploadImageToFreeCdn } from './utils/api.js';
+import { fetchPropertiesFromApi, savePropertyToApi, deletePropertyFromApi, uploadImageToFreeCdn } from './utils/api.js';
 import { addWatermarkToImage } from './utils/watermark.js';
 import { initI18n, setLanguage, t } from './utils/i18n.js';
 
@@ -1284,9 +1284,40 @@ function setupEventListeners() {
       }
     }
 
+    // Delete Property Handler
+    const deletePropBtn = e.target.closest('.delete-property-btn, #delete-property-btn');
+    if (deletePropBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      const id = deletePropBtn.getAttribute('data-id');
+      if (!id) return;
+
+      const propObj = (state.properties || []).find(p => String(p.id) === String(id));
+      const propTitle = propObj ? propObj.title : 'this property listing';
+
+      if (confirm(`Are you sure you want to delete "${propTitle}" permanently? This action cannot be undone.`)) {
+        showToast('⏳ Deleting property listing...');
+        deletePropertyFromStorage(id);
+        deletePropertyFromApi(id).catch(() => null);
+
+        state.properties = (state.properties || []).filter(p => String(p.id) !== String(id));
+        if (String(state.selectedPropertyId) === String(id) || String(state.selectedProperty?.id) === String(id)) {
+          state.selectedPropertyId = null;
+          state.selectedProperty = null;
+          state.activeTab = 'buy';
+          if (window.location.hash !== '#buy') history.replaceState(null, '', '#buy');
+        }
+
+        showToast('🗑️ Property listing deleted successfully!');
+        renderApp();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      return;
+    }
+
     // Property Details Trigger -> Navigates to Dedicated Property Detail Page (/property/:id)
     const detailBtn = e.target.closest('.view-details-btn, .popup-view-btn, .property-card, .view-prop-detail-btn, .chat-view-prop-btn');
-    if (detailBtn && !e.target.closest('.fav-btn') && !e.target.closest('.save-btn') && !e.target.closest('.btn-whatsapp')) {
+    if (detailBtn && !e.target.closest('.fav-btn') && !e.target.closest('.save-btn') && !e.target.closest('.btn-whatsapp') && !e.target.closest('.delete-property-btn')) {
       const id = detailBtn.getAttribute('data-id');
       const target = (state.properties || []).find(p => String(p.id) === String(id));
       if (target) {
