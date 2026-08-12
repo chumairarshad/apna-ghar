@@ -25,7 +25,8 @@ router.post(['/', '/Register', '/register', '/signup', '/api/auth/Register', '/a
       return res.status(400).json(errRes);
     }
 
-    const targetRole = ['USER', 'DEALER', 'ADMIN'].includes(String(role).toUpperCase()) ? String(role).toUpperCase() : 'USER';
+    // PUBLIC REGISTRATION SECURITY RULE: Never allow public registration to create ADMIN accounts!
+    const targetRole = String(role).toUpperCase() === 'USER' ? 'USER' : 'DEALER';
     const normalizedEmail = String(email).toLowerCase().trim();
 
     // Check if email exists
@@ -141,6 +142,15 @@ router.post(['/login', '/api/auth/login'], async (req, res) => {
     }
 
     const user = result.rows[0];
+
+    // Enforce Backend Account Status / Suspension Check
+    if (user.is_suspended || user.status === 'suspended' || user.status === 'disabled') {
+      console.warn(`[LOGIN SUSPENDED] Account is suspended: ${normalizedEmail}`);
+      return res.status(403).json({
+        success: false,
+        message: 'Your account has been suspended by system administrator. Please contact support.'
+      });
+    }
 
     // Verify Role match if provided (only enforce for ADMIN)
     if (req.body.role && user.role === 'ADMIN' && req.body.role.toUpperCase() !== 'ADMIN') {

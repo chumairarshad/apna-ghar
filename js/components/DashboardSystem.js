@@ -221,9 +221,9 @@ function renderRoleTabContent(activeTab, properties, state, user, data) {
     case 'invoices':
       return renderProFolioInvoicesManager(state, user);
     case 'users':
-      return renderProFolioUsersManager(data.users);
+      return renderProFolioUsersManager(state.adminUsersList || data.users, state);
     case 'dealers':
-      return renderProFolioDealersManager();
+      return renderProFolioDealersManager(state.adminDealersList || [], state);
     case 'approvals':
       return renderProFolioApprovalsQueue(properties);
     case 'profile':
@@ -728,32 +728,87 @@ function renderProFolioInquiriesInbox(leads) {
   `;
 }
 
-function renderProFolioUsersManager(users) {
+function renderProFolioUsersManager(users = [], state = {}) {
+  const userList = Array.isArray(users) ? users : [];
+
   return `
     <div class="profolio-card">
-      <div class="profolio-card-header">
-        <h3 class="profolio-card-title">Master User Accounts Manager</h3>
+      <div class="profolio-card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+        <div>
+          <h3 class="profolio-card-title" style="display:flex; align-items:center; gap:8px;">
+            <span>👥</span> Master User Accounts Manager
+          </h3>
+          <p style="font-size:0.85rem; color:#64748B; margin-top:2px;">
+            View all platform users, grant/revoke roles, create new accounts, or suspend user access.
+          </p>
+        </div>
+        
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+          <button type="button" class="btn btn-primary" id="open-admin-add-user-modal-btn" style="background:#059669; border:none; padding:8px 16px; border-radius:8px; font-weight:800; font-size:0.85rem; color:#ffffff; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+            ${renderIcon('plus-circle', 16, '#ffffff')} Add User / Dealer
+          </button>
+          <button type="button" class="btn btn-secondary" id="open-admin-create-admin-modal-btn" style="background:#0F172A; border:none; padding:8px 16px; border-radius:8px; font-weight:800; font-size:0.85rem; color:#ffffff; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+            ${renderIcon('shield-check', 16, '#F59E0B')} Create Admin
+          </button>
+        </div>
       </div>
 
-      <div class="profolio-table-wrapper" style="overflow-x:auto; -webkit-overflow-scrolling:touch; width:100%; border-radius:10px; border:1px solid #E2E8F0;">
-        <table class="profolio-table" style="width:100%; min-width:520px; border-collapse:collapse; text-align:left; font-size:0.85rem;">
+      <div class="profolio-table-wrapper" style="overflow-x:auto; -webkit-overflow-scrolling:touch; width:100%; border-radius:10px; border:1px solid #E2E8F0; margin-top:1rem;">
+        <table class="profolio-table" style="width:100%; min-width:680px; border-collapse:collapse; text-align:left; font-size:0.85rem;">
           <thead>
             <tr style="background:#F8FAFC; border-bottom:2px solid #E2E8F0; color:#64748B;">
-              <th style="padding:10px;">User Name</th>
-              <th style="padding:10px;">Email</th>
-              <th style="padding:10px;">Role</th>
-              <th style="padding:10px;">Status</th>
+              <th style="padding:12px;">User Details</th>
+              <th style="padding:12px;">Contact Info</th>
+              <th style="padding:12px;">Role</th>
+              <th style="padding:12px;">Account Status</th>
+              <th style="padding:12px;">Joined Date</th>
+              <th style="padding:12px; text-align:right;">Actions</th>
             </tr>
           </thead>
           <tbody>
-            ${users.map(u => `
-              <tr style="border-bottom:1px solid #E2E8F0;">
-                <td style="padding:10px; font-weight:700;">${u.name}</td>
-                <td style="padding:10px; color:#64748B;">${u.email}</td>
-                <td style="padding:10px;"><span class="badge" style="background:#059669; color:#fff;">${u.role}</span></td>
-                <td style="padding:10px; color:#059669; font-weight:800;">Active</td>
+            ${userList.length === 0 ? `
+              <tr>
+                <td colspan="6" style="padding:2rem; text-align:center; color:#64748B;">
+                  No accounts found in database.
+                </td>
               </tr>
-            `).join('')}
+            ` : userList.map(u => {
+              const uName = u.full_name || u.name || 'User Account';
+              const isSusp = u.is_suspended || u.status === 'suspended' || u.status === 'disabled';
+              return `
+                <tr style="border-bottom:1px solid #E2E8F0; background:${isSusp ? '#FEF2F2' : '#FFFFFF'};">
+                  <td style="padding:12px;">
+                    <div style="font-weight:800; color:#0F172A;">${uName}</div>
+                    <div style="font-size:0.75rem; color:#64748B;">Agency: ${u.agency_name || u.agencyName || 'Individual'}</div>
+                  </td>
+                  <td style="padding:12px; color:#475569;">
+                    <div>${u.email}</div>
+                    <div style="font-size:0.75rem; color:#059669; font-weight:700;">${u.phone || 'N/A'}</div>
+                  </td>
+                  <td style="padding:12px;">
+                    <span class="badge" style="background:${u.role === 'ADMIN' ? '#EF4444' : u.role === 'DEALER' ? '#059669' : '#3B82F6'}; color:#ffffff; font-size:0.72rem; font-weight:800; padding:4px 8px; border-radius:6px;">
+                      ${u.role}
+                    </span>
+                  </td>
+                  <td style="padding:12px;">
+                    <span class="badge" style="background:${isSusp ? '#FEE2E2' : '#D1FAE5'}; color:${isSusp ? '#991B1B' : '#065F46'}; font-size:0.72rem; font-weight:800; padding:4px 8px; border-radius:6px;">
+                      ${isSusp ? '🚫 SUSPENDED' : '🟢 ACTIVE'}
+                    </span>
+                  </td>
+                  <td style="padding:12px; color:#64748B; font-size:0.78rem;">
+                    ${u.created_at ? new Date(u.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '2026'}
+                  </td>
+                  <td style="padding:12px; text-align:right; white-space:nowrap;">
+                    <button class="btn btn-sm btn-admin-toggle-status" data-id="${u.id}" data-current="${isSusp ? 'suspended' : 'active'}" style="background:${isSusp ? '#059669' : '#D97706'}; color:#ffffff; border:none; padding:6px 12px; border-radius:6px; font-weight:800; cursor:pointer; margin-right:6px;">
+                      ${isSusp ? '✅ Activate' : '🚫 Suspend'}
+                    </button>
+                    <button class="btn btn-sm btn-admin-delete-user" data-id="${u.id}" data-name="${uName}" style="background:#EF4444; color:#ffffff; border:none; padding:6px 10px; border-radius:6px; font-weight:800; cursor:pointer;">
+                      🗑️ Delete
+                    </button>
+                  </td>
+                </tr>
+              `;
+            }).join('')}
           </tbody>
         </table>
       </div>
@@ -761,13 +816,88 @@ function renderProFolioUsersManager(users) {
   `;
 }
 
-function renderProFolioDealersManager() {
+function renderProFolioDealersManager(dealers = [], state = {}) {
+  const dealerList = Array.isArray(dealers) ? dealers : [];
+
   return `
     <div class="profolio-card">
-      <div class="profolio-card-header">
-        <h3 class="profolio-card-title">Verified Dealers & Agency Directory</h3>
+      <div class="profolio-card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+        <div>
+          <h3 class="profolio-card-title" style="display:flex; align-items:center; gap:8px;">
+            <span>🛡️</span> Verified Dealers & Agency Directory
+          </h3>
+          <p style="font-size:0.85rem; color:#64748B; margin-top:2px;">
+            Manage agency accounts, verify dealer credentials, assign subscription tiers, and control listing quotas.
+          </p>
+        </div>
       </div>
-      <p style="font-size:0.85rem; color:#64748B;">Manage verified dealer badges, agency contacts, and platform commissions.</p>
+
+      <div class="profolio-table-wrapper" style="overflow-x:auto; -webkit-overflow-scrolling:touch; width:100%; border-radius:10px; border:1px solid #E2E8F0; margin-top:1rem;">
+        <table class="profolio-table" style="width:100%; min-width:760px; border-collapse:collapse; text-align:left; font-size:0.85rem;">
+          <thead>
+            <tr style="background:#F8FAFC; border-bottom:2px solid #E2E8F0; color:#64748B;">
+              <th style="padding:12px;">Dealer & Agency</th>
+              <th style="padding:12px;">Contact</th>
+              <th style="padding:12px;">Badge & Status</th>
+              <th style="padding:12px;">Active Listings</th>
+              <th style="padding:12px;">Subscription Plan</th>
+              <th style="padding:12px; text-align:right;">Admin Controls</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${dealerList.length === 0 ? `
+              <tr>
+                <td colspan="6" style="padding:2rem; text-align:center; color:#64748B;">
+                  No dealer accounts found in database.
+                </td>
+              </tr>
+            ` : dealerList.map(d => {
+              const dName = d.full_name || d.name || 'Dealer Agency';
+              const isSusp = d.is_suspended || d.status === 'suspended' || d.status === 'disabled';
+              const subPlan = d.subscription_plan_name || 'PRO DEALER';
+              const expiryStr = d.subscription_expiry ? new Date(d.subscription_expiry).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Active';
+
+              return `
+                <tr style="border-bottom:1px solid #E2E8F0; background:${isSusp ? '#FEF2F2' : '#FFFFFF'};">
+                  <td style="padding:12px;">
+                    <div style="font-weight:800; color:#0F172A;">${dName}</div>
+                    <div style="font-size:0.75rem; color:#059669; font-weight:700;">🏢 ${d.agency_name || dName}</div>
+                  </td>
+                  <td style="padding:12px; color:#475569;">
+                    <div>${d.email}</div>
+                    <div style="font-size:0.75rem; color:#64748B;">${d.phone || 'N/A'}</div>
+                  </td>
+                  <td style="padding:12px;">
+                    <div style="display:flex; flex-direction:column; gap:4px;">
+                      <span class="badge" style="background:#F59E0B; color:#ffffff; font-size:0.7rem; font-weight:800; padding:3px 6px; border-radius:4px; width:fit-content;">
+                        ${d.badge || 'VERIFIED DEALER'}
+                      </span>
+                      <span class="badge" style="background:${isSusp ? '#FEE2E2' : '#D1FAE5'}; color:${isSusp ? '#991B1B' : '#065F46'}; font-size:0.7rem; font-weight:800; padding:3px 6px; border-radius:4px; width:fit-content;">
+                        ${isSusp ? '🚫 SUSPENDED' : '🟢 ACTIVE'}
+                      </span>
+                    </div>
+                  </td>
+                  <td style="padding:12px; text-align:center;">
+                    <span style="font-size:1.1rem; font-weight:900; color:#059669;">${d.active_listings_count || 0}</span>
+                  </td>
+                  <td style="padding:12px;">
+                    <div style="font-weight:800; color:#0F172A;">${subPlan}</div>
+                    <div style="font-size:0.72rem; color:#64748B;">Expires: ${expiryStr}</div>
+                  </td>
+                  <td style="padding:12px; text-align:right; white-space:nowrap;">
+                    <button class="btn btn-sm btn-admin-change-sub" data-id="${d.id}" data-name="${dName}" style="background:#059669; color:#ffffff; border:none; padding:6px 10px; border-radius:6px; font-weight:800; cursor:pointer; margin-right:4px;">
+                      ⭐ Activate Sub
+                    </button>
+                    <button class="btn btn-sm btn-admin-toggle-status" data-id="${d.id}" data-current="${isSusp ? 'suspended' : 'active'}" style="background:${isSusp ? '#059669' : '#D97706'}; color:#ffffff; border:none; padding:6px 10px; border-radius:6px; font-weight:800; cursor:pointer;">
+                      ${isSusp ? '✅ Activate' : '🚫 Suspend'}
+                    </button>
+                  </td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
     </div>
   `;
 }

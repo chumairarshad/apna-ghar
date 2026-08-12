@@ -3,7 +3,7 @@ import { INITIAL_AGENTS } from './data/agents.js';
 import { getFavorites, toggleFavorite, getCustomProperties, saveCustomProperty, saveOrUpdatePropertyInStorage, deletePropertyFromStorage, getEffectiveProperties, getDealerLeads, saveDealerLeads, saveAgencyProfile, getDealersFromStorage, saveDealersToStorage } from './utils/storage.js';
 import { convertArea, calculateMortgage, formatPKR } from './utils/formatters.js';
 import { normalizeProperty, normalizeProperties } from './utils/normalizeProperty.js';
-import { fetchPropertiesFromApi, savePropertyToApi, deletePropertyFromApi, uploadImageToFreeCdn } from './utils/api.js';
+import { fetchPropertiesFromApi, savePropertyToApi, deletePropertyFromApi, uploadImageToFreeCdn, fetchAdminUsersApi, fetchAdminDealersApi, fetchAdminStatsApi, toggleUserStatusApi, activateDealerSubscriptionApi, createAdminAccountApi, adminCreateUserApi } from './utils/api.js';
 import { addWatermarkToImage } from './utils/watermark.js';
 import { initI18n, setLanguage, t } from './utils/i18n.js';
 
@@ -369,8 +369,12 @@ async function initApp() {
   window.addEventListener('hashchange', () => {
     try {
       const hash = window.location.hash.replace('#', '').toLowerCase();
-      const validTabs = ['buy', 'rent', 'projects', 'featured', 'tools', 'agents', 'blogs', 'advertise', 'advertise-checkout', 'advertise-invoice', 'dealer', 'admin', 'property-detail', 'post-property', 'blog-detail', 'privacy', 'terms', 'fbr-tax-guide', 'compare', 'login', 'register'];
-      if (validTabs.includes(hash) && state.activeTab !== hash) {
+      const path = window.location.pathname.toLowerCase();
+      const validTabs = ['buy', 'rent', 'projects', 'featured', 'tools', 'agents', 'blogs', 'advertise', 'advertise-checkout', 'advertise-invoice', 'dealer', 'dashboard', 'admin', 'dealer-login', 'property-detail', 'post-property', 'blog-detail', 'privacy', 'terms', 'fbr-tax-guide', 'compare', 'login', 'register'];
+      if ((path === '/dealer-login' || hash === 'dealer-login') && state.activeTab !== 'admin') {
+        setActiveTab('admin');
+        renderApp();
+      } else if (validTabs.includes(hash) && state.activeTab !== hash) {
         setActiveTab(hash);
         renderApp();
       }
@@ -401,6 +405,20 @@ async function initApp() {
     }
   } catch (err) {
     console.warn('Neon DB sync notice:', err);
+  }
+
+  // Fetch live Admin Users, Dealers, and Statistics for authenticated Admin
+  if (state.user && state.user.role === 'ADMIN' && state.user.token) {
+    try {
+      const [adminUsers, adminDealers, adminStats] = await Promise.all([
+        fetchAdminUsersApi(state.user.token),
+        fetchAdminDealersApi(state.user.token),
+        fetchAdminStatsApi(state.user.token)
+      ]);
+      if (adminUsers) state.adminUsersList = adminUsers;
+      if (adminDealers) state.adminDealersList = adminDealers;
+      if (adminStats) state.adminStats = adminStats;
+    } catch (err) {}
   }
 
   // Auto-register Web Push Service Worker if supported
@@ -2479,6 +2497,83 @@ function setupEventListeners() {
       }
     }
 
+    // Admin Gateway Login Form Submit (/dealer-login)
+    if (e.target.id === 'admin-page-login-form' || e.target.closest('#admin-page-login-form')) {
+      if (e.type === 'submit' || e.target.closest('#admin-page-submit-btn')) {
+        e.preventDefault();
+        const emailInput = document.getElementById('admin-page-email')?.value?.trim()?.toLowerCase();
+        const passwordInput = document.getElementById('admin-page-password')?.value;
+
+        if (!emailInput || !passwordInput) {
+          showToast('⚠️ Please enter your Admin Email and Password.');
+          return;
+        }
+
+        (async () => {
+          try {
+            showToast('⏳ Authenticating Admin Credentials with Database...');
+            const res = await fetch('/api/auth/login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: emailInput, password: passwordInput, role: 'ADMIN' })
+            });
+
+            const apiData = await res.json().catch(() => null);
+
+            if (res.ok && apiData && apiData.success && apiData.user && apiData.token) {
+              if (apiData.user.role !== 'ADMIN') {
+                showToast('❌ Access Denied: Admin authorization required for Executive Portal.');
+                return;
+              }
+
+              const userObj = {
+                userId: apiData.user.id,
+                name: apiData.user.name,
+                email: apiData.user.email,
+                role: apiData.user.role,
+                phone: apiData.user.phone,
+                agencyName: apiData.user.agencyName || apiData.user.name,
+                token: apiData.token,
+                issuedAt: Date.now(),
+                expiresAt: Date.now() + (48 * 60 * 60 * 1000)
+              };
+              localStorage.setItem('Sarmayadar_jwt_token', JSON.stringify(userObj));
+              state.user = userObj;
+              state.activeTab = 'dealer';
+              state.dashboardTab = 'overview';
+
+              // Fetch live admin metrics & records
+              const [adminUsers, adminDealers, adminStats] = await Promise.all([
+                fetchAdminUsersApi(userObj.token),
+                fetchAdminDealersApi(userObj.token),
+                fetchAdminStatsApi(userObj.token)
+              ]);
+              if (adminUsers) state.adminUsersList = adminUsers;
+              if (adminDealers) state.adminDealersList = adminDealers;
+              if (adminStats) state.adminStats = adminStats;
+
+              showToast(`🛡️ Executive Admin Signed In: Welcome ${userObj.name}!`);
+              renderApp();
+            } else {
+              showToast(`❌ ${apiData?.message || 'Admin login failed'}`);
+            }
+          } catch (err) {
+            showToast(`❌ Connection Error: ${err.message}`);
+          }
+        })();
+        return;
+      }
+    }
+
+    // Launch Admin Dashboard Button
+    if (e.target.id === 'launch-admin-dashboard-btn' || e.target.closest('#launch-admin-dashboard-btn')) {
+      e.preventDefault();
+      state.activeTab = 'dealer';
+      state.dashboardTab = 'overview';
+      renderApp();
+      return;
+    }
+
     // Email & Password Auth Form Submit (Login & Register)
     if (e.target.id === 'email-auth-form' || e.target.closest('#email-auth-form') || e.target.id === 'auth-page-native-form' || e.target.closest('#auth-page-native-form')) {
       if (e.type === 'submit' || e.target.closest('#auth-submit-btn') || e.target.closest('#auth-page-submit-btn')) {
@@ -2803,70 +2898,133 @@ function setupEventListeners() {
       }
     }
 
-    // Admin Dealer Badge Upgrade Handler
-    const badgeBtn = e.target.closest('.toggle-dealer-badge-btn');
-    if (badgeBtn) {
-      const id = badgeBtn.getAttribute('data-id');
-      const dealers = getDealersFromStorage(INITIAL_AGENTS);
-      const targetDealer = dealers.find(d => d.id === id);
-      if (targetDealer) {
-        targetDealer.badge = targetDealer.badge?.includes('PLATINUM') ? 'VERIFIED DEALER' : 'PLATINUM VERIFIED';
-        saveDealersToStorage(dealers);
-        showToast(`🛡️ ${targetDealer.name} status badge updated to ${targetDealer.badge}!`);
-        renderApp();
+    // Admin Toggle User/Dealer Status (Suspend / Activate) Handler
+    const adminToggleStatusBtn = e.target.closest('.btn-admin-toggle-status');
+    if (adminToggleStatusBtn) {
+      const userId = adminToggleStatusBtn.getAttribute('data-id');
+      const currentStatus = adminToggleStatusBtn.getAttribute('data-current');
+      if (state.user && state.user.token && userId) {
+        (async () => {
+          showToast('⏳ Updating account status in database...');
+          const result = await toggleUserStatusApi(userId, currentStatus, state.user.token);
+          if (result.ok) {
+            showToast(`✅ ${result.data.message || 'Account status updated!'}`);
+            state.adminUsersList = await fetchAdminUsersApi(state.user.token);
+            state.adminDealersList = await fetchAdminDealersApi(state.user.token);
+            renderApp();
+          } else {
+            showToast(`❌ Failed to update status: ${result.data?.message || 'Server error'}`);
+          }
+        })();
       }
     }
 
-    // Admin Suspend Dealer Account Handler
-    const deleteDealerBtn = e.target.closest('.delete-dealer-acc-btn');
-    if (deleteDealerBtn) {
-      const id = deleteDealerBtn.getAttribute('data-id');
-      const registeredUsers = getStoredUsers();
-      const targetUser = registeredUsers.find(u => (u.userId === id || u.id === id || `dealer-${u.email}` === id));
-
-      if (targetUser) {
-        if (confirm(`Are you sure you want to suspend dealer account "${targetUser.agencyName || targetUser.name}"?`)) {
-          targetUser.isSuspended = true;
-          saveStoredUser(targetUser);
-          showToast(`🚫 Dealer account "${targetUser.agencyName || targetUser.name}" SUSPENDED.`);
-          renderApp();
-        }
-      } else {
-        const dealers = getDealersFromStorage(INITIAL_AGENTS);
-        const targetDealer = dealers.find(d => d.id === id);
-        if (targetDealer) {
-          targetDealer.isSuspended = true;
-          saveDealersToStorage(dealers);
-          showToast(`🚫 Dealer account "${targetDealer.name}" SUSPENDED.`);
-          renderApp();
-        }
+    // Admin Delete User Handler
+    const adminDeleteUserBtn = e.target.closest('.btn-admin-delete-user');
+    if (adminDeleteUserBtn) {
+      const userId = adminDeleteUserBtn.getAttribute('data-id');
+      const userName = adminDeleteUserBtn.getAttribute('data-name');
+      if (confirm(`Are you sure you want to permanently delete user account "${userName}"?`)) {
+        (async () => {
+          try {
+            const res = await fetch(`/api/admin/users/${userId}`, {
+              method: 'DELETE',
+              headers: { 'Authorization': `Bearer ${state.user.token}` }
+            });
+            const data = await res.json().catch(() => null);
+            if (res.ok && data && data.success) {
+              showToast(`🗑️ User account "${userName}" deleted successfully.`);
+              state.adminUsersList = await fetchAdminUsersApi(state.user.token);
+              renderApp();
+            } else {
+              showToast(`❌ Delete failed: ${data?.message || 'Server error'}`);
+            }
+          } catch (err) {
+            showToast(`❌ Delete error: ${err.message}`);
+          }
+        })();
       }
     }
 
-    // Admin Unsuspend Dealer Account Handler
-    const unsuspendDealerBtn = e.target.closest('.unsuspend-dealer-acc-btn');
-    if (unsuspendDealerBtn) {
-      const id = unsuspendDealerBtn.getAttribute('data-id');
-      const registeredUsers = getStoredUsers();
-      const targetUser = registeredUsers.find(u => (u.userId === id || u.id === id || `dealer-${u.email}` === id));
-
-      if (targetUser) {
-        if (confirm(`Are you sure you want to unsuspend / reactivate dealer "${targetUser.agencyName || targetUser.name}"?`)) {
-          targetUser.isSuspended = false;
-          saveStoredUser(targetUser);
-          showToast(`✅ Dealer account "${targetUser.agencyName || targetUser.name}" RE-ACTIVATED / UNSUSPENDED.`);
-          renderApp();
-        }
-      } else {
-        const dealers = getDealersFromStorage(INITIAL_AGENTS);
-        const targetDealer = dealers.find(d => d.id === id);
-        if (targetDealer) {
-          targetDealer.isSuspended = false;
-          saveDealersToStorage(dealers);
-          showToast(`✅ Dealer account "${targetDealer.name}" RE-ACTIVATED / UNSUSPENDED.`);
-          renderApp();
-        }
+    // Admin Change / Activate Subscription Handler
+    const adminChangeSubBtn = e.target.closest('.btn-admin-change-sub');
+    if (adminChangeSubBtn) {
+      const dealerId = adminChangeSubBtn.getAttribute('data-id');
+      const dealerName = adminChangeSubBtn.getAttribute('data-name');
+      const selectedPlan = prompt(`Activate Subscription for dealer "${dealerName}":\nType: BASIC, PRO DEALER, or AGENCY ELITE`, 'PRO DEALER');
+      if (selectedPlan && state.user && state.user.token) {
+        (async () => {
+          showToast(`⏳ Activating "${selectedPlan}" subscription for ${dealerName}...`);
+          const result = await activateDealerSubscriptionApi(dealerId, selectedPlan.trim().toUpperCase(), state.user.token);
+          if (result.ok) {
+            showToast(`⭐ ${result.data.message || 'Subscription activated successfully!'}`);
+            state.adminDealersList = await fetchAdminDealersApi(state.user.token);
+            renderApp();
+          } else {
+            showToast(`❌ Subscription activation failed: ${result.data?.message || 'Server error'}`);
+          }
+        })();
       }
+    }
+
+    // Admin Add User Modal Trigger Handler
+    if (e.target.closest('#open-admin-add-user-modal-btn')) {
+      const email = prompt('Enter New User / Dealer Email:');
+      if (!email) return;
+      const name = prompt('Enter Full Name:');
+      if (!name) return;
+      const password = prompt('Enter Password (min 6 chars):');
+      if (!password) return;
+      const roleChoice = prompt('Enter Role (USER or DEALER):', 'DEALER');
+      if (!roleChoice) return;
+      const agencyName = prompt('Enter Agency Name (Optional):', name);
+
+      (async () => {
+        showToast('⏳ Creating account in PostgreSQL database...');
+        const result = await adminCreateUserApi({
+          email: email.trim(),
+          name: name.trim(),
+          password: password.trim(),
+          role: roleChoice.trim().toUpperCase(),
+          agencyName: agencyName?.trim() || name.trim()
+        }, state.user.token);
+
+        if (result.ok) {
+          showToast(`✅ Account for "${name}" created successfully!`);
+          state.adminUsersList = await fetchAdminUsersApi(state.user.token);
+          state.adminDealersList = await fetchAdminDealersApi(state.user.token);
+          renderApp();
+        } else {
+          showToast(`❌ User creation failed: ${result.data?.message || 'Server error'}`);
+        }
+      })();
+    }
+
+    // Admin Create Admin Account Trigger Handler
+    if (e.target.closest('#open-admin-create-admin-modal-btn')) {
+      const email = prompt('Enter New Admin Email:');
+      if (!email) return;
+      const name = prompt('Enter Admin Full Name:');
+      if (!name) return;
+      const password = prompt('Enter Admin Password (min 6 chars):');
+      if (!password) return;
+
+      (async () => {
+        showToast('⏳ Provisioning new Admin account...');
+        const result = await createAdminAccountApi({
+          email: email.trim(),
+          name: name.trim(),
+          password: password.trim()
+        }, state.user.token);
+
+        if (result.ok) {
+          showToast(`🛡️ Admin account "${name}" created successfully!`);
+          state.adminUsersList = await fetchAdminUsersApi(state.user.token);
+          renderApp();
+        } else {
+          showToast(`❌ Admin creation failed: ${result.data?.message || 'Server error'}`);
+        }
+      })();
     }
     // Footer Links Navigation
     if (e.target.id === 'footer-link-dealer') { e.preventDefault(); state.activeTab = 'dealer'; renderApp(); }

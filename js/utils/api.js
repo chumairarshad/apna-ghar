@@ -177,3 +177,121 @@ export async function deletePropertyFromApi(id) {
   }
 }
 
+// ----------------------------------------------------
+// ADMIN API HELPER FUNCTIONS (POSTGRESQL SINGLE SOURCE OF TRUTH)
+// ----------------------------------------------------
+
+export async function fetchAdminUsersApi(token) {
+  try {
+    const apiUrl = (typeof window !== 'undefined') ? '/api/admin/users' : 'http://localhost:5000/api/admin/users';
+    const res = await fetch(apiUrl, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json().catch(() => null);
+    return (res.ok && data && data.success) ? data.users : [];
+  } catch (e) {
+    console.warn('Fetch admin users notice:', e.message);
+    return [];
+  }
+}
+
+export async function fetchAdminDealersApi(token) {
+  try {
+    const apiUrl = (typeof window !== 'undefined') ? '/api/admin/dealers' : 'http://localhost:5000/api/admin/dealers';
+    const res = await fetch(apiUrl, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json().catch(() => null);
+    return (res.ok && data && data.success) ? data.dealers : [];
+  } catch (e) {
+    console.warn('Fetch admin dealers notice:', e.message);
+    return [];
+  }
+}
+
+export async function fetchAdminStatsApi(token) {
+  try {
+    const apiUrl = (typeof window !== 'undefined') ? '/api/admin/stats' : 'http://localhost:5000/api/admin/stats';
+    const res = await fetch(apiUrl, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json().catch(() => null);
+    return (res.ok && data && data.success) ? data.stats : null;
+  } catch (e) {
+    console.warn('Fetch admin stats notice:', e.message);
+    return null;
+  }
+}
+
+export async function toggleUserStatusApi(userId, currentStatus, token) {
+  try {
+    const isSusp = currentStatus === 'suspended' || currentStatus === 'disabled';
+    const newStatus = isSusp ? 'active' : 'suspended';
+    const newSuspBool = !isSusp;
+
+    const res = await fetch(`/api/admin/users/${userId}/status`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ status: newStatus, isSuspended: newSuspBool })
+    });
+    const data = await res.json().catch(() => null);
+    return { ok: res.ok, data };
+  } catch (e) {
+    return { ok: false, message: e.message };
+  }
+}
+
+export async function activateDealerSubscriptionApi(dealerId, planName, token) {
+  try {
+    const res = await fetch(`/api/admin/dealers/${dealerId}/activate-subscription`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ planName })
+    });
+    const data = await res.json().catch(() => null);
+    return { ok: res.ok, data };
+  } catch (e) {
+    return { ok: false, message: e.message };
+  }
+}
+
+export async function createAdminAccountApi(adminData, token) {
+  try {
+    const res = await fetch('/api/admin/create-admin', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(adminData)
+    });
+    const data = await res.json().catch(() => null);
+    return { ok: res.ok, data };
+  } catch (e) {
+    return { ok: false, message: e.message };
+  }
+}
+
+export async function adminCreateUserApi(userData, token) {
+  try {
+    const res = await fetch('/api/admin/users', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(userData)
+    });
+    const data = await res.json().catch(() => null);
+    return { ok: res.ok, data };
+  } catch (e) {
+    return { ok: false, message: e.message };
+  }
+}
+

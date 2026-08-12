@@ -91,6 +91,32 @@ router.post('/', async (req, res) => {
     const existingCheck = await pool.query('SELECT status FROM properties WHERE id = $1', [propId]);
     const oldStatus = existingCheck.rows.length > 0 ? existingCheck.rows[0].status : null;
 
+    // Backend Subscription Listing Limit Enforcement (For New Properties)
+    if (existingCheck.rows.length === 0 && resolvedDealerId) {
+      const subRes = await pool.query(
+        `SELECT ds.*, sp.listing_limit, sp.name as plan_name
+         FROM dealer_subscriptions ds
+         JOIN subscription_plans sp ON ds.plan_id = sp.id
+         WHERE ds.dealer_id = $1 AND ds.status = 'active' AND ds.expiry_date >= NOW()
+         ORDER BY ds.created_at DESC LIMIT 1`,
+        [resolvedDealerId]
+      );
+
+      const listingLimit = subRes.rows.length > 0 ? subRes.rows[0].listing_limit : 25;
+      const countRes = await pool.query(
+        `SELECT COUNT(*)::int as count FROM properties WHERE dealer_id = $1 AND status = 'active'`,
+        [resolvedDealerId]
+      );
+      const currentCount = countRes.rows[0]?.count || 0;
+
+      if (currentCount >= listingLimit) {
+        return res.status(403).json({
+          success: false,
+          message: `Your subscription listing limit (${listingLimit}) has been reached. Please upgrade your subscription to add more listings.`
+        });
+      }
+    }
+
     const result = await pool.query(
       `INSERT INTO properties 
        (id, dealer_id, title, purpose, category, city, location, address, price, size_marla, bedrooms, bathrooms, description, images, features, agent_name, agent_phone, agency_name, status)

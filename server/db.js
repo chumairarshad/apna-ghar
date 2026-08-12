@@ -1,4 +1,5 @@
 import pg from 'pg';
+import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -133,9 +134,35 @@ export async function initDb() {
         status VARCHAR(20) DEFAULT 'active',
         listings_used INT DEFAULT 0,
         mega_projects_used INT DEFAULT 0,
+        assigned_by_admin_id UUID REFERENCES users(id),
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
+
+      -- Add Migration Columns safely
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'active';
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS is_suspended BOOLEAN DEFAULT FALSE;
+      ALTER TABLE dealer_subscriptions ADD COLUMN IF NOT EXISTS assigned_by_admin_id UUID REFERENCES users(id);
     `);
+
+    // Seed Initial Super Admin Account if not existing
+    const adminHash = bcrypt.hashSync('AdminPassword123!', 10);
+    await pool.query(`
+      INSERT INTO users (full_name, email, password_hash, phone, role, agency_name, city, badge, is_verified, status, is_suspended)
+      VALUES (
+        'Sarmayadar Super Admin',
+        'admin@sarmayadar.com',
+        $1,
+        '+92 300 0000000',
+        'ADMIN',
+        'Sarmayadar Executive Board',
+        'Lahore',
+        'SUPER_ADMIN',
+        true,
+        'active',
+        false
+      )
+      ON CONFLICT (email) DO UPDATE SET password_hash = $1, role = 'ADMIN', status = 'active', is_suspended = false;
+    `, [adminHash]);
     isInitialized = true;
     console.log('✅ Neon PostgreSQL Database schema ready!');
   } catch (err) {
