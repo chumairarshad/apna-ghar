@@ -1578,10 +1578,12 @@ function setupEventListeners() {
       window.open(url, '_blank');
     }
 
-    // Image Upload Zone Click
+    // Image Upload Zone Click (Guarded for iOS Safari to prevent file picker cancellation)
     if (e.target.closest('#image-drag-drop-zone')) {
-      const fileInput = document.getElementById('wiz-file-input') || document.getElementById('wiz_file_input');
-      if (fileInput) fileInput.click();
+      if (e.target.id !== 'wiz_file_input' && e.target.id !== 'wiz-file-input' && e.target.tagName !== 'INPUT' && !e.target.closest('input[type="file"]')) {
+        const fileInput = document.getElementById('wiz-file-input') || document.getElementById('wiz_file_input');
+        if (fileInput) fileInput.click();
+      }
     }
 
     // Remove Uploaded Image Thumbnail Button
@@ -1899,14 +1901,7 @@ function setupEventListeners() {
       renderApp();
     }
 
-    // Product (Property) Photo Upload Drag/Drop & URL Triggers
-    if (e.target.closest('#image-drag-drop-zone')) {
-      if (e.target.id === 'wiz_file_input' || e.target.id === 'wiz-file-input' || e.target.tagName === 'LABEL' || e.target.closest('label')) {
-        // Label/input click natively handles picker trigger; return to prevent mobile cancellation
-      } else {
-        document.getElementById('wiz_file_input')?.click();
-      }
-    }
+
 
     if (e.target.closest('#add-wiz-image-url-btn')) {
       e.preventDefault();
