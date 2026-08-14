@@ -117,24 +117,38 @@ export async function savePropertyToApi(property) {
 
 // Upload image file to Free CDN (ImgBB)
 export async function uploadImageToFreeCdn(base64Image) {
+  console.log('=== UPLOAD START ===', {
+    length: base64Image?.length,
+    prefix: typeof base64Image === 'string' ? base64Image.substring(0, 40) : typeof base64Image
+  });
   try {
-    if (!base64Image) return 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80';
+    if (!base64Image) {
+      console.warn('uploadImageToFreeCdn: empty base64Image provided.');
+      return 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80';
+    }
     if (base64Image.startsWith('http://') || base64Image.startsWith('https://')) {
+      console.log('uploadImageToFreeCdn: image is already an HTTP URL.');
       return base64Image;
     }
     
     // 1. Send to Express API endpoint /api/upload
+    console.log('=== UPLOAD REQUEST === POST /api/upload');
     const res = await fetch('/api/upload', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ image: base64Image })
     });
+    console.log('UPLOAD STATUS:', res.status, 'UPLOAD OK:', res.ok);
     const data = await res.json().catch(() => null);
+    console.log('UPLOAD RESPONSE BODY:', data);
+
     if (data && data.success && data.url && (data.url.startsWith('http') || data.url.startsWith('/uploads') || data.url.startsWith('data:'))) {
+      console.log('uploadImageToFreeCdn: Express API upload success, returned URL:', data.url);
       return data.url;
     }
 
     // 2. Direct ImgBB API Fallback
+    console.log('Falling back to direct ImgBB API upload...');
     const apiKey = 'f6d0ec208aa0c0c984cbc6ef2b5315c3';
     const cleanBase64 = base64Image.replace(/^data:image\/\w+;base64,/, '');
     const bodyData = new URLSearchParams();
@@ -145,14 +159,19 @@ export async function uploadImageToFreeCdn(base64Image) {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: bodyData.toString()
     });
+    console.log('ImgBB UPLOAD STATUS:', imgbbRes.status, 'ImgBB OK:', imgbbRes.ok);
     const imgbbData = await imgbbRes.json().catch(() => null);
+    console.log('ImgBB UPLOAD RESPONSE:', imgbbData);
+
     if (imgbbData && imgbbData.data && imgbbData.data.url) {
+      console.log('uploadImageToFreeCdn: ImgBB upload success, returned URL:', imgbbData.data.url);
       return imgbbData.data.url;
     }
 
+    console.warn('uploadImageToFreeCdn: Both Express API and ImgBB failed, returning raw base64Image.');
     return base64Image;
   } catch (e) {
-    console.warn('Upload image API notice:', e.message);
+    console.error('Upload image API notice:', e.message, e);
     return base64Image;
   }
 }

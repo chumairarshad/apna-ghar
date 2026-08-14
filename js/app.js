@@ -3594,28 +3594,58 @@ function updateWizardStepUI() {
 
 // Global Image Upload File Selector & Drag and Drop Event Listeners (With Auto Watermark)
 document.addEventListener('change', async (e) => {
+  console.log('=== GLOBAL CHANGE EVENT DETECTED ===', {
+    targetId: e.target?.id,
+    targetTag: e.target?.tagName,
+    filesLength: e.target?.files?.length
+  });
+
   if ((e.target.id === 'wiz_file_input' || e.target.id === 'wiz-file-input') && e.target.files?.length > 0) {
+    console.log('=== MOBILE FILE CHANGE FIRED ===');
     const files = Array.from(e.target.files);
+    console.log('files:', files);
+    console.log('file count:', files?.length);
+
     showToast(`⏳ Processing & uploading ${files.length} property photo(s) to server...`);
     state.uploadedImages = state.uploadedImages || [];
     let uploadSuccessCount = 0;
     let uploadErrors = [];
 
     for (const file of files) {
+      console.log('FILE:', {
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        lastModified: file.lastModified
+      });
+
       try {
+        console.log('FileReader reading file as DataURL...');
         const dataUrl = await new Promise((resolve, reject) => {
           const reader = new FileReader();
-          reader.onload = evt => resolve(evt.target.result);
-          reader.onerror = err => reject(err);
+          reader.onload = evt => {
+            console.log('FileReader success. raw length:', evt.target.result?.length, 'prefix:', evt.target.result?.substring(0, 40));
+            resolve(evt.target.result);
+          };
+          reader.onerror = err => {
+            console.error('FileReader error:', err);
+            reject(err);
+          };
           reader.readAsDataURL(file);
         });
 
-        const watermarked = await addWatermarkToImage(dataUrl);
+        console.log('Calling addWatermarkToImage...');
+        const watermarked = await addWatermarkToImage(dataUrl, { fileName: file.name, fileType: file.type });
+        console.log('watermarked result length:', watermarked?.length, 'prefix:', watermarked?.substring(0, 40));
+
+        console.log('Calling uploadImageToFreeCdn...');
         const savedUrl = await uploadImageToFreeCdn(watermarked);
+        console.log('uploadImageToFreeCdn return savedUrl:', savedUrl);
 
         if (savedUrl && (savedUrl.startsWith('http') || savedUrl.startsWith('/uploads') || savedUrl.startsWith('data:'))) {
           state.uploadedImages.push(savedUrl);
           uploadSuccessCount++;
+          console.log('UPLOADED IMAGES STATE UPDATED:', state.uploadedImages);
         } else {
           throw new Error('Server returned invalid image storage URL');
         }
@@ -3626,8 +3656,13 @@ document.addEventListener('change', async (e) => {
     }
 
     const container = document.getElementById('wiz-image-previews');
+    console.log('wiz-image-previews container:', container);
     if (container) {
       container.innerHTML = renderImagePreviewsList(state.uploadedImages);
+      console.log('Updated container HTML with preview list.');
+    } else {
+      console.warn('wiz-image-previews container NOT found in DOM!');
+      renderApp();
     }
 
     if (uploadSuccessCount > 0) {

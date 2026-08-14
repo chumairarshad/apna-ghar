@@ -6,7 +6,15 @@
 
 export function addWatermarkToImage(imageSrc, options = {}) {
   return new Promise((resolve) => {
+    console.log('IMAGE PROCESSING START', {
+      prefix: typeof imageSrc === 'string' ? imageSrc.substring(0, 40) : typeof imageSrc,
+      length: imageSrc?.length,
+      fileName: options.fileName,
+      fileType: options.fileType
+    });
+
     if (!imageSrc) {
+      console.warn('addWatermarkToImage: empty imageSrc provided.');
       resolve(imageSrc);
       return;
     }
@@ -17,7 +25,9 @@ export function addWatermarkToImage(imageSrc, options = {}) {
       img.crossOrigin = 'Anonymous';
     }
 
+    console.log('before image load...');
     img.onload = () => {
+      console.log('image loaded successfully', { naturalWidth: img.naturalWidth, naturalHeight: img.naturalHeight });
       try {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
@@ -38,6 +48,7 @@ export function addWatermarkToImage(imageSrc, options = {}) {
 
         canvas.width = width;
         canvas.height = height;
+        console.log('canvas dimensions configured:', canvas.width, canvas.height);
 
         // 1. Draw original image onto canvas
         ctx.drawImage(img, 0, 0, width, height);
@@ -111,7 +122,9 @@ export function addWatermarkToImage(imageSrc, options = {}) {
         ctx.restore();
 
         // Export watermarked canvas as base64 JPEG
+        console.log('before canvas.toDataURL...');
         const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+        console.log('canvas.toDataURL generated length:', dataUrl?.length);
         resolve(dataUrl);
       } catch (err) {
         console.warn('Watermark creation error fallback to original image:', err);
@@ -119,7 +132,8 @@ export function addWatermarkToImage(imageSrc, options = {}) {
       }
     };
 
-    img.onerror = () => {
+    img.onerror = (err) => {
+      console.error('IMAGE LOAD FAILED (img.onerror fired):', err, 'imageSrc prefix:', typeof imageSrc === 'string' ? imageSrc.substring(0, 60) : imageSrc);
       // Return original image if CORS or loading fails
       resolve(imageSrc);
     };
