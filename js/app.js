@@ -3587,51 +3587,20 @@ function updateWizardStepUI() {
   }
 }
 
-// On-Screen Mobile Diagnostic Logger Helper
-window.mobileLog = function(msg, data) {
-  console.log(msg, data !== undefined ? data : '');
-  const logBox = document.getElementById('mobile-debug-log');
-  if (logBox) {
-    const time = new Date().toLocaleTimeString();
-    const str = data !== undefined ? (typeof data === 'object' ? JSON.stringify(data) : String(data)) : '';
-    logBox.innerText += `\n[${time}] ${msg} ${str}`;
-    logBox.scrollTop = logBox.scrollHeight;
-  }
-};
-
 // Global Image Upload File Selector & Drag and Drop Event Listeners (With Auto Watermark)
 document.addEventListener('change', async (e) => {
-  window.mobileLog('=== GLOBAL CHANGE EVENT DETECTED ===', {
-    targetId: e.target?.id,
-    targetTag: e.target?.tagName,
-    filesLength: e.target?.files?.length
-  });
-
   if ((e.target.id === 'wiz_file_input' || e.target.id === 'wiz-file-input') && e.target.files?.length > 0) {
-    window.mobileLog('=== MOBILE FILE CHANGE FIRED ===');
     const files = Array.from(e.target.files);
-    window.mobileLog('file count:', files?.length);
-
     showToast(`⏳ Processing & uploading ${files.length} property photo(s) to server...`);
     state.uploadedImages = state.uploadedImages || [];
     let uploadSuccessCount = 0;
     let uploadErrors = [];
 
     for (const file of files) {
-      window.mobileLog('FILE:', {
-        name: file.name,
-        type: file.type || 'unknown/empty',
-        size: file.size,
-        lastModified: file.lastModified
-      });
-
       try {
-        window.mobileLog('Passing file to addWatermarkToImage (using URL.createObjectURL)...');
         let watermarked = await addWatermarkToImage(file, { fileName: file.name, fileType: file.type });
-        window.mobileLog('addWatermarkToImage return length:', watermarked?.length);
 
         if (!watermarked || !watermarked.startsWith('data:')) {
-          window.mobileLog('Fallback: Using FileReader to generate DataURL...');
           watermarked = await new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = evt => resolve(evt.target.result);
@@ -3640,31 +3609,24 @@ document.addEventListener('change', async (e) => {
           });
         }
 
-        window.mobileLog('Calling uploadImageToFreeCdn...');
         const savedUrl = await uploadImageToFreeCdn(watermarked);
-        window.mobileLog('uploadImageToFreeCdn return savedUrl:', savedUrl);
 
         if (savedUrl && (savedUrl.startsWith('http') || savedUrl.startsWith('/uploads') || savedUrl.startsWith('data:'))) {
           state.uploadedImages.push(savedUrl);
           uploadSuccessCount++;
-          window.mobileLog('UPLOADED IMAGES STATE UPDATED:', state.uploadedImages);
         } else {
           throw new Error('Server returned invalid image storage URL');
         }
       } catch (err) {
-        window.mobileLog('Property image upload error:', err.message || err);
         console.error('Property image upload error:', err);
         uploadErrors.push(err.message || 'Server upload failed');
       }
     }
 
     const container = document.getElementById('wiz-image-previews');
-    window.mobileLog('wiz-image-previews container:', Boolean(container));
     if (container) {
       container.innerHTML = renderImagePreviewsList(state.uploadedImages);
-      window.mobileLog('Updated container HTML with preview list.');
     } else {
-      window.mobileLog('wiz-image-previews container NOT found in DOM!');
       renderApp();
     }
 

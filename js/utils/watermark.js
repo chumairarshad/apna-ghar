@@ -5,37 +5,22 @@
  */
 
 export function addWatermarkToImage(fileOrSrc, options = {}) {
-  const mLog = (msg, data) => (window.mobileLog ? window.mobileLog(msg, data) : console.log(msg, data));
-
   return new Promise((resolve) => {
     let objectUrl = null;
     let imageSrc = '';
 
     if (typeof File !== 'undefined' && (fileOrSrc instanceof File || fileOrSrc instanceof Blob)) {
-      mLog('addWatermarkToImage: input is File/Blob. Creating ObjectURL...', {
-        name: fileOrSrc.name,
-        type: fileOrSrc.type,
-        size: fileOrSrc.size
-      });
       try {
         objectUrl = URL.createObjectURL(fileOrSrc);
         imageSrc = objectUrl;
       } catch (err) {
-        mLog('URL.createObjectURL error fallback:', err);
         imageSrc = '';
       }
     } else {
       imageSrc = fileOrSrc;
     }
 
-    mLog('IMAGE PROCESSING START', {
-      prefix: typeof imageSrc === 'string' ? imageSrc.substring(0, 40) : typeof imageSrc,
-      length: imageSrc?.length,
-      isObjectURL: Boolean(objectUrl)
-    });
-
     if (!imageSrc) {
-      mLog('addWatermarkToImage: empty imageSrc provided.');
       if (objectUrl) URL.revokeObjectURL(objectUrl);
       resolve(imageSrc);
       return;
@@ -46,10 +31,7 @@ export function addWatermarkToImage(fileOrSrc, options = {}) {
     if (typeof imageSrc === 'string' && (imageSrc.startsWith('http://') || imageSrc.startsWith('https://'))) {
       img.crossOrigin = 'Anonymous';
     }
-
-    mLog('before image load...');
     img.onload = () => {
-      mLog('IOS/ANDROID IMAGE LOAD SUCCESS', { naturalWidth: img.naturalWidth, naturalHeight: img.naturalHeight });
       try {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
@@ -70,7 +52,6 @@ export function addWatermarkToImage(fileOrSrc, options = {}) {
 
         canvas.width = width;
         canvas.height = height;
-        mLog('canvas dimensions configured:', { width, height });
 
         // 1. Draw original image onto canvas
         ctx.drawImage(img, 0, 0, width, height);
@@ -144,24 +125,17 @@ export function addWatermarkToImage(fileOrSrc, options = {}) {
         ctx.restore();
 
         // Export watermarked canvas as base64 JPEG
-        mLog('before canvas.toDataURL...');
         const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
-        mLog('canvas.toDataURL generated length:', dataUrl?.length);
 
         if (objectUrl) URL.revokeObjectURL(objectUrl);
         resolve(dataUrl);
       } catch (err) {
-        mLog('Watermark creation error fallback:', err?.message || err);
         if (objectUrl) URL.revokeObjectURL(objectUrl);
         resolve(typeof imageSrc === 'string' ? imageSrc : '');
       }
     };
 
     img.onerror = (err) => {
-      mLog('IMAGE LOAD FAILED (img.onerror fired):', {
-        error: String(err),
-        isObjectURL: Boolean(objectUrl)
-      });
       if (objectUrl) URL.revokeObjectURL(objectUrl);
       resolve(typeof imageSrc === 'string' ? imageSrc : '');
     };

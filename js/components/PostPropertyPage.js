@@ -220,14 +220,6 @@ export function renderPostPropertyPage(state) {
                   <div id="wiz-image-previews">
                     ${renderImagePreviewsList(images)}
                   </div>
-
-                  <!-- On-Screen Mobile Real-Time Debug Console -->
-                  <div style="margin-top: 1.25rem;">
-                    <label style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 800; color: var(--forest-dk); text-transform: uppercase;">📱 iPhone Real-Time Pipeline Log</label>
-                    <div id="mobile-debug-log" style="background: #0f172a; color: #38bdf8; font-family: monospace; font-size: 0.72rem; padding: 0.85rem; border-radius: 10px; max-height: 220px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; margin-top: 0.4rem; border: 2px solid var(--forest-dk);">
-                      [READY] Tap "Choose Photos" to trace iPhone file selection...
-                    </div>
-                  </div>
                 </div>
               ` : ''}
 
