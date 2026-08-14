@@ -19,9 +19,17 @@ const router = express.Router();
 
 // Free Unlimited Image Upload API Endpoint (CDN + Local Disk Storage Fallback)
 router.post('/', async (req, res) => {
+  console.log('UPLOAD REQUEST RECEIVED', {
+    method: req.method,
+    contentType: req.headers['content-type'],
+    userAgent: req.headers['user-agent'],
+    contentLength: req.headers['content-length']
+  });
+
   try {
     const { image } = req.body;
     if (!image) {
+      console.warn('UPLOAD REQUEST REJECTED: No image data provided.');
       return res.status(400).json({ success: false, message: 'No image data provided.' });
     }
 
@@ -46,6 +54,7 @@ router.post('/', async (req, res) => {
       const data = await response.json();
 
       if (data && data.data && data.data.url) {
+        console.log('📷 Uploaded photo to ImgBB CDN:', data.data.url);
         return res.json({
           success: true,
           url: data.data.url,
@@ -58,8 +67,11 @@ router.post('/', async (req, res) => {
     }
 
     // 3. Reliable Local File Storage Fallback (stored in /uploads directory)
+    let ext = 'jpg';
     const extMatch = image.match(/^data:image\/(\w+);base64,/);
-    const ext = extMatch ? extMatch[1] : 'png';
+    if (extMatch && ['png', 'jpeg', 'jpg', 'webp', 'gif'].includes(extMatch[1].toLowerCase())) {
+      ext = extMatch[1].toLowerCase();
+    }
     const filename = `img_${Date.now()}_${Math.floor(Math.random() * 100000)}.${ext}`;
     const filePath = path.join(uploadsDir, filename);
 

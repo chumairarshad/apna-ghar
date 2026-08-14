@@ -3592,19 +3592,30 @@ function updateWizardStepUI() {
   }
 }
 
+// On-Screen Mobile Diagnostic Logger Helper
+window.mobileLog = function(msg, data) {
+  console.log(msg, data !== undefined ? data : '');
+  const logBox = document.getElementById('mobile-debug-log');
+  if (logBox) {
+    const time = new Date().toLocaleTimeString();
+    const str = data !== undefined ? (typeof data === 'object' ? JSON.stringify(data) : String(data)) : '';
+    logBox.innerText += `\n[${time}] ${msg} ${str}`;
+    logBox.scrollTop = logBox.scrollHeight;
+  }
+};
+
 // Global Image Upload File Selector & Drag and Drop Event Listeners (With Auto Watermark)
 document.addEventListener('change', async (e) => {
-  console.log('=== GLOBAL CHANGE EVENT DETECTED ===', {
+  window.mobileLog('=== GLOBAL CHANGE EVENT DETECTED ===', {
     targetId: e.target?.id,
     targetTag: e.target?.tagName,
     filesLength: e.target?.files?.length
   });
 
   if ((e.target.id === 'wiz_file_input' || e.target.id === 'wiz-file-input') && e.target.files?.length > 0) {
-    console.log('=== MOBILE FILE CHANGE FIRED ===');
+    window.mobileLog('=== MOBILE FILE CHANGE FIRED ===');
     const files = Array.from(e.target.files);
-    console.log('files:', files);
-    console.log('file count:', files?.length);
+    window.mobileLog('file count:', files?.length);
 
     showToast(`⏳ Processing & uploading ${files.length} property photo(s) to server...`);
     state.uploadedImages = state.uploadedImages || [];
@@ -3612,56 +3623,59 @@ document.addEventListener('change', async (e) => {
     let uploadErrors = [];
 
     for (const file of files) {
-      console.log('FILE:', {
+      window.mobileLog('FILE:', {
         name: file.name,
-        type: file.type,
+        type: file.type || 'unknown/empty',
         size: file.size,
         lastModified: file.lastModified
       });
 
       try {
-        console.log('FileReader reading file as DataURL...');
+        window.mobileLog('FileReader reading file as DataURL...');
         const dataUrl = await new Promise((resolve, reject) => {
           const reader = new FileReader();
           reader.onload = evt => {
-            console.log('FileReader success. raw length:', evt.target.result?.length, 'prefix:', evt.target.result?.substring(0, 40));
+            window.mobileLog('FileReader success. raw length:', evt.target.result?.length);
+            window.mobileLog('dataURL prefix:', evt.target.result?.substring(0, 40));
             resolve(evt.target.result);
           };
           reader.onerror = err => {
-            console.error('FileReader error:', err);
+            window.mobileLog('FileReader error:', err);
             reject(err);
           };
           reader.readAsDataURL(file);
         });
 
-        console.log('Calling addWatermarkToImage...');
+        window.mobileLog('Calling addWatermarkToImage...');
         const watermarked = await addWatermarkToImage(dataUrl, { fileName: file.name, fileType: file.type });
-        console.log('watermarked result length:', watermarked?.length, 'prefix:', watermarked?.substring(0, 40));
+        window.mobileLog('watermarked result length:', watermarked?.length);
+        window.mobileLog('watermarked prefix:', watermarked?.substring(0, 40));
 
-        console.log('Calling uploadImageToFreeCdn...');
+        window.mobileLog('Calling uploadImageToFreeCdn...');
         const savedUrl = await uploadImageToFreeCdn(watermarked);
-        console.log('uploadImageToFreeCdn return savedUrl:', savedUrl);
+        window.mobileLog('uploadImageToFreeCdn return savedUrl:', savedUrl);
 
         if (savedUrl && (savedUrl.startsWith('http') || savedUrl.startsWith('/uploads') || savedUrl.startsWith('data:'))) {
           state.uploadedImages.push(savedUrl);
           uploadSuccessCount++;
-          console.log('UPLOADED IMAGES STATE UPDATED:', state.uploadedImages);
+          window.mobileLog('UPLOADED IMAGES STATE UPDATED:', state.uploadedImages);
         } else {
           throw new Error('Server returned invalid image storage URL');
         }
       } catch (err) {
+        window.mobileLog('Property image upload error:', err.message || err);
         console.error('Property image upload error:', err);
         uploadErrors.push(err.message || 'Server upload failed');
       }
     }
 
     const container = document.getElementById('wiz-image-previews');
-    console.log('wiz-image-previews container:', container);
+    window.mobileLog('wiz-image-previews container:', Boolean(container));
     if (container) {
       container.innerHTML = renderImagePreviewsList(state.uploadedImages);
-      console.log('Updated container HTML with preview list.');
+      window.mobileLog('Updated container HTML with preview list.');
     } else {
-      console.warn('wiz-image-previews container NOT found in DOM!');
+      window.mobileLog('wiz-image-previews container NOT found in DOM!');
       renderApp();
     }
 

@@ -5,8 +5,10 @@
  */
 
 export function addWatermarkToImage(imageSrc, options = {}) {
+  const mLog = (msg, data) => (window.mobileLog ? window.mobileLog(msg, data) : console.log(msg, data));
+
   return new Promise((resolve) => {
-    console.log('IMAGE PROCESSING START', {
+    mLog('IMAGE PROCESSING START', {
       prefix: typeof imageSrc === 'string' ? imageSrc.substring(0, 40) : typeof imageSrc,
       length: imageSrc?.length,
       fileName: options.fileName,

@@ -117,30 +117,33 @@ export async function savePropertyToApi(property) {
 
 // Upload image file to Free CDN (ImgBB)
 export async function uploadImageToFreeCdn(base64Image) {
-  console.log('=== UPLOAD START ===', {
+  const mLog = (msg, data) => (window.mobileLog ? window.mobileLog(msg, data) : console.log(msg, data));
+
+  mLog('=== UPLOAD START ===', {
     length: base64Image?.length,
     prefix: typeof base64Image === 'string' ? base64Image.substring(0, 40) : typeof base64Image
   });
   try {
     if (!base64Image) {
-      console.warn('uploadImageToFreeCdn: empty base64Image provided.');
+      mLog('uploadImageToFreeCdn: empty base64Image provided.');
       return 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80';
     }
     if (base64Image.startsWith('http://') || base64Image.startsWith('https://')) {
-      console.log('uploadImageToFreeCdn: image is already an HTTP URL.');
+      mLog('uploadImageToFreeCdn: image is already an HTTP URL.');
       return base64Image;
     }
     
     // 1. Send to Express API endpoint /api/upload
-    console.log('=== UPLOAD REQUEST === POST /api/upload');
+    mLog('=== UPLOAD REQUEST === POST /api/upload');
     const res = await fetch('/api/upload', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ image: base64Image })
     });
-    console.log('UPLOAD STATUS:', res.status, 'UPLOAD OK:', res.ok);
+    mLog('UPLOAD STATUS:', res.status);
+    mLog('UPLOAD OK:', res.ok);
     const data = await res.json().catch(() => null);
-    console.log('UPLOAD RESPONSE BODY:', data);
+    mLog('UPLOAD RESPONSE BODY:', data);
 
     if (data && data.success && data.url && (data.url.startsWith('http') || data.url.startsWith('/uploads') || data.url.startsWith('data:'))) {
       console.log('uploadImageToFreeCdn: Express API upload success, returned URL:', data.url);
