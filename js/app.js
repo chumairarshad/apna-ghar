@@ -1901,7 +1901,11 @@ function setupEventListeners() {
 
     // Product (Property) Photo Upload Drag/Drop & URL Triggers
     if (e.target.closest('#image-drag-drop-zone')) {
-      document.getElementById('wiz_file_input')?.click();
+      if (e.target.id === 'wiz_file_input' || e.target.id === 'wiz-file-input' || e.target.tagName === 'LABEL' || e.target.closest('label')) {
+        // Label/input click natively handles picker trigger; return to prevent mobile cancellation
+      } else {
+        document.getElementById('wiz_file_input')?.click();
+      }
     }
 
     if (e.target.closest('#add-wiz-image-url-btn')) {
@@ -3161,37 +3165,6 @@ function setupEventListeners() {
 
   // Change Listeners for Selects & Inputs & Photo Uploads
   document.addEventListener('change', (e) => {
-    // Post Property File Upload Listener (#wiz_file_input)
-    if ((e.target.id === 'wiz_file_input' || e.target.id === 'wiz-file-input') && e.target.files?.length > 0) {
-      const files = Array.from(e.target.files);
-      showToast('⏳ Attaching selected property photos...');
-      state.uploadedImages = state.uploadedImages || [];
-
-      let processedCount = 0;
-      files.forEach((file) => {
-        const reader = new FileReader();
-        reader.onload = async (evt) => {
-          const rawBase64 = evt.target.result;
-          try {
-            const watermarked = await addWatermarkToImage(rawBase64);
-            state.uploadedImages.push(watermarked);
-          } catch (err) {
-            state.uploadedImages.push(rawBase64);
-          }
-          processedCount++;
-          if (processedCount === files.length) {
-            showToast(`📸 ${files.length} photo(s) attached successfully!`);
-            const container = document.getElementById('wiz-image-previews');
-            if (container) {
-              container.innerHTML = renderImagePreviewsList(state.uploadedImages);
-            } else {
-              renderApp();
-            }
-          }
-        };
-        reader.readAsDataURL(file);
-      });
-    }
 
     // User Profile Photo Upload Listener
     if ((e.target.id === 'user-profile-photo-input' || e.target.id === 'user-profile-photo-file') && e.target.files?.length > 0) {

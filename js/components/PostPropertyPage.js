@@ -212,7 +212,7 @@ export function renderPostPropertyPage(state) {
                       JPG, PNG files supported. Photos will automatically receive the official <strong>SARMAYADAR VERIFIED</strong> watermark stamp!
                     </p>
                     <label class="btn btn-dark btn-sm" style="display: inline-block; cursor: pointer; padding: 10px 20px; font-weight: 800; border-radius: 8px;">
-                      Choose Files from Computer
+                      Choose Photos from Device / Gallery
                       <input type="file" id="wiz_file_input" multiple accept="image/*" style="display: none;" />
                     </label>
                   </div>
