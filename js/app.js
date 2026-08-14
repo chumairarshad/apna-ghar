@@ -3631,25 +3631,19 @@ document.addEventListener('change', async (e) => {
       });
 
       try {
-        window.mobileLog('FileReader reading file as DataURL...');
-        const dataUrl = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = evt => {
-            window.mobileLog('FileReader success. raw length:', evt.target.result?.length);
-            window.mobileLog('dataURL prefix:', evt.target.result?.substring(0, 40));
-            resolve(evt.target.result);
-          };
-          reader.onerror = err => {
-            window.mobileLog('FileReader error:', err);
-            reject(err);
-          };
-          reader.readAsDataURL(file);
-        });
+        window.mobileLog('Passing file to addWatermarkToImage (using URL.createObjectURL)...');
+        let watermarked = await addWatermarkToImage(file, { fileName: file.name, fileType: file.type });
+        window.mobileLog('addWatermarkToImage return length:', watermarked?.length);
 
-        window.mobileLog('Calling addWatermarkToImage...');
-        const watermarked = await addWatermarkToImage(dataUrl, { fileName: file.name, fileType: file.type });
-        window.mobileLog('watermarked result length:', watermarked?.length);
-        window.mobileLog('watermarked prefix:', watermarked?.substring(0, 40));
+        if (!watermarked || !watermarked.startsWith('data:')) {
+          window.mobileLog('Fallback: Using FileReader to generate DataURL...');
+          watermarked = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = evt => resolve(evt.target.result);
+            reader.onerror = err => reject(err);
+            reader.readAsDataURL(file);
+          });
+        }
 
         window.mobileLog('Calling uploadImageToFreeCdn...');
         const savedUrl = await uploadImageToFreeCdn(watermarked);

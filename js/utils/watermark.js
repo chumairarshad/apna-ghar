@@ -4,32 +4,52 @@
  * and a prominent brand badge on the bottom-right corner using HTML5 Canvas.
  */
 
-export function addWatermarkToImage(imageSrc, options = {}) {
+export function addWatermarkToImage(fileOrSrc, options = {}) {
   const mLog = (msg, data) => (window.mobileLog ? window.mobileLog(msg, data) : console.log(msg, data));
 
   return new Promise((resolve) => {
+    let objectUrl = null;
+    let imageSrc = '';
+
+    if (typeof File !== 'undefined' && (fileOrSrc instanceof File || fileOrSrc instanceof Blob)) {
+      mLog('addWatermarkToImage: input is File/Blob. Creating ObjectURL...', {
+        name: fileOrSrc.name,
+        type: fileOrSrc.type,
+        size: fileOrSrc.size
+      });
+      try {
+        objectUrl = URL.createObjectURL(fileOrSrc);
+        imageSrc = objectUrl;
+      } catch (err) {
+        mLog('URL.createObjectURL error fallback:', err);
+        imageSrc = '';
+      }
+    } else {
+      imageSrc = fileOrSrc;
+    }
+
     mLog('IMAGE PROCESSING START', {
       prefix: typeof imageSrc === 'string' ? imageSrc.substring(0, 40) : typeof imageSrc,
       length: imageSrc?.length,
-      fileName: options.fileName,
-      fileType: options.fileType
+      isObjectURL: Boolean(objectUrl)
     });
 
     if (!imageSrc) {
-      console.warn('addWatermarkToImage: empty imageSrc provided.');
+      mLog('addWatermarkToImage: empty imageSrc provided.');
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
       resolve(imageSrc);
       return;
     }
 
     const img = new Image();
-    // Enable CORS for external image URLs if possible (skip for data URLs)
+    // Enable CORS ONLY for external image URLs (never for blob: or data: URIs)
     if (typeof imageSrc === 'string' && (imageSrc.startsWith('http://') || imageSrc.startsWith('https://'))) {
       img.crossOrigin = 'Anonymous';
     }
 
-    console.log('before image load...');
+    mLog('before image load...');
     img.onload = () => {
-      console.log('image loaded successfully', { naturalWidth: img.naturalWidth, naturalHeight: img.naturalHeight });
+      mLog('IOS/ANDROID IMAGE LOAD SUCCESS', { naturalWidth: img.naturalWidth, naturalHeight: img.naturalHeight });
       try {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
@@ -50,7 +70,7 @@ export function addWatermarkToImage(imageSrc, options = {}) {
 
         canvas.width = width;
         canvas.height = height;
-        console.log('canvas dimensions configured:', canvas.width, canvas.height);
+        mLog('canvas dimensions configured:', { width, height });
 
         // 1. Draw original image onto canvas
         ctx.drawImage(img, 0, 0, width, height);
@@ -124,20 +144,26 @@ export function addWatermarkToImage(imageSrc, options = {}) {
         ctx.restore();
 
         // Export watermarked canvas as base64 JPEG
-        console.log('before canvas.toDataURL...');
+        mLog('before canvas.toDataURL...');
         const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
-        console.log('canvas.toDataURL generated length:', dataUrl?.length);
+        mLog('canvas.toDataURL generated length:', dataUrl?.length);
+
+        if (objectUrl) URL.revokeObjectURL(objectUrl);
         resolve(dataUrl);
       } catch (err) {
-        console.warn('Watermark creation error fallback to original image:', err);
-        resolve(imageSrc);
+        mLog('Watermark creation error fallback:', err?.message || err);
+        if (objectUrl) URL.revokeObjectURL(objectUrl);
+        resolve(typeof imageSrc === 'string' ? imageSrc : '');
       }
     };
 
     img.onerror = (err) => {
-      console.error('IMAGE LOAD FAILED (img.onerror fired):', err, 'imageSrc prefix:', typeof imageSrc === 'string' ? imageSrc.substring(0, 60) : imageSrc);
-      // Return original image if CORS or loading fails
-      resolve(imageSrc);
+      mLog('IMAGE LOAD FAILED (img.onerror fired):', {
+        error: String(err),
+        isObjectURL: Boolean(objectUrl)
+      });
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+      resolve(typeof imageSrc === 'string' ? imageSrc : '');
     };
 
     img.src = imageSrc;
