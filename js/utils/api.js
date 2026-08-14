@@ -130,7 +130,7 @@ export async function uploadImageToFreeCdn(base64Image) {
       body: JSON.stringify({ image: base64Image })
     });
     const data = await res.json().catch(() => null);
-    if (data && data.success && data.url && data.url.startsWith('http')) {
+    if (data && data.success && data.url && (data.url.startsWith('http') || data.url.startsWith('/uploads') || data.url.startsWith('data:'))) {
       return data.url;
     }
 

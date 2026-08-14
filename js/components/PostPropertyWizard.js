@@ -194,15 +194,15 @@ function renderWizardStep4(prop, uploadedImages = []) {
         <i data-lucide="image" style="width:16px; height:16px; vertical-align:middle; color:var(--emerald-teal);"></i> Upload Property Photos <span style="color:red;">* Required (At least 1 photo)</span>
       </label>
 
-      <div id="image-drag-drop-zone" style="border:2px dashed var(--emerald-teal); border-radius:12px; padding:2rem 1.5rem; text-align:center; background:var(--cream); cursor:pointer; transition:all 0.2s ease;">
-        <div style="width:48px; height:48px; border-radius:50%; background:rgba(30,123,89,0.12); display:inline-flex; align-items:center; justify-content:center; margin-bottom:0.75rem;">
+      <div id="image-drag-drop-zone" style="position: relative; overflow: hidden; border:2px dashed var(--emerald-teal); border-radius:12px; padding:2rem 1.5rem; text-align:center; background:var(--cream); cursor:pointer; transition:all 0.2s ease;">
+        <input type="file" id="wiz_file_input" accept="image/*" multiple style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10;" />
+        <div style="width:48px; height:48px; border-radius:50%; background:rgba(30,123,89,0.12); display:inline-flex; align-items:center; justify-content:center; margin-bottom:0.75rem; position: relative; z-index: 1;">
           <i data-lucide="upload-cloud" style="width:24px; height:24px; color:var(--emerald-teal);"></i>
         </div>
-        <p style="font-weight:700; color:var(--ink); margin-bottom:0.25rem; font-size:0.95rem;">
-          Drag & drop images here, or <span style="color:var(--emerald-teal); text-decoration:underline;">Browse PC Gallery</span>
+        <p style="font-weight:700; color:var(--ink); margin-bottom:0.25rem; font-size:0.95rem; position: relative; z-index: 1;">
+          Drag & drop images here, or <span style="color:var(--emerald-teal); text-decoration:underline;">Browse Device Gallery</span>
         </p>
-        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Select photos from your device gallery (JPG, PNG, WebP)</span>
-        <input type="file" id="wiz_file_input" accept="image/*" multiple style="display:none;" />
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block; position: relative; z-index: 1;">Select photos from your device gallery (JPG, PNG, WebP)</span>
       </div>
 
       <div style="margin-top:0.75rem; display:flex; gap:8px;">

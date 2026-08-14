@@ -3613,7 +3613,7 @@ document.addEventListener('change', async (e) => {
         const watermarked = await addWatermarkToImage(dataUrl);
         const savedUrl = await uploadImageToFreeCdn(watermarked);
 
-        if (savedUrl && (savedUrl.startsWith('http') || savedUrl.startsWith('/uploads'))) {
+        if (savedUrl && (savedUrl.startsWith('http') || savedUrl.startsWith('/uploads') || savedUrl.startsWith('data:'))) {
           state.uploadedImages.push(savedUrl);
           uploadSuccessCount++;
         } else {

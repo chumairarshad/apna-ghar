@@ -203,18 +203,18 @@ export function renderPostPropertyPage(state) {
                     Step 4: Upload Property Photos & Auto-Watermark
                   </h3>
 
-                  <div id="image-drag-drop-zone" style="border: 3px dashed var(--forest); background: var(--cream); border-radius: 16px; padding: 2.5rem 1.5rem; text-align: center; cursor: pointer; margin-bottom: 1.5rem; transition: all 0.2s;">
-                    <div style="font-size: 3rem; margin-bottom: 0.5rem;">📸</div>
-                    <h4 style="font-size: 1.1rem; font-weight: 800; color: var(--forest-dk); margin-bottom: 0.25rem;">
+                  <div id="image-drag-drop-zone" style="position: relative; overflow: hidden; border: 3px dashed var(--forest); background: var(--cream); border-radius: 16px; padding: 2.5rem 1.5rem; text-align: center; cursor: pointer; margin-bottom: 1.5rem; transition: all 0.2s;">
+                    <input type="file" id="wiz_file_input" multiple accept="image/*" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10;" />
+                    <div style="font-size: 3rem; margin-bottom: 0.5rem; position: relative; z-index: 1;">📸</div>
+                    <h4 style="font-size: 1.1rem; font-weight: 800; color: var(--forest-dk); margin-bottom: 0.25rem; position: relative; z-index: 1;">
                       Drag & Drop High-Res Property Photos Here
                     </h4>
-                    <p style="font-size: 0.85rem; color: var(--forest); opacity: 0.8; margin-bottom: 1rem;">
+                    <p style="font-size: 0.85rem; color: var(--forest); opacity: 0.8; margin-bottom: 1rem; position: relative; z-index: 1;">
                       JPG, PNG files supported. Photos will automatically receive the official <strong>SARMAYADAR VERIFIED</strong> watermark stamp!
                     </p>
-                    <label class="btn btn-dark btn-sm" style="display: inline-block; cursor: pointer; padding: 10px 20px; font-weight: 800; border-radius: 8px;">
+                    <div class="btn btn-dark btn-sm" style="display: inline-block; cursor: pointer; padding: 10px 20px; font-weight: 800; border-radius: 8px; position: relative; z-index: 1; pointer-events: none;">
                       Choose Photos from Device / Gallery
-                      <input type="file" id="wiz_file_input" multiple accept="image/*" style="display: none;" />
-                    </label>
+                    </div>
                   </div>
 
                   <div id="wiz-image-previews">

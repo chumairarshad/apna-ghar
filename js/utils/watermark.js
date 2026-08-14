@@ -12,8 +12,10 @@ export function addWatermarkToImage(imageSrc, options = {}) {
     }
 
     const img = new Image();
-    // Enable CORS for external image URLs if possible
-    img.crossOrigin = 'Anonymous';
+    // Enable CORS for external image URLs if possible (skip for data URLs)
+    if (typeof imageSrc === 'string' && (imageSrc.startsWith('http://') || imageSrc.startsWith('https://'))) {
+      img.crossOrigin = 'Anonymous';
+    }
 
     img.onload = () => {
       try {
