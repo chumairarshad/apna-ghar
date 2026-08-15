@@ -321,15 +321,17 @@ export function renderAdvertiseInvoice(state) {
             <div>
               <!-- Sarmayadar Brand Logo -->
               <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
-                <svg viewBox="0 0 100 100" fill="none" style="width:42px; height:42px;">
-                  <rect width="100" height="100" rx="14" fill="#064E3B"/>
-                  <path d="M50 18L18 45V82H82V45L50 18Z" fill="#FAF1DE"/>
-                  <path d="M50 25L26 46V76H74V46L50 25Z" fill="#064E3B"/>
-                  <circle cx="50" cy="46" r="10" fill="#F2A71B"/>
-                  <path d="M42 76V58H58V76H42Z" fill="#D1266E"/>
+                <svg viewBox="0 0 100 100" fill="none" style="width:42px; height:42px; flex-shrink:0;">
+                  <path d="M12 84V38L50 12L88 38V84" stroke="#083818" stroke-width="7" stroke-linecap="square" stroke-linejoin="miter"/>
+                  <rect x="42.5" y="24" width="6" height="6" rx="0.5" fill="#F59E0B"/>
+                  <rect x="51.5" y="24" width="6" height="6" rx="0.5" fill="#F59E0B"/>
+                  <rect x="42.5" y="33" width="6" height="6" rx="0.5" fill="#F59E0B"/>
+                  <rect x="51.5" y="33" width="6" height="6" rx="0.5" fill="#F59E0B"/>
+                  <path d="M20 50L45 64V82L20 96V50Z" fill="#083818"/>
+                  <path d="M55 64L80 50V96L55 82V64Z" fill="#008A3C"/>
                 </svg>
                 <div>
-                  <div style="font-size:1.6rem; font-weight:900; color:#064E3B; letter-spacing:-0.02em;">SARMAYA<span style="color:#F59E0B;">DAR</span></div>
+                  <div style="font-size:1.6rem; font-weight:900; color:#083818; letter-spacing:-0.02em;">SARMAYA<span style="color:#008A3C;">DAR</span></div>
                   <div style="font-size:0.75rem; font-weight:700; color:#64748B; text-transform:uppercase; letter-spacing:0.08em;">Pakistan Premier Real Estate Portal</div>
                 </div>
               </div>

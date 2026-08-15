@@ -51,11 +51,13 @@ export function renderDashboardSystem(rawProperties, state) {
 
           <a href="#" class="profolio-brand-logo" id="dash-brand-logo">
             <svg class="logo-mark" viewBox="0 0 100 100" fill="none" style="width:32px; height:32px; flex-shrink:0;">
-              <rect width="100" height="100" rx="14" fill="#064E3B"/>
-              <path d="M50 18L18 45V82H82V45L50 18Z" fill="#FAF1DE"/>
-              <path d="M50 25L26 46V76H74V46L50 25Z" fill="#064E3B"/>
-              <circle cx="50" cy="46" r="10" fill="#F2A71B"/>
-              <path d="M42 76V58H58V76H42Z" fill="#D1266E"/>
+              <path d="M12 84V38L50 12L88 38V84" stroke="#083818" stroke-width="7" stroke-linecap="square" stroke-linejoin="miter"/>
+              <rect x="42.5" y="24" width="6" height="6" rx="0.5" fill="#F59E0B"/>
+              <rect x="51.5" y="24" width="6" height="6" rx="0.5" fill="#F59E0B"/>
+              <rect x="42.5" y="33" width="6" height="6" rx="0.5" fill="#F59E0B"/>
+              <rect x="51.5" y="33" width="6" height="6" rx="0.5" fill="#F59E0B"/>
+              <path d="M20 50L45 64V82L20 96V50Z" fill="#083818"/>
+              <path d="M55 64L80 50V96L55 82V64Z" fill="#008A3C"/>
             </svg>
             <span class="profolio-brand-text">SARMAYA<span>DAR</span></span>
           </a>
@@ -92,11 +94,13 @@ export function renderDashboardSystem(rawProperties, state) {
           <div class="profolio-sidebar-header-mobile">
             <div class="sidebar-mobile-brand">
               <svg class="logo-mark" viewBox="0 0 100 100" fill="none" style="width:28px; height:28px;">
-                <rect width="100" height="100" rx="14" fill="#064E3B"/>
-                <path d="M50 18L18 45V82H82V45L50 18Z" fill="#FAF1DE"/>
-                <path d="M50 25L26 46V76H74V46L50 25Z" fill="#064E3B"/>
-                <circle cx="50" cy="46" r="10" fill="#F2A71B"/>
-                <path d="M42 76V58H58V76H42Z" fill="#D1266E"/>
+                <path d="M12 84V38L50 12L88 38V84" stroke="#083818" stroke-width="7" stroke-linecap="square" stroke-linejoin="miter"/>
+                <rect x="42.5" y="24" width="6" height="6" rx="0.5" fill="#F59E0B"/>
+                <rect x="51.5" y="24" width="6" height="6" rx="0.5" fill="#F59E0B"/>
+                <rect x="42.5" y="33" width="6" height="6" rx="0.5" fill="#F59E0B"/>
+                <rect x="51.5" y="33" width="6" height="6" rx="0.5" fill="#F59E0B"/>
+                <path d="M20 50L45 64V82L20 96V50Z" fill="#083818"/>
+                <path d="M55 64L80 50V96L55 82V64Z" fill="#008A3C"/>
               </svg>
               <span class="profolio-brand-text-sm">SARMAYA<span>DAR</span></span>
             </div>

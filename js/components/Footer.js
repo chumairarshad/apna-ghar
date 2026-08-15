@@ -10,12 +10,15 @@ export function renderFooter() {
           <div class="footer-brand">
             <div style="display:flex; align-items:center; gap:10px; margin-bottom:1rem;">
               <svg width="36" height="36" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="100" height="100" rx="14" fill="#faf1de"/>
-                <path d="M50 18L18 45V82H82V45L50 18Z" fill="#131d0c"/>
-                <circle cx="50" cy="46" r="10" fill="#f2a71b"/>
-                <path d="M42 76V58H58V76H42Z" fill="#d1266e"/>
+                <path d="M12 84V38L50 12L88 38V84" stroke="#FFFFFF" stroke-width="7" stroke-linecap="square" stroke-linejoin="miter"/>
+                <rect x="42.5" y="24" width="6" height="6" rx="0.5" fill="#F59E0B"/>
+                <rect x="51.5" y="24" width="6" height="6" rx="0.5" fill="#F59E0B"/>
+                <rect x="42.5" y="33" width="6" height="6" rx="0.5" fill="#F59E0B"/>
+                <rect x="51.5" y="33" width="6" height="6" rx="0.5" fill="#F59E0B"/>
+                <path d="M20 50L45 64V82L20 96V50Z" fill="#10B981"/>
+                <path d="M55 64L80 50V96L55 82V64Z" fill="#34D399"/>
               </svg>
-              <h2 style="font-family:var(--font-display); font-size:1.4rem; color:var(--paper); margin:0;">SARMAYA<span style="color:var(--rani);">DAR</span></h2>
+              <h2 style="font-family:var(--font-display); font-size:1.4rem; color:var(--paper); margin:0;">SARMAYA<span style="color:#34D399;">DAR</span></h2>
             </div>
             <p>${t('footer_tagline', "Pakistan's most trusted digital real estate portal & dealer network.")}</p>
             

@@ -540,10 +540,10 @@
   z-index: 2;
 }
 
-/* Mobile View Specific Hero Search Optimization (320px–430px) */
+/* Mobile View Specific Hero Search Optimization (320px–480px) */
 @media (max-width: 768px) {
   .hero-section {
-    padding: 0.85rem 0 1.5rem !important;
+    padding: 0.75rem 0 1.25rem !important;
     min-height: auto !important;
     width: 100% !important;
     overflow: hidden !important;
@@ -551,7 +551,7 @@
 
   .hero-section .container,
   .hero-content {
-    padding: 0 14px !important; /* Equal left & right margins (14px) */
+    padding: 0 10px !important;
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
@@ -563,13 +563,13 @@
   }
 
   .hero-badge {
-    padding: 2px 10px !important;
+    padding: 2px 8px !important;
     font-size: 0.65rem !important;
     margin-bottom: 0.25rem !important;
   }
 
   .hero-title {
-    font-size: 1.4rem !important;
+    font-size: clamp(1.25rem, 5.5vw, 1.65rem) !important;
     line-height: 1.2 !important;
     margin-bottom: 0.15rem !important;
   }
@@ -578,35 +578,50 @@
   .search-engine-box {
     width: 100% !important;
     max-width: 100% !important;
-    padding: 14px 12px !important;
-    border-radius: 16px !important;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12) !important;
+    padding: 12px 10px !important;
+    border-radius: 14px !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
     margin: 0 auto !important;
     border: 1.5px solid #239c32 !important;
     background: #FFFFFF !important;
     box-sizing: border-box !important;
-    overflow: hidden !important;
   }
 
   /* Purpose Tabs */
   .search-tabs-container {
     display: flex !important;
-    gap: 6px !important;
-    margin-bottom: 12px !important;
-    padding-bottom: 6px !important;
+    gap: 4px !important;
+    margin-bottom: 10px !important;
+    padding-bottom: 4px !important;
     width: 100% !important;
     box-sizing: border-box !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .search-tabs-container::-webkit-scrollbar {
+    display: none !important;
   }
 
   .search-tab {
-    flex: 1 !important;
+    flex: 1 1 0px !important;
     min-width: 0 !important;
     justify-content: center !important;
-    padding: 10px 4px !important;
-    font-size: 0.88rem !important;
+    padding: 8px 4px !important;
+    font-size: 0.78rem !important;
     font-weight: 700 !important;
-    border-radius: 10px !important;
+    border-radius: 8px !important;
     box-sizing: border-box !important;
+    gap: 4px !important;
+    white-space: nowrap !important;
+  }
+
+  .search-tab svg {
+    width: 13px !important;
+    height: 13px !important;
+    flex-shrink: 0 !important;
   }
 
   .search-tab.active {
@@ -618,36 +633,44 @@
 
   /* AI Search Engine Box */
   .ai-search-container-box {
-    padding: 12px !important;
-    margin-bottom: 12px !important;
+    padding: 10px 8px !important;
+    margin-bottom: 10px !important;
     background: #F0FDF4 !important;
     border: 1.5px solid #86EFAC !important;
-    border-radius: 14px !important;
+    border-radius: 12px !important;
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
-    overflow: hidden !important;
   }
 
   .ai-header-label {
     display: flex !important;
     align-items: center !important;
-    gap: 8px !important;
+    gap: 6px !important;
     margin-bottom: 8px !important;
     width: 100% !important;
   }
 
+  .ai-icon-badge {
+    width: 22px !important;
+    height: 22px !important;
+  }
+
   .ai-title {
-    font-size: 0.88rem !important;
+    font-size: 0.82rem !important;
     color: #15803D !important;
     font-weight: 800 !important;
     line-height: 1.25 !important;
     margin: 0 !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 4px !important;
   }
 
   .ai-subtitle-tag {
-    display: block !important;
-    font-size: 0.74rem !important;
+    display: inline-block !important;
+    font-size: 0.68rem !important;
     color: #475569 !important;
     font-weight: 500 !important;
   }
@@ -656,7 +679,7 @@
   .ai-main-input-wrap {
     display: flex !important;
     flex-direction: column !important;
-    gap: 8px !important;
+    gap: 6px !important;
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
@@ -673,7 +696,7 @@
 
   .ai-search-input-icon {
     position: absolute !important;
-    left: 12px !important;
+    left: 10px !important;
     top: 50% !important;
     transform: translateY(-50%) !important;
     display: flex !important;
@@ -688,18 +711,17 @@
     width: 100% !important;
     max-width: 100% !important;
     min-width: 0 !important;
-    height: 46px !important; /* 44-48px required height */
-    font-size: 0.86rem !important;
+    height: 44px !important;
+    font-size: 0.84rem !important;
     font-weight: 500 !important;
-    border-radius: 10px !important;
-    padding: 0 12px 0 36px !important; /* Search icon inset */
+    border-radius: 8px !important;
+    padding: 0 10px 0 32px !important;
     background: #FFFFFF !important;
     color: #0F172A !important;
     border: 1.5px solid #CBD5E1 !important;
     box-sizing: border-box !important;
     text-overflow: ellipsis !important;
     white-space: nowrap !important;
-    overflow: hidden !important;
   }
 
   .ai-main-input-wrap input:focus,
@@ -712,11 +734,11 @@
   .btn-ai-search {
     width: 100% !important;
     max-width: 100% !important;
-    height: 46px !important; /* 44-48px required height */
+    height: 44px !important;
     justify-content: center !important;
-    font-size: 0.92rem !important;
+    font-size: 0.88rem !important;
     font-weight: 800 !important;
-    border-radius: 10px !important;
+    border-radius: 8px !important;
     background: linear-gradient(135deg, #239C32 0%, #1B7A30 100%) !important;
     box-shadow: 0 3px 10px rgba(35, 156, 50, 0.25) !important;
     box-sizing: border-box !important;
@@ -724,40 +746,85 @@
 
   .ai-quick-prompts {
     display: flex !important;
-    gap: 6px !important;
+    gap: 5px !important;
     flex-wrap: wrap !important;
-    margin-top: 8px !important;
+    margin-top: 6px !important;
     align-items: center !important;
     width: 100% !important;
   }
 
   .prompt-chip-label {
-    font-size: 0.72rem !important;
+    font-size: 0.68rem !important;
     color: #475569 !important;
     font-weight: 700 !important;
+    width: 100% !important;
+    margin-bottom: 2px !important;
   }
 
   .ai-sample-prompt-btn {
-    font-size: 0.75rem !important;
-    padding: 4px 10px !important;
-    border-radius: 16px !important;
+    font-size: 0.72rem !important;
+    padding: 4px 8px !important;
+    border-radius: 14px !important;
     box-sizing: border-box !important;
+    white-space: normal !important;
+    text-align: left !important;
+    line-height: 1.25 !important;
   }
 
   /* Filters Dropdown Grid */
   .search-filters-grid {
     grid-template-columns: 1fr !important;
-    gap: 8px !important;
+    gap: 6px !important;
     width: 100% !important;
     box-sizing: border-box !important;
   }
 
+  .filter-group label {
+    font-size: 0.72rem !important;
+    gap: 4px !important;
+  }
+
   .filter-select {
-    height: 46px !important;
-    font-size: 0.88rem !important;
-    font-weight: 700 !important;
-    border-radius: 10px !important;
+    height: 42px !important;
+    font-size: 0.84rem !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
     width: 100% !important;
     box-sizing: border-box !important;
+  }
+
+  .hero-actions {
+    margin-top: 0.85rem !important;
+    gap: 8px !important;
+    width: 100% !important;
+    flex-direction: column !important;
+  }
+
+  .btn-hero-primary,
+  .btn-hero-secondary {
+    width: 100% !important;
+    padding: 10px 14px !important;
+    font-size: 0.88rem !important;
+    justify-content: center !important;
+  }
+}
+
+@media (max-width: 375px) {
+  .hero-section .container,
+  .hero-content {
+    padding: 0 6px !important;
+  }
+
+  .search-engine-box {
+    padding: 10px 6px !important;
+  }
+
+  .ai-search-container-box {
+    padding: 8px 6px !important;
+  }
+
+  .search-tab {
+    font-size: 0.74rem !important;
+    padding: 6px 2px !important;
   }
 }

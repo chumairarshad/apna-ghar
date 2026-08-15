@@ -250,25 +250,25 @@ header.site-header {
 
 .logo-word {
   font-family: var(--font-display);
-  font-weight: 800;
+  font-weight: 900;
   font-size: 1.25rem;
-  color: var(--forest-dk);
+  color: #083818;
   line-height: 1;
   letter-spacing: -0.02em;
 }
 
 .logo-word span {
-  color: var(--rani);
+  color: #008A3C;
 }
 
 .logo-tagline {
   font-family: var(--font-mono);
   font-size: 0.58rem;
-  color: var(--meadow);
+  color: #16A34A;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
   margin-top: 2px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 /* Navigation Links (Centered) */
@@ -507,18 +507,6 @@ header.site-header {
   color: #059669;
 }
 
-@media (max-width: 480px) {
-  .user-header-name-text,
-  .lang-code-text {
-    display: none !important; /* Hide long text labels on tiny screens so header buttons fit nicely */
-  }
-
-  .btn-header-profile,
-  .btn-header-lang {
-    padding: 5px 8px !important;
-  }
-}
-
 @media (max-width: 1024px) {
   .main-nav {
     display: none;
@@ -544,10 +532,30 @@ header.site-header {
     display: none !important;
   }
 
+  .header-inner {
+    padding: 8px 0;
+    gap: 0.5rem;
+  }
+
+  .logo-mark {
+    width: 32px;
+    height: 32px;
+  }
+
+  .logo-word {
+    font-size: 1.15rem;
+  }
+
+  .header-actions {
+    gap: 6px;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
   .btn-header-profile {
-    padding: 5px 10px;
-    font-size: 0.73rem;
-    max-width: 135px;
+    padding: 5px 8px;
+    font-size: 0.72rem;
+    max-width: 110px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -570,33 +578,6 @@ header.site-header {
     gap: 0.25rem;
   }
 
-  .header-actions {
-    gap: 0.4rem;
-  }
-}
-
-/* ==========================================================
-   MOBILE BOTTOM NAVIGATION BAR (OLX PAKISTAN STYLE)
-   ========================================================== */
-.mobile-bottom-nav {
-  display: none;
-  /* Hidden on desktop screens */
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 60px;
-  background: linear-gradient(180deg, #14521f 0%, #131d0c 100%);
-  /* Sarmayadar website theme forest green */
-  border-top: 2px solid var(--marigold, #f2a71b);
-  z-index: 99999;
-  padding: 0 2px;
-  box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-}
-
-@media (max-width: 768px) {
   .mobile-bottom-nav {
     display: flex !important;
     align-items: center;
@@ -605,13 +586,85 @@ header.site-header {
 
   /* Prevent page content/footer obscuration on mobile devices */
   body {
-    padding-bottom: 68px !important;
+    padding-bottom: 70px !important;
   }
 
   /* Position floating AI Chatbot Launcher above bottom navbar on mobile */
   #ai-chatbot-widget-container {
-    bottom: 75px !important;
-    right: 15px !important;
+    bottom: calc(65px + env(safe-area-inset-bottom, 0px)) !important;
+    right: 12px !important;
+  }
+
+  #toggle-ai-chat-btn {
+    width: 48px !important;
+    height: 48px !important;
+    box-shadow: 0 6px 18px rgba(209, 38, 110, 0.4) !important;
+  }
+
+  #toggle-ai-chat-btn svg {
+    width: 22px !important;
+    height: 22px !important;
+  }
+
+  #ai-chatbot-drawer {
+    width: calc(100vw - 24px) !important;
+    max-width: 380px !important;
+    right: -4px !important;
+    bottom: 56px !important;
+    height: 75vh !important;
+    max-height: calc(100dvh - 130px) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .user-header-name-text,
+  .lang-code-text {
+    display: none !important; /* Hide long text labels on tiny screens so header buttons fit nicely */
+  }
+
+  .header-inner {
+    padding: 6px 0;
+    gap: 0.35rem;
+  }
+
+  .logo-mark {
+    width: 28px;
+    height: 28px;
+  }
+
+  .logo-word {
+    font-size: 1.05rem;
+  }
+
+  .btn-header-profile,
+  .btn-header-lang {
+    padding: 4px 6px !important;
+    font-size: 0.72rem !important;
+  }
+
+  .mobile-hamburger-btn {
+    padding: 5px 8px !important;
+    margin-left: 2px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .logo-word {
+    font-size: 0.95rem;
+  }
+
+  .header-actions {
+    gap: 4px;
+  }
+
+  #ai-chatbot-widget-container {
+    bottom: 64px !important;
+    right: 8px !important;
+  }
+
+  #toggle-ai-chat-btn {
+    width: 44px !important;
+    height: 44px !important;
   }
 }
 

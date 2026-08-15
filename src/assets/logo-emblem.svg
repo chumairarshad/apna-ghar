@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" width="100%" height="100%">
+  <!-- Peaked House Contour -->
+  <path d="M12 84V38L50 12L88 38V84" stroke="#083818" stroke-width="7" stroke-linecap="square" stroke-linejoin="miter"/>
+  <!-- 4-Pane Golden Window -->
+  <rect x="42.5" y="24" width="6" height="6" rx="0.5" fill="#F59E0B"/>
+  <rect x="51.5" y="24" width="6" height="6" rx="0.5" fill="#F59E0B"/>
+  <rect x="42.5" y="33" width="6" height="6" rx="0.5" fill="#F59E0B"/>
+  <rect x="51.5" y="33" width="6" height="6" rx="0.5" fill="#F59E0B"/>
+  <!-- Left Column (Dark Forest Green) -->
+  <path d="M20 50L45 64V82L20 96V50Z" fill="#083818"/>
+  <!-- Right Column (Vibrant Pakistan Green) -->
+  <path d="M55 64L80 50V96L55 82V64Z" fill="#008A3C"/>
+</svg>

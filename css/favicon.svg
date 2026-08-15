@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" width="100%" height="100%">
+  <!-- Rounded Background Container for Favicon Visibility -->
+  <rect width="100" height="100" rx="20" fill="#FFFFFF"/>
+  <!-- Peaked House Contour -->
+  <path d="M14 82V40L50 16L86 40V82" stroke="#083818" stroke-width="7" stroke-linecap="square" stroke-linejoin="miter"/>
+  <!-- 4-Pane Golden Window -->
+  <rect x="43" y="27" width="5.5" height="5.5" rx="0.5" fill="#F59E0B"/>
+  <rect x="51.5" y="27" width="5.5" height="5.5" rx="0.5" fill="#F59E0B"/>
+  <rect x="43" y="35.5" width="5.5" height="5.5" rx="0.5" fill="#F59E0B"/>
+  <rect x="51.5" y="35.5" width="5.5" height="5.5" rx="0.5" fill="#F59E0B"/>
+  <!-- Left Column (Dark Forest Green) -->
+  <path d="M22 51L45 64V80L22 93V51Z" fill="#083818"/>
+  <!-- Right Column (Vibrant Pakistan Green) -->
+  <path d="M55 64L78 51V93L55 80V64Z" fill="#008A3C"/>
+</svg>
