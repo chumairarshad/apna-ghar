@@ -123,10 +123,10 @@
   <!-- App Mounting Shell -->
   <div id="app"></div>
 
-  <!-- Entry Script (Cache Busted v3.5.0) -->
-  <script type="module" src="/js/app.js?v=3.5.0"></script>
+  <!-- Entry Script (Cache Busted v3.6.0) -->
+  <script type="module" src="/js/app.js?v=3.6.0"></script>
 
-  <!-- Fail-Safe Fallback Script for Instant Shell Rendering -->
+  <!-- Fail-Safe Fallback Script for Instant Shell Rendering & Preloader Dismissal -->
   <script>
     setTimeout(function() {
       var appEl = document.getElementById('app');
@@ -137,7 +137,13 @@
           window.renderApp();
         }
       }
-    }, 250);
+      var preloader = document.getElementById('bismillah-preloader');
+      if (preloader && appEl && appEl.children && appEl.children.length > 0) {
+        preloader.style.opacity = '0';
+        preloader.style.visibility = 'hidden';
+        setTimeout(function() { try { preloader.remove(); } catch(e) {} }, 500);
+      }
+    }, 800);
   </script>
 </body>
 

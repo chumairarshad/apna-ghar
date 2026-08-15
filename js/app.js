@@ -81,68 +81,81 @@ const TAB_SLUG_MAP = {
   'register': '/register'
 };
 
-function getSavedActiveTab() {
-  if (typeof window !== 'undefined') {
-    const validTabs = ['buy', 'rent', 'projects', 'featured', 'tools', 'agents', 'blogs', 'advertise', 'advertise-checkout', 'advertise-invoice', 'dealer', 'dashboard', 'admin', 'admin-login', 'dealer-login', 'property-detail', 'post-property', 'blog-detail', 'privacy', 'terms', 'fbr-tax-guide', 'compare', 'login', 'register'];
-
-    let pathname = window.location.pathname.toLowerCase().replace(/\/$/, '');
-    if (pathname === '/featured') return 'featured';
-    if (pathname === '/advertise') return 'advertise';
-    if (pathname === '/advertise/checkout') return 'advertise-checkout';
-    if (pathname === '/advertise/invoice') return 'advertise-invoice';
-    if (pathname === '/admin-login') return 'admin-login';
-    if (pathname === '/dealer-login') return 'dealer-login';
-    if (pathname === '/dashboard' || pathname === '/dealer') return 'dealer';
-    if (pathname === '/admin' || pathname === '/dealer/admin') return 'admin';
-    if (pathname === '/post-property') return 'post-property';
-    if (pathname === '/rent') return 'rent';
-    if (pathname === '/projects') return 'projects';
-    if (pathname === '/tools') return 'tools';
-    if (pathname === '/agents') return 'agents';
-    if (pathname === '/blogs') return 'blogs';
-    if (pathname === '/privacy') return 'privacy';
-    if (pathname === '/terms') return 'terms';
-    if (pathname === '/fbr-tax-guide') return 'fbr-tax-guide';
-    if (pathname === '/compare') return 'compare';
-    if (pathname === '/login') return 'login';
-    if (pathname === '/register') return 'register';
-    if (pathname.startsWith('/property/')) {
-      state.selectedPropertyId = pathname.split('/property/')[1];
-      return 'property-detail';
-    }
-    if (pathname.startsWith('/blog/')) {
-      state.selectedArticleId = pathname.split('/blog/')[1];
-      return 'blog-detail';
-    }
-
-    const hash = window.location.hash.replace('#', '').toLowerCase();
-    if (hash === 'featured') return 'featured';
-    if (hash === 'advertise') return 'advertise';
-    if (hash === 'advertise-checkout') return 'advertise-checkout';
-    if (hash === 'advertise-invoice') return 'advertise-invoice';
-    if (hash === 'admin-login') return 'admin-login';
-    if (hash === 'dealer-login') return 'dealer-login';
-    if (hash === 'admin' || hash === 'dealer/admin') return 'admin';
-    if (hash === 'dealer' || hash === 'dashboard') return 'dealer';
-    if (hash.startsWith('property/')) {
-      state.selectedPropertyId = hash.split('property/')[1];
-      return 'property-detail';
-    }
-    if (hash.startsWith('blog/')) {
-      state.selectedArticleId = hash.split('blog/')[1];
-      return 'blog-detail';
-    }
-    if (hash === 'post-property') return 'post-property';
-    if (hash === 'privacy') return 'privacy';
-    if (hash === 'terms') return 'terms';
-    if (hash === 'fbr-tax-guide') return 'fbr-tax-guide';
-    if (hash === 'compare') return 'compare';
-    if (hash === 'login') return 'login';
-    if (hash === 'register') return 'register';
-
-    if (validTabs.includes(hash)) return hash;
+function getInitialRouteInfo() {
+  if (typeof window === 'undefined') {
+    return { tab: 'buy', propertyId: null, articleId: null };
   }
-  return 'buy';
+
+  let pathname = window.location.pathname.toLowerCase().replace(/\/$/, '');
+  const hash = window.location.hash.replace('#', '').toLowerCase();
+
+  // Dynamic route extraction for property details
+  if (pathname.startsWith('/property/')) {
+    const pId = pathname.split('/property/')[1];
+    return { tab: 'property-detail', propertyId: pId, articleId: null };
+  }
+  if (hash.startsWith('property/')) {
+    const pId = hash.split('property/')[1];
+    return { tab: 'property-detail', propertyId: pId, articleId: null };
+  }
+
+  // Dynamic route extraction for blog details
+  if (pathname.startsWith('/blog/')) {
+    const aId = pathname.split('/blog/')[1];
+    return { tab: 'blog-detail', propertyId: null, articleId: aId };
+  }
+  if (hash.startsWith('blog/')) {
+    const aId = hash.split('blog/')[1];
+    return { tab: 'blog-detail', propertyId: null, articleId: aId };
+  }
+
+  // Exact path matches
+  if (pathname === '/featured') return { tab: 'featured', propertyId: null, articleId: null };
+  if (pathname === '/advertise') return { tab: 'advertise', propertyId: null, articleId: null };
+  if (pathname === '/advertise/checkout') return { tab: 'advertise-checkout', propertyId: null, articleId: null };
+  if (pathname === '/advertise/invoice') return { tab: 'advertise-invoice', propertyId: null, articleId: null };
+  if (pathname === '/admin-login') return { tab: 'admin-login', propertyId: null, articleId: null };
+  if (pathname === '/dealer-login') return { tab: 'dealer-login', propertyId: null, articleId: null };
+  if (pathname === '/dashboard' || pathname === '/dealer') return { tab: 'dealer', propertyId: null, articleId: null };
+  if (pathname === '/admin' || pathname === '/dealer/admin') return { tab: 'admin', propertyId: null, articleId: null };
+  if (pathname === '/post-property') return { tab: 'post-property', propertyId: null, articleId: null };
+  if (pathname === '/rent') return { tab: 'rent', propertyId: null, articleId: null };
+  if (pathname === '/projects') return { tab: 'projects', propertyId: null, articleId: null };
+  if (pathname === '/tools') return { tab: 'tools', propertyId: null, articleId: null };
+  if (pathname === '/agents') return { tab: 'agents', propertyId: null, articleId: null };
+  if (pathname === '/blogs') return { tab: 'blogs', propertyId: null, articleId: null };
+  if (pathname === '/privacy') return { tab: 'privacy', propertyId: null, articleId: null };
+  if (pathname === '/terms') return { tab: 'terms', propertyId: null, articleId: null };
+  if (pathname === '/fbr-tax-guide') return { tab: 'fbr-tax-guide', propertyId: null, articleId: null };
+  if (pathname === '/compare') return { tab: 'compare', propertyId: null, articleId: null };
+  if (pathname === '/login') return { tab: 'login', propertyId: null, articleId: null };
+  if (pathname === '/register') return { tab: 'register', propertyId: null, articleId: null };
+
+  // Exact hash matches
+  if (hash === 'featured') return { tab: 'featured', propertyId: null, articleId: null };
+  if (hash === 'advertise') return { tab: 'advertise', propertyId: null, articleId: null };
+  if (hash === 'advertise-checkout') return { tab: 'advertise-checkout', propertyId: null, articleId: null };
+  if (hash === 'advertise-invoice') return { tab: 'advertise-invoice', propertyId: null, articleId: null };
+  if (hash === 'admin-login') return { tab: 'admin-login', propertyId: null, articleId: null };
+  if (hash === 'dealer-login') return { tab: 'dealer-login', propertyId: null, articleId: null };
+  if (hash === 'admin' || hash === 'dealer/admin') return { tab: 'admin', propertyId: null, articleId: null };
+  if (hash === 'dealer' || hash === 'dashboard') return { tab: 'dealer', propertyId: null, articleId: null };
+  if (hash === 'post-property') return { tab: 'post-property', propertyId: null, articleId: null };
+  if (hash === 'privacy') return { tab: 'privacy', propertyId: null, articleId: null };
+  if (hash === 'terms') return { tab: 'terms', propertyId: null, articleId: null };
+  if (hash === 'fbr-tax-guide') return { tab: 'fbr-tax-guide', propertyId: null, articleId: null };
+  if (hash === 'compare') return { tab: 'compare', propertyId: null, articleId: null };
+  if (hash === 'login') return { tab: 'login', propertyId: null, articleId: null };
+  if (hash === 'register') return { tab: 'register', propertyId: null, articleId: null };
+
+  const validTabs = ['buy', 'rent', 'projects', 'featured', 'tools', 'agents', 'blogs', 'advertise', 'advertise-checkout', 'advertise-invoice', 'dealer', 'dashboard', 'admin', 'admin-login', 'dealer-login', 'property-detail', 'post-property', 'blog-detail', 'privacy', 'terms', 'fbr-tax-guide', 'compare', 'login', 'register'];
+  if (validTabs.includes(hash)) return { tab: hash, propertyId: null, articleId: null };
+
+  return { tab: 'buy', propertyId: null, articleId: null };
+}
+
+function getSavedActiveTab() {
+  return getInitialRouteInfo().tab || 'buy';
 }
 
 function setActiveTab(tabName) {
@@ -153,7 +166,15 @@ function setActiveTab(tabName) {
     localStorage.setItem('Sarmayadar_active_tab', tabName);
     
     // Update URL path using Clean Slugs without #
-    const slugPath = TAB_SLUG_MAP[tabName] || `/${tabName}`;
+    let slugPath = TAB_SLUG_MAP[tabName] || `/${tabName}`;
+    if (tabName === 'property-detail') {
+      const pId = state.selectedPropertyId || (state.selectedProperty ? state.selectedProperty.id : null);
+      if (pId) slugPath = `/property/${pId}`;
+    } else if (tabName === 'blog-detail') {
+      const bId = state.selectedArticleId || (state.selectedArticle ? state.selectedArticle.id : null);
+      if (bId) slugPath = `/blog/${bId}`;
+    }
+
     if (window.location.pathname !== slugPath) {
       window.history.pushState({ tab: tabName }, '', slugPath);
     }
@@ -163,17 +184,24 @@ function setActiveTab(tabName) {
 // Window Popstate Listener for Browser Back/Forward navigation
 if (typeof window !== 'undefined') {
   window.addEventListener('popstate', () => {
-    const targetTab = getSavedActiveTab();
-    state.activeTab = targetTab;
+    const route = getInitialRouteInfo();
+    state.activeTab = route.tab;
+    if (route.propertyId) state.selectedPropertyId = route.propertyId;
+    if (route.articleId) state.selectedArticleId = route.articleId;
     renderApp();
   });
 }
+
+const initialRoute = getInitialRouteInfo();
 
 // Application State
 const state = {
   properties: [],
   editingProperty: null,
-  activeTab: getSavedActiveTab(), // buy | rent | projects | tools | agents | dealer | blogs | advertise
+  activeTab: initialRoute.tab || 'buy', // buy | rent | projects | tools | agents | dealer | blogs | advertise
+  selectedPropertyId: initialRoute.propertyId || null,
+  selectedArticleId: initialRoute.articleId || null,
+  selectedProperty: null,
   currency: 'PKR',
   unit: 'Marla',
   viewMode: 'grid', // grid | map
@@ -326,6 +354,7 @@ const ARTICLES_DB = [
 ];
 
 window.renderApp = renderApp;
+window.initApp = initApp;
 
 let appInitialized = false;
 
@@ -376,11 +405,11 @@ async function initApp() {
   // Hashchange listener for browser back/forward and URL navigation
   window.addEventListener('hashchange', () => {
     try {
-      const hash = window.location.hash.replace('#', '').toLowerCase();
-      const path = window.location.pathname.toLowerCase();
-      const validTabs = ['buy', 'rent', 'projects', 'featured', 'tools', 'agents', 'blogs', 'advertise', 'advertise-checkout', 'advertise-invoice', 'dealer', 'dashboard', 'admin', 'admin-login', 'dealer-login', 'property-detail', 'post-property', 'blog-detail', 'privacy', 'terms', 'fbr-tax-guide', 'compare', 'login', 'register'];
-      if (validTabs.includes(hash) && state.activeTab !== hash) {
-        setActiveTab(hash);
+      const route = getInitialRouteInfo();
+      if (state.activeTab !== route.tab) {
+        state.activeTab = route.tab;
+        if (route.propertyId) state.selectedPropertyId = route.propertyId;
+        if (route.articleId) state.selectedArticleId = route.articleId;
         renderApp();
       }
     } catch (err) {}
@@ -391,10 +420,10 @@ async function initApp() {
     setupEventListeners();
   } catch (err) {
     console.error('Fatal renderApp error:', err);
+  } finally {
+    // Trigger Bismillah Preloader progress and smooth fade out
+    triggerSplashAnimation();
   }
-
-  // Trigger Bismillah Preloader progress and smooth fade out
-  triggerSplashAnimation();
 
   // Fetch latest properties live from Neon PostgreSQL Database
   try {
@@ -403,8 +432,8 @@ async function initApp() {
       const existingIds = new Set(dbProperties.map(p => p.id));
       const remainingLocal = state.properties.filter(p => !existingIds.has(p.id));
       state.properties = [...dbProperties, ...remainingLocal];
-      // Only re-render catalog views to prevent interrupting active forms like post-property
-      if (state.activeTab === 'buy' || state.activeTab === 'rent' || state.activeTab === 'featured') {
+      // Re-render catalog or detail views so database properties display on direct load/refresh
+      if (state.activeTab === 'buy' || state.activeTab === 'rent' || state.activeTab === 'featured' || state.activeTab === 'property-detail') {
         renderApp();
       }
     }
