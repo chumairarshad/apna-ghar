@@ -47,14 +47,14 @@ export function renderAuthPage(type, state) {
                 <label style="display: block; font-family: var(--font-mono); font-size: 0.75rem; font-weight: 800; color: var(--forest-dk); text-transform: uppercase; margin-bottom: 0.4rem;">
                   Full Name / Agency Name *
                 </label>
-                <input type="text" id="auth-page-fullname" class="form-control" placeholder="e.g. Apex Real Estate Agency" style="padding: 0.75rem; font-weight: 700;" required />
+                <input type="text" id="auth-page-fullname" class="form-control" placeholder="e.g. Apex Real Estate Agency" value="${state.authPreFillName || ''}" style="padding: 0.75rem; font-weight: 700;" required />
               </div>
 
               <div class="form-group" style="margin-bottom: 1.1rem;">
                 <label style="display: block; font-family: var(--font-mono); font-size: 0.75rem; font-weight: 800; color: var(--forest-dk); text-transform: uppercase; margin-bottom: 0.4rem;">
                   Mobile / WhatsApp Number *
                 </label>
-                <input type="tel" id="auth-page-phone" class="form-control" placeholder="+92 300 1234567" style="padding: 0.75rem; font-weight: 700;" required />
+                <input type="tel" id="auth-page-phone" class="form-control" placeholder="+92 300 1234567" value="${state.authPreFillPhone || ''}" style="padding: 0.75rem; font-weight: 700;" required />
               </div>
             ` : ''}
 

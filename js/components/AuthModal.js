@@ -93,11 +93,11 @@ export function renderAuthModal(state) {
               ${isRegister ? `
                 <div class="form-group" style="margin-bottom: 1rem;">
                   <label style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--forest-dk); text-transform: uppercase;">${t('full_name_label', 'Full Name / Agency Name')} *</label>
-                  <input type="text" id="auth-full-name" class="form-control" placeholder="${selectedRole === 'ADMIN' ? 'e.g. System Administrator' : 'e.g. Apex Real Estate Agency'}" value="" required />
+                  <input type="text" id="auth-full-name" class="form-control" placeholder="${selectedRole === 'ADMIN' ? 'e.g. System Administrator' : 'e.g. Apex Real Estate Agency'}" value="${state.authPreFillName || ''}" required />
                 </div>
                 <div class="form-group" style="margin-bottom: 1rem;">
                   <label style="font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--forest-dk); text-transform: uppercase;">${t('phone_label', 'Mobile Phone (+92)')} *</label>
-                  <input type="tel" id="auth-phone-num" class="form-control" placeholder="+92 300 1234567" value="" required />
+                  <input type="tel" id="auth-phone-num" class="form-control" placeholder="+92 300 1234567" value="${state.authPreFillPhone || ''}" required />
                 </div>
               ` : ''}
 

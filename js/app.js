@@ -70,6 +70,7 @@ const TAB_SLUG_MAP = {
   'dealer-login': '/dealer-login',
   'admin-login': '/admin-login',
   'dealer': '/dashboard',
+  'dashboard': '/dashboard',
   'admin': '/admin',
   'post-property': '/post-property',
   'privacy': '/privacy',
@@ -2773,6 +2774,11 @@ function setupEventListeners() {
             return;
           }
 
+          // Store prefilled state so inputs are preserved if any re-render occurs
+          state.authPreFillName = nameInput;
+          state.authPreFillPhone = phoneInput;
+          state.authPreFillEmail = emailInput;
+
           (async () => {
             try {
               const res = await fetch('/api/auth/register', {
@@ -2820,30 +2826,30 @@ function setupEventListeners() {
                 localStorage.setItem('Sarmayadar_jwt_token', JSON.stringify(userObj));
                 state.user = userObj;
 
+                // Clear temporary prefill state on successful account creation
+                state.authPreFillEmail = '';
+                state.authPreFillName = '';
+                state.authPreFillPhone = '';
+
                 if (!processPendingListing(userObj)) {
                   state.showAuthModal = false;
                   state.authMode = 'login';
                   state.authIsRegister = false;
                   state.authIsSignup = false;
-                  state.activeTab = 'dashboard';
                   state.dashboardTab = 'dashboard';
-                  if (window.location.hash !== '#dashboard') history.replaceState(null, '', '#dashboard');
+                  setActiveTab('dealer');
                   showToast(`🎉 Account created & saved to database! Welcome, ${userObj.name}.`);
                   renderApp();
                 }
               } else if (data && data.message) {
-                if (typeof data.message === 'string' && data.message.toLowerCase().includes('already exists')) {
-                  showToast(`⚠️ Account already exists for ${emailInput}! Switching to Sign In...`);
-                  state.authMode = 'login';
-                  state.authIsRegister = false;
-                  state.authIsSignup = false;
-                  state.authPreFillEmail = emailInput;
-                  renderApp();
+                const msg = typeof data.message === 'string' ? data.message : 'Registration failed.';
+                if (msg.toLowerCase().includes('already exists') || msg.toLowerCase().includes('already registered')) {
+                  showToast('⚠️ Email is already registered. Please sign in or use a different email.');
                 } else {
-                  showToast(`❌ Registration Failed: ${data.message}`);
+                  showToast(`❌ Registration Failed: ${msg}`);
                 }
               } else {
-                showToast(`❌ Database Error (${res.status}): Registration failed.`);
+                showToast(`❌ Registration Failed (${res.status}): Please check your information and try again.`);
               }
             } catch (err) {
               console.error('Register fetch error:', err);
@@ -3935,8 +3941,12 @@ async function handleAdminPageLogin(emailInput, passwordInput) {
       }
     } else if (e.target.id === 'email-auth-form' || e.target.closest('#email-auth-form')) {
       e.preventDefault();
+      const submitBtn = document.getElementById('auth-submit-btn');
+      if (submitBtn) submitBtn.click();
     } else if (e.target.id === 'auth-page-native-form' || e.target.closest('#auth-page-native-form')) {
       e.preventDefault();
+      const submitBtn = document.getElementById('auth-page-submit-btn');
+      if (submitBtn) submitBtn.click();
     } else if (e.target.id === 'forgot-password-form' || e.target.closest('#forgot-password-form')) {
       e.preventDefault();
       const submitBtn = document.getElementById('auth-forgot-submit-btn');
