@@ -39,6 +39,7 @@ import { renderLegalModal } from './components/LegalModal.js';
 import { renderMobileBottomNav } from './components/MobileBottomNav.js';
 import { renderBlogsPage } from './components/BlogsPage.js';
 import { renderAdvertisePage } from './components/AdvertisePage.js';
+import { renderAdvertiseCheckout, renderAdvertiseInvoice } from './components/AdvertiseCheckout.js';
 import { renderPushNotificationBanner, initPushBannerEvents } from './components/PushNotificationBanner.js';
 import { registerServiceWorker, togglePushNotifications } from './utils/pushClient.js';
 import { parsePropertySizeFromQuery, formatWhatsAppSizeMessage } from './utils/sizeParser.js';
@@ -271,6 +272,12 @@ const state = {
 
 // Initialize i18n Localization Engine & RTL state
 initI18n(state);
+
+if (typeof window !== 'undefined') {
+  window.appState = state;
+  window.state = state;
+  window.setActiveTab = setActiveTab;
+}
 
 const ARTICLES_DB = [
   {
