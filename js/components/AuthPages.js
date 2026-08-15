@@ -1,4 +1,5 @@
 import { renderIcon } from '../utils/icons.js';
+import { renderGoogleAuthButton } from '../utils/googleAuth.js';
 
 export function renderAuthPage(type, state) {
   const isRegister = type === 'register';
@@ -36,6 +37,9 @@ export function renderAuthPage(type, state) {
               ${renderIcon('user-plus', 14)} Register Account
             </button>
           </div>
+
+          <!-- Google Sign-In -->
+          ${renderGoogleAuthButton(isRegister ? 'Sign up with Google' : 'Continue with Google', 'auth-page-google-btn')}
 
           <form id="auth-page-native-form">
             ${isRegister ? `

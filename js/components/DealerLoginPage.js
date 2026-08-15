@@ -1,4 +1,5 @@
 import { renderIcon } from '../utils/icons.js';
+import { renderGoogleAuthButton } from '../utils/googleAuth.js';
 
 export function renderDealerLoginPage(state) {
   const isLoggedInDealer = state.user && state.user.role === 'DEALER';
@@ -43,6 +44,9 @@ export function renderDealerLoginPage(state) {
               </button>
             </div>
           ` : `
+            <!-- Google Sign-In for Dealers -->
+            ${renderGoogleAuthButton('Continue with Google', 'dealer-page-google-btn')}
+
             <form id="dealer-page-login-form">
               <div style="background: #ECFDF5; border-left: 4px solid #059669; padding: 0.85rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.85rem; color: #064E3B; line-height: 1.5;">
                 💼 Welcome! Sign in with your registered <strong>Dealer Account</strong> credentials to manage property listings, lead inquiries, and subscription quotas.

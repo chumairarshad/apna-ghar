@@ -51,8 +51,8 @@ import { renderBlogDetailPage } from './components/BlogDetailPage.js';
 import { renderLegalPage } from './components/LegalPages.js';
 import { renderPropertyComparerPage } from './components/PropertyComparerPage.js';
 import { renderAuthPage } from './components/AuthPages.js';
-import { renderAdvertiseCheckout, renderAdvertiseInvoice } from './components/AdvertiseCheckout.js';
 import { renderFeaturedPage } from './components/FeaturedPage.js';
+import { initGoogleIdentityServices, triggerGooglePrompt } from './utils/googleAuth.js';
 
 // Tab Persistence Helper Functions (Hash & LocalStorage Sync)
 // Clean URL Slugs Map
@@ -441,6 +441,13 @@ async function initApp() {
       }
     });
   }
+
+  // Pre-initialize Google Identity Services if client ID is configured
+  try {
+    initGoogleIdentityServices((credential) => {
+      window.dispatchEvent(new CustomEvent('google-credential-received', { detail: credential }));
+    }).catch(() => {});
+  } catch (err) {}
 
   // Check URL Query Parameters for direct property detail link from push notification
   try {
@@ -2440,6 +2447,97 @@ function setupEventListeners() {
         return true;
       }
       return false;
+    }
+
+    async function handleGoogleAuthCredential(idToken) {
+      if (!idToken) return;
+      try {
+        showToast('⏳ Verifying Google Account...');
+        const res = await fetch('/api/auth/google', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ credential: idToken })
+        });
+
+        const rawText = await res.text().catch(() => '');
+        let apiData = null;
+        try {
+          apiData = JSON.parse(rawText);
+        } catch (e) {
+          apiData = { success: false, message: rawText || `Server status ${res.status}` };
+        }
+
+        if (res.ok && apiData && apiData.success && apiData.user && apiData.token) {
+          const userObj = {
+            userId: apiData.user.id,
+            name: apiData.user.name,
+            email: apiData.user.email,
+            role: apiData.user.role,
+            phone: apiData.user.phone || '',
+            agencyName: apiData.user.agencyName || apiData.user.name,
+            avatar: apiData.user.avatar || null,
+            badge: apiData.user.badge || 'VERIFIED',
+            city: apiData.user.city || 'Lahore',
+            token: apiData.token,
+            issuedAt: Date.now(),
+            expiresAt: Date.now() + (48 * 60 * 60 * 1000)
+          };
+
+          saveStoredUser({
+            email: userObj.email,
+            name: userObj.name,
+            phone: userObj.phone,
+            role: userObj.role,
+            agencyName: userObj.agencyName
+          });
+
+          localStorage.setItem('Sarmayadar_jwt_token', JSON.stringify(userObj));
+          state.user = userObj;
+
+          if (!processPendingListing(userObj)) {
+            state.showAuthModal = false;
+            state.authMode = 'login';
+            state.authIsRegister = false;
+            state.authIsSignup = false;
+            if (state.activeTab === 'login' || state.activeTab === 'register' || state.activeTab === 'dealer-login') {
+              state.activeTab = 'dashboard';
+              state.dashboardTab = 'dashboard';
+              if (window.location.hash !== '#dashboard') history.replaceState(null, '', '#dashboard');
+            }
+            showToast(`🎉 Welcome, ${userObj.name}! Signed in with Google.`);
+            renderApp();
+          }
+        } else {
+          const errMsg = apiData?.message || 'Google authentication failed.';
+          showToast(`❌ ${errMsg}`);
+        }
+      } catch (err) {
+        console.error('Google Auth Exception:', err);
+        showToast(`❌ Connection Error: ${err.message || 'Could not connect to authentication server'}`);
+      }
+    }
+
+    if (!window._googleAuthListenerAttached) {
+      window.addEventListener('google-credential-received', (evt) => {
+        if (evt && evt.detail) {
+          handleGoogleAuthCredential(evt.detail);
+        }
+      });
+      window._googleAuthListenerAttached = true;
+    }
+
+    // Google Sign-In Trigger Button Click
+    if (e.target.closest('#modal-google-auth-btn') || e.target.closest('#auth-page-google-btn') || e.target.closest('.btn-google-auth')) {
+      e.preventDefault();
+      triggerGooglePrompt(
+        (credential) => {
+          handleGoogleAuthCredential(credential);
+        },
+        (errMsg) => {
+          showToast(`⚠️ ${errMsg}`);
+        }
+      );
+      return;
     }
 
     // Forgot Password Form Submit

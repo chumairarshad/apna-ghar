@@ -141,6 +141,11 @@ export async function initDb() {
       -- Add Migration Columns safely
       ALTER TABLE users ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'active';
       ALTER TABLE users ADD COLUMN IF NOT EXISTS is_suspended BOOLEAN DEFAULT FALSE;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS google_id VARCHAR(255) UNIQUE;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar TEXT;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS auth_provider VARCHAR(50) DEFAULT 'local';
+      ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL;
+      ALTER TABLE users ALTER COLUMN phone DROP NOT NULL;
       ALTER TABLE dealer_subscriptions ADD COLUMN IF NOT EXISTS assigned_by_admin_id UUID REFERENCES users(id);
     `);
 

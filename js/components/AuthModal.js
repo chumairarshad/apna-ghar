@@ -1,5 +1,6 @@
 import { renderIcon } from '../utils/icons.js';
 import { t } from '../utils/i18n.js';
+import { renderGoogleAuthButton } from '../utils/googleAuth.js';
 
 export function renderAuthModal(state) {
   const isVisible = state.showAuthModal || false;
@@ -47,6 +48,9 @@ export function renderAuthModal(state) {
                 ${renderIcon('user-plus', 14)} ${t('btn_submit_register', 'Register')}
               </button>
             </div>
+
+            <!-- Modern Google Sign-In Integration -->
+            ${renderGoogleAuthButton(isRegister ? 'Sign up with Google' : 'Continue with Google', 'modal-google-auth-btn')}
           ` : ''}
 
           ${isForgot ? `

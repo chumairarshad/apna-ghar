@@ -2,11 +2,13 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
+import { OAuth2Client } from 'google-auth-library';
 import { pool } from '../db.js';
 import { authenticateToken } from '../middleware.js';
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'Sarmayadar_super_secret_jwt_key_2026_48h';
+const googleClient = new OAuth2Client();
 
 // 1. Register API
 // Body: { name, email, password, phone, role: 'DEALER' | 'ADMIN', agencyName, city }
@@ -297,5 +299,157 @@ router.post(['/profile', '/api/auth/profile'], async (req, res) => {
   }
 });
 
+// 6. PUBLIC AUTH CONFIG API (/config)
+router.get(['/config', '/api/auth/config'], (req, res) => {
+  res.json({
+    success: true,
+    googleClientId: process.env.GOOGLE_CLIENT_ID || ''
+  });
+});
+
+// 7. GOOGLE OAUTH SIGN-IN / REGISTER API (/google)
+// Body: { credential: 'google_id_token' }
+router.post(['/google', '/api/auth/google'], async (req, res) => {
+  try {
+    const idToken = req.body.credential || req.body.idToken || req.body.token;
+
+    if (!idToken) {
+      return res.status(400).json({ success: false, message: 'Google ID token credential is required.' });
+    }
+
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    if (!clientId) {
+      return res.status(500).json({
+        success: false,
+        message: 'Google Sign-In is not configured on the server. Please define GOOGLE_CLIENT_ID in your environment variables.'
+      });
+    }
+
+    // Verify token cryptographically against Google's public keys
+    let payload;
+    try {
+      const ticket = await googleClient.verifyIdToken({
+        idToken: idToken,
+        audience: clientId
+      });
+      payload = ticket.getPayload();
+    } catch (verifyErr) {
+      console.error('❌ [Google Auth Verification Failed]:', verifyErr.message);
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid or expired Google authentication credential. Please try again.'
+      });
+    }
+
+    if (!payload || !payload.email) {
+      return res.status(400).json({ success: false, message: 'Google account did not supply a verified email address.' });
+    }
+
+    const googleId = payload.sub;
+    const normalizedEmail = payload.email.toLowerCase().trim();
+    const name = payload.name || payload.given_name || 'Google User';
+    const picture = payload.picture || null;
+
+    console.log(`🔍 [Google Auth] Received token for email: ${normalizedEmail} (sub: ${googleId})`);
+
+    // 1. Search existing user by google_id
+    let result = await pool.query('SELECT * FROM users WHERE google_id = $1', [googleId]);
+    let user = result.rows[0];
+
+    // 2. If not found by google_id, search by normalized email
+    if (!user) {
+      const emailResult = await pool.query('SELECT * FROM users WHERE LOWER(email) = LOWER($1)', [normalizedEmail]);
+      if (emailResult.rows.length > 0) {
+        user = emailResult.rows[0];
+        console.log(`🔗 [Google Auth] Existing user found by email: ${normalizedEmail}. Linking google_id.`);
+        
+        const updateSql = `
+          UPDATE users 
+          SET google_id = $1, 
+              avatar = COALESCE(avatar, $2),
+              is_verified = TRUE,
+              updated_at = CURRENT_TIMESTAMP
+          WHERE id = $3
+          RETURNING *
+        `;
+        const updated = await pool.query(updateSql, [googleId, picture, user.id]);
+        user = updated.rows[0];
+      }
+    }
+
+    // 3. If no user exists, create new account with 'USER' role
+    if (!user) {
+      console.log(`✨ [Google Auth] Creating new user account for: ${normalizedEmail}`);
+      const newUserId = crypto.randomUUID();
+      const insertSql = `
+        INSERT INTO users (
+          id, full_name, email, password_hash, phone, role, 
+          agency_name, city, badge, is_verified, google_id, avatar, auth_provider, status, is_suspended
+        ) VALUES (
+          $1, $2, $3, NULL, '', 'USER', 
+          $4, 'Lahore', 'VERIFIED', TRUE, $5, $6, 'google', 'active', FALSE
+        ) RETURNING *
+      `;
+      const inserted = await pool.query(insertSql, [
+        newUserId,
+        name,
+        normalizedEmail,
+        name,
+        googleId,
+        picture
+      ]);
+      user = inserted.rows[0];
+    }
+
+    // 4. Enforce account status check
+    if (user.is_suspended || user.status === 'suspended' || user.status === 'disabled') {
+      return res.status(403).json({
+        success: false,
+        message: 'Your account has been suspended by system administrator. Please contact support.'
+      });
+    }
+
+    // 5. Generate standard 48-hour JWT token
+    const token = jwt.sign(
+      {
+        userId: user.id,
+        email: user.email,
+        role: user.role,
+        name: user.full_name || user.name
+      },
+      JWT_SECRET,
+      { expiresIn: '48h' }
+    );
+
+    console.log(`✅ [Google Auth Success] User authenticated: ${user.full_name || user.name} (${user.role})`);
+
+    return res.status(200).json({
+      success: true,
+      message: `Welcome, ${user.full_name || user.name}! Signed in with Google.`,
+      token,
+      expiresInHours: 48,
+      user: {
+        id: user.id,
+        name: user.full_name || user.name,
+        email: user.email,
+        phone: user.phone || '',
+        role: user.role,
+        agencyName: user.agency_name || user.agencyName || user.full_name || user.name,
+        city: user.city || 'Lahore',
+        badge: user.badge || 'VERIFIED',
+        avatar: user.avatar || picture || null
+      }
+    });
+
+  } catch (err) {
+    console.error('🔥 [POST /api/auth/google error]:', err);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error during Google authentication. Please try again.'
+    });
+  }
+});
+
 export default router;
+
 
