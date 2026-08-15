@@ -395,3 +395,47 @@ select.form-control {
   letter-spacing: 1px;
   text-transform: uppercase;
 }
+
+/* Ultra Compact Viewports (<= 360px & 317px width, <= 560px height) */
+@media (max-width: 360px), (max-height: 600px) {
+  .modal-overlay {
+    padding: 4px !important;
+  }
+
+  .modal-container {
+    width: calc(100vw - 8px) !important;
+    max-width: 309px !important;
+    max-height: calc(100dvh - 10px) !important;
+    border-radius: 10px !important;
+  }
+
+  .modal-header {
+    padding: 8px 10px !important;
+  }
+
+  .modal-title {
+    font-size: 0.95rem !important;
+  }
+
+  .close-modal-btn {
+    width: 1.85rem !important;
+    height: 1.85rem !important;
+    font-size: 1.1rem !important;
+  }
+
+  .modal-body {
+    padding: 10px 8px !important;
+  }
+
+  .form-control {
+    padding: 7px 9px !important;
+    font-size: 0.88rem !important;
+    min-height: 40px !important;
+  }
+
+  .btn-google-auth {
+    padding: 8px 10px !important;
+    font-size: 0.8rem !important;
+    min-height: 40px !important;
+  }
+}

@@ -112,18 +112,42 @@
   font-size: 1rem;
 }
 
-.map-popup-title {
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--text-main);
-  margin-bottom: 0.35rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 .map-popup-location {
   font-size: 0.73rem;
   color: var(--text-muted);
   margin-bottom: 0.5rem;
+}
+
+/* Ultra Compact Viewports (<= 360px & 317px width, <= 560px height) */
+@media (max-width: 360px) {
+  .map-view-container {
+    height: calc(100dvh - 120px) !important;
+    max-height: 400px !important;
+    border-radius: 8px !important;
+  }
+
+  .map-price-badge {
+    padding: 0.2rem 0.45rem !important;
+    font-size: 0.7rem !important;
+  }
+
+  .leaflet-popup-content {
+    width: 190px !important;
+  }
+
+  .map-popup-img {
+    height: 80px !important;
+  }
+
+  .map-popup-info {
+    padding: 0.5rem !important;
+  }
+
+  .map-popup-price {
+    font-size: 0.88rem !important;
+  }
+
+  .map-popup-title {
+    font-size: 0.75rem !important;
+  }
 }

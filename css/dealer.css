@@ -266,3 +266,52 @@
   font-weight: 600;
   background-color: var(--cream);
 }
+
+/* Ultra Compact Viewports (<= 360px & 317px width, <= 560px height) */
+@media (max-width: 360px) {
+  .dealer-portal-section {
+    padding: 0.75rem 0 60px !important;
+  }
+
+  .dealer-header {
+    padding: 0.75rem 0.5rem !important;
+    gap: 0.65rem !important;
+  }
+
+  .agency-brand-info {
+    gap: 0.65rem !important;
+  }
+
+  .agency-logo-large {
+    width: 2.6rem !important;
+    height: 2.6rem !important;
+  }
+
+  .agency-meta h2 {
+    font-size: 1rem !important;
+  }
+
+  .agency-meta p {
+    font-size: 0.74rem !important;
+  }
+
+  .dealer-kpi-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.35rem !important;
+    margin-bottom: 1rem !important;
+  }
+
+  .kpi-card {
+    padding: 0.55rem 0.35rem !important;
+    gap: 0.4rem !important;
+  }
+
+  .kpi-icon {
+    width: 2rem !important;
+    height: 2rem !important;
+  }
+
+  .kpi-val {
+    font-size: 1.05rem !important;
+  }
+}

@@ -649,22 +649,96 @@ header.site-header {
 }
 
 @media (max-width: 360px) {
+  .header-inner {
+    padding: 4px 0 !important;
+    gap: 3px !important;
+  }
+
+  .logo {
+    gap: 5px !important;
+  }
+
+  .logo-mark {
+    width: 25px !important;
+    height: 25px !important;
+  }
+
   .logo-word {
-    font-size: 0.95rem;
+    font-size: 0.92rem !important;
+  }
+
+  .logo-tagline {
+    font-size: 0.48rem !important;
   }
 
   .header-actions {
-    gap: 4px;
+    gap: 3px !important;
+  }
+
+  .btn-header-profile,
+  .btn-header-lang {
+    padding: 3px 5px !important;
+    font-size: 0.68rem !important;
+  }
+
+  .mobile-hamburger-btn {
+    padding: 4px 6px !important;
+    margin-left: 0 !important;
+  }
+
+  .mobile-bottom-nav {
+    height: 52px !important;
+    padding: 2px 2px calc(2px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .mobile-nav-label {
+    font-size: 0.58rem !important;
+    letter-spacing: -0.2px !important;
+  }
+
+  .mobile-nav-icon {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .mobile-nav-icon svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  .mobile-nav-sell-btn {
+    top: -15px !important;
+    width: 44px !important;
+    height: 44px !important;
+  }
+
+  .sell-label {
+    font-size: 0.58rem !important;
+    margin-bottom: 3px !important;
   }
 
   #ai-chatbot-widget-container {
-    bottom: 64px !important;
-    right: 8px !important;
+    bottom: 58px !important;
+    right: 6px !important;
   }
 
   #toggle-ai-chat-btn {
-    width: 44px !important;
-    height: 44px !important;
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  #toggle-ai-chat-btn svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  #ai-chatbot-drawer {
+    width: calc(100vw - 10px) !important;
+    max-width: 307px !important;
+    right: -2px !important;
+    bottom: 52px !important;
+    height: calc(100dvh - 65px) !important;
+    max-height: 460px !important;
   }
 }
 

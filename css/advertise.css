@@ -1133,3 +1133,60 @@
   color: #4b5563;
   letter-spacing: 0.5px;
 }
+
+/* Ultra Compact Viewports (<= 360px & 317px width, <= 560px height) */
+@media (max-width: 360px) {
+  .packages-grid,
+  .pricing-grid,
+  .advertise-cards-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.65rem !important;
+    width: 100% !important;
+    padding: 0 !important;
+  }
+
+  .package-card,
+  .adv-plan-card {
+    padding: 0.85rem 0.65rem !important;
+    border-radius: 10px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .package-name {
+    font-size: 1rem !important;
+  }
+
+  .package-price-val {
+    font-size: 1.25rem !important;
+  }
+
+  .feature-item {
+    font-size: 0.76rem !important;
+    padding: 3px 0 !important;
+  }
+
+  #printable-invoice-container {
+    padding: 0.85rem 0.5rem !important;
+    border-radius: 10px !important;
+  }
+
+  .invoice-header-meta {
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
+    margin-bottom: 1rem !important;
+  }
+
+  .invoice-header-right {
+    text-align: left !important;
+  }
+
+  .partner-logo-pill {
+    padding: 0.45rem 0.85rem !important;
+  }
+
+  .partner-name {
+    font-size: 0.78rem !important;
+  }
+}

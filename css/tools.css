@@ -169,3 +169,53 @@
   color: var(--marigold) !important;
   font-size: 1.3rem !important;
 }
+
+/* Ultra Compact Viewports (<= 360px & 317px width, <= 560px height) */
+@media (max-width: 360px) {
+  .tool-card-container {
+    padding: 0.75rem 0.5rem !important;
+    border-radius: 10px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .calc-tab-btn {
+    padding: 5px 3px !important;
+    font-size: 0.7rem !important;
+    min-height: 36px !important;
+  }
+
+  .calc-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem !important;
+  }
+
+  .calc-inputs {
+    gap: 0.75rem !important;
+  }
+
+  .calc-group input,
+  .calc-group select {
+    padding: 7px 9px !important;
+    font-size: 0.88rem !important;
+    min-height: 40px !important;
+  }
+
+  .calc-result-box {
+    padding: 0.75rem 0.55rem !important;
+  }
+
+  .calc-result-box h3 {
+    font-size: 1rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+
+  .result-item {
+    padding: 0.5rem 0 !important;
+    font-size: 0.8rem !important;
+  }
+
+  .highlight-val {
+    font-size: 1.1rem !important;
+  }
+}

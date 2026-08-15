@@ -812,19 +812,62 @@
 @media (max-width: 375px) {
   .hero-section .container,
   .hero-content {
-    padding: 0 6px !important;
+    padding: 0 4px !important;
+  }
+
+  .hero-title {
+    font-size: 1.3rem !important;
+    line-height: 1.25 !important;
+    margin-bottom: 0.4rem !important;
+  }
+
+  .hero-subtitle {
+    font-size: 0.78rem !important;
+    margin-bottom: 0.85rem !important;
   }
 
   .search-engine-box {
-    padding: 10px 6px !important;
+    padding: 8px 6px !important;
+    border-radius: 12px !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
   }
 
   .ai-search-container-box {
-    padding: 8px 6px !important;
+    padding: 6px 4px !important;
+  }
+
+  .search-tabs {
+    gap: 2px !important;
+    margin-bottom: 8px !important;
   }
 
   .search-tab {
-    font-size: 0.74rem !important;
-    padding: 6px 2px !important;
+    font-size: 0.7rem !important;
+    padding: 5px 2px !important;
+    min-height: 36px !important;
+    letter-spacing: -0.2px !important;
+  }
+
+  .city-pills-row,
+  .quick-filter-chips {
+    gap: 4px !important;
+    margin-top: 6px !important;
+  }
+
+  .city-pill,
+  .quick-chip {
+    padding: 3px 7px !important;
+    font-size: 0.7rem !important;
+  }
+
+  .hero-form-row {
+    gap: 6px !important;
+  }
+
+  .btn-find-properties {
+    padding: 9px 12px !important;
+    font-size: 0.85rem !important;
+    min-height: 42px !important;
   }
 }

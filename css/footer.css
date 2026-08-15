@@ -99,3 +99,44 @@
   padding-top: 1.5rem;
   margin-top: 2.5rem;
 }
+
+/* Ultra Compact Viewports (<= 360px & 317px width, <= 560px height) */
+@media (max-width: 360px) {
+  .portal-footer {
+    padding: 1.5rem 0 1rem !important;
+    margin-top: 1.5rem !important;
+  }
+
+  .footer-grid {
+    gap: 1.15rem !important;
+  }
+
+  .footer-brand p {
+    font-size: 0.78rem !important;
+    line-height: 1.4 !important;
+  }
+
+  .social-icon-btn {
+    width: 30px !important;
+    height: 30px !important;
+  }
+
+  .footer-col h4 {
+    font-size: 0.74rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  .footer-col a {
+    font-size: 0.78rem !important;
+  }
+
+  .footer-col li {
+    margin-bottom: 0.45rem !important;
+  }
+
+  .footer-bottom {
+    margin-top: 1.25rem !important;
+    padding-top: 0.85rem !important;
+    font-size: 0.72rem !important;
+  }
+}

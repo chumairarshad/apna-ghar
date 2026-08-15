@@ -958,3 +958,71 @@
     padding: 0.65rem 0.35rem;
   }
 }
+
+/* Ultra Compact Viewports (<= 360px & 317px width, <= 560px height) */
+@media (max-width: 360px) {
+  .profolio-topbar {
+    padding: 4px 6px !important;
+    gap: 4px !important;
+  }
+
+  .profolio-brand-logo {
+    gap: 5px !important;
+  }
+
+  .profolio-brand-logo .logo-mark {
+    width: 25px !important;
+    height: 25px !important;
+  }
+
+  .profolio-brand-text {
+    font-size: 0.95rem !important;
+  }
+
+  .portal-link-text,
+  .btn-post-text,
+  .profolio-user-name {
+    display: none !important;
+  }
+
+  .profolio-btn-post {
+    padding: 5px 8px !important;
+  }
+
+  .profolio-user-pill {
+    padding: 3px 5px !important;
+  }
+
+  .profolio-sidebar {
+    width: 275px !important;
+    max-width: 88vw !important;
+    padding: 0.75rem 0.5rem 1.25rem !important;
+  }
+
+  .profolio-content,
+  .dashboard-main-content {
+    padding: 0.5rem 0.35rem 60px !important;
+  }
+
+  .profolio-stats-grid,
+  .dash-kpi-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.4rem !important;
+  }
+
+  .profolio-stat-card,
+  .kpi-card {
+    padding: 0.55rem 0.4rem !important;
+    border-radius: 8px !important;
+  }
+
+  .stat-value,
+  .kpi-number {
+    font-size: 1.1rem !important;
+  }
+
+  .stat-title,
+  .kpi-label {
+    font-size: 0.65rem !important;
+  }
+}
